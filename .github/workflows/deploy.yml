@@ -139,9 +139,6 @@ jobs:
 
           cd "$DEPLOY_DIR"
 
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
           # Minimal .gitignore — only keep genuinely server-side secrets/state.
           cat > .gitignore << 'GITIGNORE'
           .env
@@ -157,6 +154,8 @@ jobs:
           GITIGNORE
 
           git init -b deploy
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git remote add origin \
             "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
