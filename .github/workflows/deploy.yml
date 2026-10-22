@@ -1,0 +1,178 @@
+# Deploys the Laravel application to cPanel over FTP on every push to `main`.
+#
+# Required repository configuration (Settings -> Secrets and variables -> Actions):
+#
+#   Secrets (any of the accepted aliases):
+#     FTP_SERVER   (alias: FTP_HOST)      FTP hostname, e.g. ftp.example.com
+#     FTP_USERNAME (alias: FTP_USER)      cPanel FTP account
+#     FTP_PASSWORD (alias: FTP_PASS)      cPanel FTP password
+#
+#   Variables:
+#     FTP_SERVER_DIR   Absolute path of the Laravel app root on the server,
+#                      e.g. /home/cpaneluser/app/  (MUST end with a slash).
+#                      Defaults to the FTP login directory ("/").
+#     FTP_PORT         Optional, defaults to 21.
+#     FTP_PROTOCOL     Optional: `ftp` (default) or `ftps` (recommended when the
+#                      host supports explicit FTPS).
+#
+# Server layout:
+#   The whole project (including vendor/ and the compiled public/build assets) is
+#   uploaded into FTP_SERVER_DIR, so the public folder ends up at
+#   <FTP_SERVER_DIR>/public. In cPanel point the domain's document root there
+#   (Domains -> Document Root) - do NOT upload the app into public_html.
+#
+#   Files that only exist on the server (.env, storage uploads/logs/caches,
+#   bootstrap caches, the public/storage link) are excluded, so they are neither
+#   uploaded nor deleted. The action tracks what it deployed in the hidden
+#   .ftp-deploy-sync-state.json file inside FTP_SERVER_DIR - keep it, otherwise
+#   the next run does a full first-time publish.
+
+name: Deploy to cPanel (FTP)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Least privilege: the workflow only needs to read the repository.
+permissions:
+  contents: read
+
+# Never let two deployments upload to the same server concurrently.
+concurrency:
+  group: deploy-cpanel-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          # Matches the PHP version required by composer.json (^8.2) and the
+          # version recommended for cPanel.
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, curl, dom, fileinfo, openssl, pdo, pdo_mysql, pdo_sqlite, tokenizer, zip, gd, bcmath, intl
+          coverage: none
+          tools: composer:v2
+
+      - name: Install Composer dependencies (production)
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-progress
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Build front-end assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: Verify build output
+        run: |
+          if [ ! -f public/build/manifest.json ]; then
+            echo "::error::public/build/manifest.json is missing - the Vite build did not complete."
+            exit 1
+          fi
+
+      - name: Resolve deployment target
+        id: target
+        env:
+          FTP_SERVER_DIR: ${{ vars.FTP_SERVER_DIR || './' }}
+        run: |
+          # The action requires the server path to end with a slash.
+          dir="$FTP_SERVER_DIR"
+          case "$dir" in
+            */) ;;
+            *) dir="$dir/" ;;
+          esac
+          echo "server_dir=$dir" >> "$GITHUB_OUTPUT"
+
+      - name: Verify FTP configuration
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER || vars.FTP_SERVER || secrets.FTP_HOST || vars.FTP_HOST }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME || vars.FTP_USERNAME || secrets.FTP_USER || vars.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD || vars.FTP_PASSWORD || secrets.FTP_PASS }}
+        run: |
+          missing=0
+          for name in FTP_SERVER FTP_USERNAME FTP_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "::error::$name is not configured. Add it under Settings -> Secrets and variables -> Actions."
+              missing=1
+            fi
+          done
+          exit "$missing"
+
+      - name: Upload application over FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with:
+          server: ${{ secrets.FTP_SERVER || vars.FTP_SERVER || secrets.FTP_HOST || vars.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME || vars.FTP_USERNAME || secrets.FTP_USER || vars.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD || vars.FTP_PASSWORD || secrets.FTP_PASS }}
+          port: ${{ vars.FTP_PORT || '21' }}
+          protocol: ${{ vars.FTP_PROTOCOL || 'ftp' }}
+          local-dir: ./
+          server-dir: ${{ steps.target.outputs.server_dir }}
+          state-name: .ftp-deploy-sync-state.json
+          # Never wipe the target directory - the server keeps state we do not own.
+          dangerous-clean-slate: false
+          log-level: standard
+          timeout: 120000
+          exclude: |
+            .git/
+            .git/**
+            **/.git/
+            **/.git/**
+            **/node_modules/**
+            .env
+            **/.env
+            .env.*
+            **/.env.*
+            .github/**
+            .idea/**
+            .vscode/**
+            .fleet/**
+            .nova/**
+            .zed/**
+            .freebuff/**
+            .phpunit.cache/**
+            .phpunit.result.cache
+            .auth.json
+            **/*.log
+            **/database/*.sqlite
+            **/storage/*.key
+            **/storage/pail/**
+            **/public/hot
+            **/public/storage
+            **/public/storage/**
+            **/bootstrap/cache/*.php
+            **/tests/**
+            **/phpunit.xml
+            .editorconfig
+            .gitattributes
+
+      - name: Deployment summary
+        if: success()
+        run: |
+          {
+            echo "### Deployed to cPanel"
+            echo ""
+            echo "- Ref: \`${GITHUB_SHA::7}\` on \`${GITHUB_REF_NAME}\`"
+            echo "- Only changed files were uploaded; \`.env\`, uploads, logs and caches on the server were left untouched."
+            echo ""
+            echo "If this release ships migrations, run this once in cPanel Terminal (app root):"
+            echo ""
+            echo '```bash'
+            echo "php artisan migrate --force"
+            echo "php artisan optimize:clear && php artisan optimize"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
