@@ -1,38 +1,21 @@
-# Deploys the Laravel application to cPanel over FTP on every push to `main`.
+# Deploys the Laravel application to cPanel over SSH/rsync on every push to `main`.
 #
 # Required repository configuration (Settings -> Secrets and variables -> Actions):
 #
-#   Secrets (any of the accepted aliases):
-#     FTP_SERVER   (alias: FTP_HOST)      FTP hostname or server IP, BARE value only:
-#                                         e.g. ftp.example.com or 203.0.113.10
-#                                         (no ftp:// scheme, no :port, no path, no
-#                                         spaces/newline - see "Resolve and validate
-#                                         FTP target" below for why)
-#     FTP_USERNAME (alias: FTP_USER)      cPanel FTP account
-#     FTP_PASSWORD (alias: FTP_PASS)      cPanel FTP password
+#   Secrets:
+#     FTP_SERVER   (alias: FTP_HOST)      SSH hostname (same as FTP host in cPanel)
+#     FTP_USERNAME (alias: FTP_USER)      cPanel username
+#     SSH_PRIVATE_KEY                     Private SSH key (ed25519 recommended)
+#                                         Add the matching public key to cPanel:
+#                                         SSH Access -> Manage SSH Keys -> Import Key
 #
 #   Variables:
 #     FTP_SERVER_DIR   Absolute path of the Laravel app root on the server,
 #                      e.g. /home/cpaneluser/app/  (MUST end with a slash).
-#                      Defaults to the FTP login directory ("/").
-#     FTP_PORT         Optional, defaults to 21 (a port embedded in FTP_SERVER is
-#                      honoured when this is unset).
-#     FTP_PROTOCOL     Optional: `ftp` (default) or `ftps` (recommended when the
-#                      host supports explicit FTPS).
-#
-# Server layout:
-#   The whole project (including vendor/ and the compiled public/build assets) is
-#   uploaded into FTP_SERVER_DIR, so the public folder ends up at
-#   <FTP_SERVER_DIR>/public. In cPanel point the domain's document root there
-#   (Domains -> Document Root) - do NOT upload the app into public_html.
-#
-#   Files that only exist on the server (.env, storage uploads/logs/caches,
-#   bootstrap caches, the public/storage link) are excluded, so they are neither
-#   uploaded nor deleted. The action tracks what it deployed in the hidden
-#   .ftp-deploy-sync-state.json file inside FTP_SERVER_DIR - keep it, otherwise
-#   the next run does a full first-time publish.
+#                      Defaults to home directory ("~/").
+#     SSH_PORT         Optional, defaults to 22.
 
-name: Deploy to cPanel (FTP)
+name: Deploy to cPanel (SSH/rsync)
 
 on:
   push:
@@ -100,9 +83,8 @@ jobs:
         id: target
         env:
           RAW_SERVER: ${{ secrets.FTP_SERVER || vars.FTP_SERVER || secrets.FTP_HOST || vars.FTP_HOST }}
-          RAW_SERVER_DIR: ${{ vars.FTP_SERVER_DIR || './' }}
-          RAW_PORT: ${{ vars.FTP_PORT }}
-          RAW_PROTOCOL: ${{ vars.FTP_PROTOCOL }}
+          RAW_SERVER_DIR: ${{ vars.FTP_SERVER_DIR || '~/' }}
+          RAW_PORT: ${{ vars.SSH_PORT || vars.FTP_PORT }}
         run: |
           set -euo pipefail
 
@@ -170,14 +152,14 @@ jobs:
               ;;
           esac
 
-          port="${RAW_PORT:-${explicit_port:-990}}"
+          port="${RAW_PORT:-${explicit_port:-22}}"
           if ! printf '%s' "$port" | grep -Eq '^[0-9]{1,5}$'; then
-            echo "::error::FTP_PORT must be a number (got \"$port\")."
+            echo "::error::SSH_PORT must be a number (got \"$port\")."
             exit 1
           fi
 
-          # The action requires the server path to end with a slash.
-          dir="${RAW_SERVER_DIR:-./}"
+          # Ensure server_dir ends with /
+          dir="${RAW_SERVER_DIR:-~/}"
           case "$dir" in
             */) ;;
             *) dir="$dir/" ;;
@@ -186,17 +168,16 @@ jobs:
           {
             echo "server=$server"
             echo "port=$port"
-            echo "protocol=$protocol"
             echo "server_dir=$dir"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Verify FTP credentials
+      - name: Verify SSH credentials configured
         env:
           FTP_USERNAME: ${{ secrets.FTP_USERNAME || vars.FTP_USERNAME || secrets.FTP_USER || vars.FTP_USER }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD || vars.FTP_PASSWORD || secrets.FTP_PASS }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           missing=0
-          for name in FTP_USERNAME FTP_PASSWORD; do
+          for name in FTP_USERNAME SSH_PRIVATE_KEY; do
             if [ -z "${!name}" ]; then
               echo "::error::$name is not configured. Add it under Settings -> Secrets and variables -> Actions."
               missing=1
@@ -204,53 +185,39 @@ jobs:
           done
           exit "$missing"
 
-      - name: Upload application over FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
-        with:
-          server: ${{ steps.target.outputs.server }}
-          username: ${{ secrets.FTP_USERNAME || vars.FTP_USERNAME || secrets.FTP_USER || vars.FTP_USER }}
-          password: ${{ secrets.FTP_PASSWORD || vars.FTP_PASSWORD || secrets.FTP_PASS }}
-          port: ${{ steps.target.outputs.port }}
-          protocol: ${{ steps.target.outputs.protocol }}
-          local-dir: ./
-          server-dir: ${{ steps.target.outputs.server_dir }}
-          state-name: .ftp-deploy-sync-state.json
-          # Never wipe the target directory - the server keeps state we do not own.
-          dangerous-clean-slate: false
-          log-level: standard
-          timeout: 30000
-          exclude: |
-            .git/
-            .git/**
-            **/.git/
-            **/.git/**
-            **/node_modules/**
-            .env
-            **/.env
-            .env.*
-            **/.env.*
-            .github/**
-            .idea/**
-            .vscode/**
-            .fleet/**
-            .nova/**
-            .zed/**
-            .freebuff/**
-            .phpunit.cache/**
-            .phpunit.result.cache
-            .auth.json
-            **/*.log
-            **/database/*.sqlite
-            **/storage/*.key
-            **/storage/pail/**
-            **/public/hot
-            **/public/storage
-            **/public/storage/**
-            **/bootstrap/cache/*.php
-            **/tests/**
-            **/phpunit.xml
-            .editorconfig
-            .gitattributes
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p ${{ steps.target.outputs.port }} ${{ steps.target.outputs.server }} >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Upload application over SSH (rsync)
+        run: |
+          rsync -avz --delete \
+            -e "ssh -i ~/.ssh/deploy_key -p ${{ steps.target.outputs.port }} -o StrictHostKeyChecking=no" \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='node_modules/' \
+            --exclude='.env' \
+            --exclude='.env.*' \
+            --exclude='storage/logs/' \
+            --exclude='storage/framework/cache/' \
+            --exclude='storage/framework/sessions/' \
+            --exclude='storage/framework/views/' \
+            --exclude='bootstrap/cache/' \
+            --exclude='public/storage' \
+            --exclude='public/hot' \
+            --exclude='.phpunit.result.cache' \
+            --exclude='.freebuff/' \
+            --exclude='tests/' \
+            --exclude='phpunit.xml' \
+            --exclude='.editorconfig' \
+            --exclude='.gitattributes' \
+            --exclude='*.log' \
+            --exclude='database/*.sqlite' \
+            ./ \
+            ${{ secrets.FTP_USERNAME || secrets.FTP_USER }}@${{ steps.target.outputs.server }}:${{ steps.target.outputs.server_dir }}
 
       - name: Deployment summary
         if: success()
