@@ -1,257 +1,117 @@
-# Deploys the Laravel application to cPanel via HTTPS API on every push to `main`.
-# Uses cPanel's File Manager UAPI over HTTPS (port 2083) — bypasses all FTP/SSH firewall blocks.
-#
-# Required repository secrets (Settings -> Secrets and variables -> Actions -> Secrets):
-#   FTP_SERVER   (or FTP_HOST)    cPanel hostname, e.g. server123.stackcp.net
-#   FTP_USERNAME (or FTP_USER)    cPanel username
-#   FTP_PASSWORD (or FTP_PASS)    cPanel password
-#
-# Required repository variable (Settings -> Secrets and variables -> Actions -> Variables):
-#   FTP_SERVER_DIR   Absolute server path to app root, e.g. /home/username/public_html
-#                    (no trailing slash needed). Defaults to /home/<username>/public_html
-#
-# Optional variable:
-#   CPANEL_PORT   cPanel HTTPS port. Defaults to 2083. Try 2096 or 443 if 2083 is blocked.
-
-name: Deploy to cPanel (HTTPS API)
+# Push to main -> live server updates itself over FTP.
+# GitHub installs the PHP packages (vendor/), uploads only the files that changed, then calls
+# https://<site>/deploy-hook so the server runs migrate + erp:install + fresh caches.
+# Repository secrets (GitHub -> Settings -> Secrets and variables -> Actions):
+#   FTP_SERVER      FTP host, e.g. ftp.your-domain.com
+#   FTP_USERNAME    FTP account user, e.g. deploy@your-domain.com
+#   FTP_PASSWORD    FTP account password
+#   FTP_SERVER_DIR  optional, folder of the site as the FTP account sees it, ending in / (default ./)
+#   SITE_URL        optional, e.g. https://erp.your-domain.com (needed for the deploy hook)
+#   DEPLOY_TOKEN    optional, same value as ERP_DEPLOY_TOKEN in the server's .env (needed for the deploy hook)
+name: Deploy to cPanel
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 concurrency:
-  group: deploy-cpanel-production
+  group: deploy-production
   cancel-in-progress: false
 
 jobs:
   deploy:
-    name: Build and deploy
-    runs-on: ubuntu-24.04
-    timeout-minutes: 60
-
+    runs-on: ubuntu-latest
+    env:
+      HAS_FTP: ${{ secrets.FTP_SERVER != '' && secrets.FTP_USERNAME != '' && secrets.FTP_PASSWORD != '' }}
+      HAS_HOOK: ${{ secrets.SITE_URL != '' && secrets.DEPLOY_TOKEN != '' }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
+      - name: Secrets missing
+        if: env.HAS_FTP != 'true'
+        env:
+          S: ${{ secrets.FTP_SERVER != '' }}
+          U: ${{ secrets.FTP_USERNAME != '' }}
+          P: ${{ secrets.FTP_PASSWORD != '' }}
+        run: |
+          echo "FTP_SERVER set: $S | FTP_USERNAME set: $U | FTP_PASSWORD set: $P"
+          echo "::warning::Missing repository secret(s) - deploy skipped. FTP_SERVER=$S FTP_USERNAME=$U FTP_PASSWORD=$P (Settings > Secrets and variables > Actions > Repository secrets)"
 
-      - name: Set up PHP
+      - uses: actions/checkout@v4
+        if: env.HAS_FTP == 'true'
+
+      - name: PHP 8.3
+        if: env.HAS_FTP == 'true'
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
-          extensions: mbstring, xml, ctype, curl, dom, fileinfo, openssl, pdo, pdo_mysql, pdo_sqlite, tokenizer, zip, gd, bcmath, intl
-          coverage: none
+          php-version: '8.3'
+          extensions: mbstring, intl, zip, bcmath, curl, pdo_mysql
           tools: composer:v2
 
-      - name: Install Composer dependencies (production)
-        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-progress
+      - name: Install PHP packages (vendor/)
+        if: env.HAS_FTP == 'true'
+        run: composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v7
+      - name: Stamp the commit (checked by the Health check workflow)
+        if: env.HAS_FTP == 'true'
+        run: echo "$GITHUB_SHA" > public/version.txt
+
+      # erp.sundaybazar.com.pk serves the project folder itself, so the public/ files also go to the root
+      # (works the same if the document root is ever switched to public/)
+      - name: Copy public files to the project root
+        if: env.HAS_FTP == 'true'
+        run: |
+          cp -a public/erp .
+          cp -a public/*.png public/*.ico public/robots.txt public/site.webmanifest public/version.txt .
+          sed "s#__DIR__.'/../#__DIR__.'/#g" public/index.php > index.php
+          grep -q "__DIR__.'/vendor/autoload.php'" index.php
+
+      - name: Upload changed files over FTP
+        if: env.HAS_FTP == 'true'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          node-version: '22'
-          cache: npm
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_SERVER_DIR || './' }}
+          timeout: 600000
+          # .env, uploads, logs and backups on the server are never touched: only files from this repo are sent
+          exclude: |
+            **/.git/**
+            .github/**
+            node_modules/**
+            tests/**
+            legacy/**
+            docs/**
+            .env
+            .phpunit.result.cache
+            phpunit.xml
+            start-erp.bat
 
-      - name: Build front-end assets
-        run: |
-          npm ci
-          npm run build
-
-      - name: Verify build output
-        run: |
-          if [ ! -f public/build/manifest.json ]; then
-            echo "::error::public/build/manifest.json is missing - the Vite build did not complete."
-            exit 1
-          fi
-
-      - name: Resolve deployment target
-        id: target
+      # A folder created by cPanel Git Version Control is 0700: the web server cannot read it and every URL is 404.
+      - name: Fix permissions (folders 755, web files 644)
+        if: env.HAS_FTP == 'true'
+        continue-on-error: true
         env:
-          RAW_SERVER: ${{ secrets.FTP_SERVER || vars.FTP_SERVER || secrets.FTP_HOST || vars.FTP_HOST }}
-          RAW_USERNAME: ${{ secrets.FTP_USERNAME || vars.FTP_USERNAME || secrets.FTP_USER || vars.FTP_USER }}
-          RAW_SERVER_DIR: ${{ vars.FTP_SERVER_DIR }}
-          RAW_PORT: ${{ vars.CPANEL_PORT }}
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_SERVER_DIR: ${{ secrets.FTP_SERVER_DIR || './' }}
         run: |
-          set -euo pipefail
+          sudo apt-get install -y -qq lftp > /dev/null
+          lftp -u "$FTP_USERNAME,$FTP_PASSWORD" "$FTP_SERVER" -e "
+            set ftp:ssl-allow no; set cmd:fail-exit no;
+            cd '$FTP_SERVER_DIR';
+            chmod 755 . erp erp/fonts public public/erp public/erp/fonts storage bootstrap bootstrap/cache vendor app config database resources routes;
+            chmod 644 index.php .htaccess robots.txt version.txt favicon.ico favicon-32.png apple-touch-icon.png icon-192.png icon-512.png sundaybazarlogo.png site.webmanifest;
+            chmod 644 erp/app.js erp/app.css erp/auth.js erp/auth.css erp/pre.js erp/post.js erp/shopify.js erp/access.js;
+            chmod 644 public/index.php public/.htaccess vendor/autoload.php;
+            ls -la;
+            bye"
 
-          # Clean up server hostname
-          server="$(printf '%s' "${RAW_SERVER:-}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
-          server="${server#[\"\']}"
-          server="${server%[\"\']}"
-          case "$server" in
-            *://*) server="${server#*://}" ;;
-          esac
-          server="${server##*@}"
-          server="${server%%/*}"
-          if printf '%s' "$server" | grep -Eq '^[^:]+:[0-9]+$'; then
-            server="${server%%:*}"
-          fi
-          server="${server%.}"
-
-          if [ -z "$server" ]; then
-            echo "::error::FTP_SERVER is not set. Add it under Settings -> Secrets."
-            exit 1
-          fi
-
-          if ! printf '%s' "$server" | grep -Eq '^[A-Za-z0-9_]([A-Za-z0-9_-]*[A-Za-z0-9_])?(\.[A-Za-z0-9_]([A-Za-z0-9_-]*[A-Za-z0-9_])?)*$'; then
-            echo "::error::FTP_SERVER looks invalid: $server"
-            exit 1
-          fi
-
-          if ! resolved="$(getent ahosts "$server" 2>/dev/null)" || [ -z "$resolved" ]; then
-            echo "::error::Cannot resolve $server. Check FTP_SERVER secret."
-            exit 1
-          fi
-          echo "Server resolves to: $(printf '%s\n' "$resolved" | awk 'NR==1{print $1}')"
-
-          username="${RAW_USERNAME:-}"
-          if [ -z "$username" ]; then
-            echo "::error::FTP_USERNAME is not set."
-            exit 1
-          fi
-
-          port="${RAW_PORT:-2083}"
-          server_dir="${RAW_SERVER_DIR:-/home/${username}/public_html}"
-          # Strip trailing slash for tar extraction
-          server_dir="${server_dir%/}"
-
-          {
-            echo "server=$server"
-            echo "port=$port"
-            echo "server_dir=$server_dir"
-            echo "username=$username"
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Find reachable cPanel port
-        id: cpanel_port
+      - name: Run migrations and refresh caches on the server
+        if: env.HAS_FTP == 'true' && env.HAS_HOOK == 'true'
         env:
-          CPANEL_HOST: ${{ steps.target.outputs.server }}
-          PREF_PORT: ${{ vars.CPANEL_PORT }}
+          SITE_URL: ${{ secrets.SITE_URL }}
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
         run: |
-          set -euo pipefail
-          HOST="${CPANEL_HOST}"
-          # If user set a specific port, use it directly
-          if [ -n "${PREF_PORT:-}" ]; then
-            echo "port=${PREF_PORT}" >> "$GITHUB_OUTPUT"
-            echo "Using configured port ${PREF_PORT}"
-            exit 0
-          fi
-          # Try common cPanel HTTPS ports in order
-          for PORT in 2083 2096 443; do
-            echo -n "Testing port ${PORT}... "
-            if curl -sSf -k --max-time 10 --connect-timeout 8 \
-                -o /dev/null -w "%{http_code}" \
-                "https://${HOST}:${PORT}/execute/Fileman/list" \
-                2>/dev/null | grep -qE '^[0-9]+$'; then
-              echo "reachable ✓"
-              echo "port=${PORT}" >> "$GITHUB_OUTPUT"
-              exit 0
-            fi
-            echo "timeout/refused"
-          done
-          echo "::error::cPanel HTTPS API not reachable on ports 2083, 2096 or 443 from GitHub runners."
-          echo "Set CPANEL_PORT variable in GitHub repo settings with the correct port."
-          exit 1
-
-      - name: Verify cPanel credentials
-        env:
-          CPANEL_PASS: ${{ secrets.FTP_PASSWORD || vars.FTP_PASSWORD || secrets.FTP_PASS }}
-        run: |
-          if [ -z "${CPANEL_PASS}" ]; then
-            echo "::error::FTP_PASSWORD is not configured. Add it under Settings -> Secrets."
-            exit 1
-          fi
-
-
-      - name: Create deployment archive
-        run: |
-          tar -czf /tmp/deploy.tar.gz \
-            --exclude='./.git' \
-            --exclude='./.github' \
-            --exclude='./node_modules' \
-            --exclude='./.env' \
-            --exclude='./.env.*' \
-            --exclude='./storage/logs' \
-            --exclude='./storage/framework/cache' \
-            --exclude='./storage/framework/sessions' \
-            --exclude='./storage/framework/views' \
-            --exclude='./bootstrap/cache' \
-            --exclude='./public/storage' \
-            --exclude='./public/hot' \
-            --exclude='./.phpunit.result.cache' \
-            --exclude='./.freebuff' \
-            --exclude='./tests' \
-            --exclude='./phpunit.xml' \
-            --exclude='./.editorconfig' \
-            --exclude='./.gitattributes' \
-            --exclude='./database/*.sqlite' \
-            .
-          echo "Archive size: $(du -sh /tmp/deploy.tar.gz | cut -f1)"
-
-      - name: Upload archive via cPanel HTTPS API
-        env:
-          CPANEL_HOST: ${{ steps.target.outputs.server }}
-          CPANEL_PORT: ${{ steps.cpanel_port.outputs.port }}
-          CPANEL_USER: ${{ steps.target.outputs.username }}
-          CPANEL_PASS: ${{ secrets.FTP_PASSWORD || vars.FTP_PASSWORD || secrets.FTP_PASS }}
-          SERVER_DIR: ${{ steps.target.outputs.server_dir }}
-        run: |
-          set -euo pipefail
-          BASE_URL="https://${CPANEL_HOST}:${CPANEL_PORT}"
-          AUTH="${CPANEL_USER}:${CPANEL_PASS}"
-
-          echo "Uploading deploy.tar.gz to cPanel home directory..."
-          UPLOAD=$(curl -sSf -k \
-            -u "${AUTH}" \
-            -F "dir=/home/${CPANEL_USER}" \
-            -F "file-1=@/tmp/deploy.tar.gz" \
-            "${BASE_URL}/execute/Fileman/upload_files")
-          echo "Upload result: $UPLOAD"
-
-          # Check upload succeeded
-          if ! echo "$UPLOAD" | grep -q '"status":1'; then
-            echo "::error::Upload failed. Response: $UPLOAD"
-            exit 1
-          fi
-
-          echo "Extracting archive to ${SERVER_DIR}..."
-          EXTRACT=$(curl -sSf -k \
-            -u "${AUTH}" \
-            -G \
-            --data-urlencode "destdir=${SERVER_DIR}" \
-            --data-urlencode "files=[{\"file\":\"/home/${CPANEL_USER}/deploy.tar.gz\"}]" \
-            "${BASE_URL}/execute/Fileman/extract")
-          echo "Extract result: $EXTRACT"
-
-          if ! echo "$EXTRACT" | grep -q '"status":1'; then
-            echo "::error::Extraction failed. Response: $EXTRACT"
-            exit 1
-          fi
-
-          echo "Cleaning up remote archive..."
-          curl -sSf -k \
-            -u "${AUTH}" \
-            -G \
-            --data-urlencode 'files=[{"file":"/home/'"${CPANEL_USER}"'/deploy.tar.gz"}]' \
-            "${BASE_URL}/execute/Fileman/delete_files" || true
-
-          echo "Deployment complete!"
-
-      - name: Deployment summary
-        if: success()
-        run: |
-          {
-            echo "### ✅ Deployed to cPanel via HTTPS API"
-            echo ""
-            echo "- Ref: \`${GITHUB_SHA::7}\` on \`${GITHUB_REF_NAME}\`"
-            echo "- Deployed to: \`${{ steps.target.outputs.server_dir }}\`"
-            echo ""
-            echo "If this release ships migrations, run in cPanel Terminal:"
-            echo ""
-            echo '```bash'
-            echo "php artisan migrate --force"
-            echo "php artisan optimize:clear && php artisan optimize"
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
+          curl --fail-with-body -sS -X POST "${SITE_URL%/}/deploy-hook" -H "X-Deploy-Token: $DEPLOY_TOKEN" -H "Accept: application/json" --max-time 300
