@@ -161,7 +161,7 @@ jobs:
           fi
           echo "FTP host resolves to $(printf '%s\n' "$resolved" | awk 'NR==1{print $1}')"
 
-          protocol="$(printf '%s' "${RAW_PROTOCOL:-${scheme:-ftp}}" | tr '[:upper:]' '[:lower:]')"
+          protocol="$(printf '%s' "${RAW_PROTOCOL:-${scheme:-ftps}}" | tr '[:upper:]' '[:lower:]')"
           case "$protocol" in
             ftp|ftps|ftps-legacy) ;;
             *)
@@ -218,7 +218,8 @@ jobs:
           # Never wipe the target directory - the server keeps state we do not own.
           dangerous-clean-slate: false
           log-level: standard
-          timeout: 120000
+          timeout: 60000
+          retry: 3
           exclude: |
             .git/
             .git/**
