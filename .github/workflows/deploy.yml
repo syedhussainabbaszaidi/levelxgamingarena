@@ -152,7 +152,7 @@ jobs:
               ;;
           esac
 
-          port="${RAW_PORT:-${explicit_port:-22}}"
+          port="${RAW_PORT:-${explicit_port:-2222}}"
           if ! printf '%s' "$port" | grep -Eq '^[0-9]{1,5}$'; then
             echo "::error::SSH_PORT must be a number (got \"$port\")."
             exit 1
