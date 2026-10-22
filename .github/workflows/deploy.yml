@@ -161,7 +161,7 @@ jobs:
           fi
           echo "FTP host resolves to $(printf '%s\n' "$resolved" | awk 'NR==1{print $1}')"
 
-          protocol="$(printf '%s' "${RAW_PROTOCOL:-${scheme:-ftps}}" | tr '[:upper:]' '[:lower:]')"
+          protocol="$(printf '%s' "${RAW_PROTOCOL:-${scheme:-ftps-legacy}}" | tr '[:upper:]' '[:lower:]')"
           case "$protocol" in
             ftp|ftps|ftps-legacy) ;;
             *)
@@ -170,7 +170,7 @@ jobs:
               ;;
           esac
 
-          port="${RAW_PORT:-${explicit_port:-21}}"
+          port="${RAW_PORT:-${explicit_port:-990}}"
           if ! printf '%s' "$port" | grep -Eq '^[0-9]{1,5}$'; then
             echo "::error::FTP_PORT must be a number (got \"$port\")."
             exit 1
@@ -218,8 +218,7 @@ jobs:
           # Never wipe the target directory - the server keeps state we do not own.
           dangerous-clean-slate: false
           log-level: standard
-          timeout: 60000
-          retry: 3
+          timeout: 30000
           exclude: |
             .git/
             .git/**
