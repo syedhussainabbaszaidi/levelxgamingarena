@@ -1,32 +1,28 @@
-# Deploys the Laravel application to cPanel over SSH/rsync on every push to `main`.
+# Deploys the Laravel application to cPanel via HTTPS API on every push to `main`.
+# Uses cPanel's File Manager UAPI over HTTPS (port 2083) — bypasses all FTP/SSH firewall blocks.
 #
-# Required repository configuration (Settings -> Secrets and variables -> Actions):
+# Required repository secrets (Settings -> Secrets and variables -> Actions -> Secrets):
+#   FTP_SERVER   (or FTP_HOST)    cPanel hostname, e.g. server123.stackcp.net
+#   FTP_USERNAME (or FTP_USER)    cPanel username
+#   FTP_PASSWORD (or FTP_PASS)    cPanel password
 #
-#   Secrets:
-#     FTP_SERVER   (alias: FTP_HOST)      SSH hostname (same as FTP host in cPanel)
-#     FTP_USERNAME (alias: FTP_USER)      cPanel username
-#     SSH_PRIVATE_KEY                     Private SSH key (ed25519 recommended)
-#                                         Add the matching public key to cPanel:
-#                                         SSH Access -> Manage SSH Keys -> Import Key
+# Required repository variable (Settings -> Secrets and variables -> Actions -> Variables):
+#   FTP_SERVER_DIR   Absolute server path to app root, e.g. /home/username/public_html
+#                    (no trailing slash needed). Defaults to /home/<username>/public_html
 #
-#   Variables:
-#     FTP_SERVER_DIR   Absolute path of the Laravel app root on the server,
-#                      e.g. /home/cpaneluser/app/  (MUST end with a slash).
-#                      Defaults to home directory ("~/").
-#     SSH_PORT         Optional, defaults to 22.
+# Optional variable:
+#   CPANEL_PORT   cPanel HTTPS port. Defaults to 2083. Try 2096 or 443 if 2083 is blocked.
 
-name: Deploy to cPanel (SSH/rsync)
+name: Deploy to cPanel (HTTPS API)
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
-# Least privilege: the workflow only needs to read the repository.
 permissions:
   contents: read
 
-# Never let two deployments upload to the same server concurrently.
 concurrency:
   group: deploy-cpanel-production
   cancel-in-progress: false
@@ -34,23 +30,16 @@ concurrency:
 jobs:
   deploy:
     name: Build and deploy
-    # Pinned on purpose: the `ubuntu-latest` label migrates to Ubuntu 26 from
-    # October 2026, and an unattended OS change during a production deploy is a
-    # needless risk. Bump this deliberately once the newer image is validated.
     runs-on: ubuntu-24.04
     timeout-minutes: 60
 
     steps:
       - name: Checkout repository
-        # v5+ runs on the Node 24 action runtime (v4 still targets Node 20, which
-        # GitHub has deprecated).
         uses: actions/checkout@v7
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          # Matches the PHP version required by composer.json (^8.2) and the
-          # version recommended for cPanel.
           php-version: '8.2'
           extensions: mbstring, xml, ctype, curl, dom, fileinfo, openssl, pdo, pdo_mysql, pdo_sqlite, tokenizer, zip, gd, bcmath, intl
           coverage: none
@@ -60,8 +49,6 @@ jobs:
         run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-progress
 
       - name: Set up Node.js
-        # Also on the Node 24 action runtime. Node 20 is end-of-life, so the
-        # front-end is built with Node 22 (LTS) - Vite 6 supports it.
         uses: actions/setup-node@v7
         with:
           node-version: '22'
@@ -79,157 +66,157 @@ jobs:
             exit 1
           fi
 
-      - name: Resolve and validate FTP target
+      - name: Resolve deployment target
         id: target
         env:
           RAW_SERVER: ${{ secrets.FTP_SERVER || vars.FTP_SERVER || secrets.FTP_HOST || vars.FTP_HOST }}
-          RAW_SERVER_DIR: ${{ vars.FTP_SERVER_DIR || '~/' }}
-          RAW_PORT: ${{ vars.SSH_PORT || vars.FTP_PORT }}
+          RAW_USERNAME: ${{ secrets.FTP_USERNAME || vars.FTP_USERNAME || secrets.FTP_USER || vars.FTP_USER }}
+          RAW_SERVER_DIR: ${{ vars.FTP_SERVER_DIR }}
+          RAW_PORT: ${{ vars.CPANEL_PORT }}
         run: |
           set -euo pipefail
 
-          # The deployment action hands `server` to the DNS resolver verbatim and
-          # does not strip a scheme, port or path. A value like
-          # "ftp://ftp.example.com", "ftp.example.com:21", "ftp.example.com/app"
-          # or one with a pasted trailing newline therefore dies inside the action
-          # with the unhelpful "getaddrinfo ENOTFOUND ... (control socket)".
-          # Normalise to a bare hostname/IP here and fail fast with a real message.
-          # Only surrounding whitespace is trimmed (a pasted secret often ends
-          # with a newline). Interior whitespace is left in place on purpose so
-          # it is rejected below instead of being glued into a wrong hostname.
+          # Clean up server hostname
           server="$(printf '%s' "${RAW_SERVER:-}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
           server="${server#[\"\']}"
           server="${server%[\"\']}"
-
-          scheme=""
           case "$server" in
-            *://*) scheme="${server%%://*}"; server="${server#*://}" ;;
+            *://*) server="${server#*://}" ;;
           esac
-
-          server="${server##*@}"   # drop any user:pass@ prefix
-          server="${server%%/*}"   # drop any path
-
-          explicit_port=""
+          server="${server##*@}"
+          server="${server%%/*}"
           if printf '%s' "$server" | grep -Eq '^[^:]+:[0-9]+$'; then
-            explicit_port="${server##*:}"
             server="${server%%:*}"
           fi
-          server="${server%.}"     # drop a trailing root dot
+          server="${server%.}"
 
           if [ -z "$server" ]; then
-            echo "::error::No FTP server configured. Add FTP_SERVER (or FTP_HOST) under Settings -> Secrets and variables -> Actions."
+            echo "::error::FTP_SERVER is not set. Add it under Settings -> Secrets."
             exit 1
           fi
 
           if ! printf '%s' "$server" | grep -Eq '^[A-Za-z0-9_]([A-Za-z0-9_-]*[A-Za-z0-9_])?(\.[A-Za-z0-9_]([A-Za-z0-9_-]*[A-Za-z0-9_])?)*$'; then
-            echo "::error::FTP_SERVER is not a usable hostname or IP address (it may contain spaces, quotes, a scheme, a port or a path). Use the bare value from cPanel, e.g. ftp.example.com or 203.0.113.10."
+            echo "::error::FTP_SERVER looks invalid: $server"
             exit 1
           fi
 
-          if [ "$server" != "${RAW_SERVER:-}" ]; then
-            echo "::warning::The configured FTP server value had to be normalised (scheme/port/path/whitespace removed). Store only the bare hostname in FTP_SERVER."
-          fi
-
-          # Fail here, with the actual DNS state, instead of inside the FTP action.
           if ! resolved="$(getent ahosts "$server" 2>/dev/null)" || [ -z "$resolved" ]; then
-            echo "::error::FTP server \"$server\" does not resolve from the runner (this is the getaddrinfo ENOTFOUND failure)."
-            echo "Check, in this order:"
-            echo "  1. FTP_SERVER/FTP_HOST must be the FTP hostname shown in cPanel, or the account's IP address."
-            echo "  2. The website domain is often NOT the FTP host - use the server IP or the hostname cPanel displays."
-            echo "  3. Keep the value bare: no ftp:// scheme, no :port suffix, no path, no quotes, no trailing newline."
-            echo "  4. Verify it resolves publicly: nslookup ${server} (it must work outside your network too)."
-            echo "  5. Confirm FTP is enabled for the account (cPanel -> Files -> FTP Accounts)."
+            echo "::error::Cannot resolve $server. Check FTP_SERVER secret."
             exit 1
           fi
-          echo "FTP host resolves to $(printf '%s\n' "$resolved" | awk 'NR==1{print $1}')"
+          echo "Server resolves to: $(printf '%s\n' "$resolved" | awk 'NR==1{print $1}')"
 
-          protocol="$(printf '%s' "${RAW_PROTOCOL:-${scheme:-ftps-legacy}}" | tr '[:upper:]' '[:lower:]')"
-          case "$protocol" in
-            ftp|ftps|ftps-legacy) ;;
-            *)
-              echo "::error::FTP_PROTOCOL must be one of ftp, ftps or ftps-legacy (got \"$protocol\")."
-              exit 1
-              ;;
-          esac
-
-          port="${RAW_PORT:-${explicit_port:-2222}}"
-          if ! printf '%s' "$port" | grep -Eq '^[0-9]{1,5}$'; then
-            echo "::error::SSH_PORT must be a number (got \"$port\")."
+          username="${RAW_USERNAME:-}"
+          if [ -z "$username" ]; then
+            echo "::error::FTP_USERNAME is not set."
             exit 1
           fi
 
-          # Ensure server_dir ends with /
-          dir="${RAW_SERVER_DIR:-~/}"
-          case "$dir" in
-            */) ;;
-            *) dir="$dir/" ;;
-          esac
+          port="${RAW_PORT:-2083}"
+          server_dir="${RAW_SERVER_DIR:-/home/${username}/public_html}"
+          # Strip trailing slash for tar extraction
+          server_dir="${server_dir%/}"
 
           {
             echo "server=$server"
             echo "port=$port"
-            echo "server_dir=$dir"
+            echo "server_dir=$server_dir"
+            echo "username=$username"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Verify SSH credentials configured
+      - name: Verify cPanel credentials
         env:
-          FTP_USERNAME: ${{ secrets.FTP_USERNAME || vars.FTP_USERNAME || secrets.FTP_USER || vars.FTP_USER }}
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          CPANEL_PASS: ${{ secrets.FTP_PASSWORD || vars.FTP_PASSWORD || secrets.FTP_PASS }}
         run: |
-          missing=0
-          for name in FTP_USERNAME SSH_PRIVATE_KEY; do
-            if [ -z "${!name}" ]; then
-              echo "::error::$name is not configured. Add it under Settings -> Secrets and variables -> Actions."
-              missing=1
-            fi
-          done
-          exit "$missing"
+          if [ -z "${CPANEL_PASS}" ]; then
+            echo "::error::FTP_PASSWORD is not configured. Add it under Settings -> Secrets."
+            exit 1
+          fi
 
-      - name: Set up SSH key
+      - name: Create deployment archive
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          # ssh-keyscan may fail if port is filtered; StrictHostKeyChecking=no in rsync handles it
-          ssh-keyscan -p ${{ steps.target.outputs.port }} ${{ steps.target.outputs.server }} >> ~/.ssh/known_hosts 2>/dev/null || true
+          tar -czf /tmp/deploy.tar.gz \
+            --exclude='./.git' \
+            --exclude='./.github' \
+            --exclude='./node_modules' \
+            --exclude='./.env' \
+            --exclude='./.env.*' \
+            --exclude='./storage/logs' \
+            --exclude='./storage/framework/cache' \
+            --exclude='./storage/framework/sessions' \
+            --exclude='./storage/framework/views' \
+            --exclude='./bootstrap/cache' \
+            --exclude='./public/storage' \
+            --exclude='./public/hot' \
+            --exclude='./.phpunit.result.cache' \
+            --exclude='./.freebuff' \
+            --exclude='./tests' \
+            --exclude='./phpunit.xml' \
+            --exclude='./.editorconfig' \
+            --exclude='./.gitattributes' \
+            --exclude='./database/*.sqlite' \
+            .
+          echo "Archive size: $(du -sh /tmp/deploy.tar.gz | cut -f1)"
 
-      - name: Upload application over SSH (rsync)
+      - name: Upload archive via cPanel HTTPS API
+        env:
+          CPANEL_HOST: ${{ steps.target.outputs.server }}
+          CPANEL_PORT: ${{ steps.target.outputs.port }}
+          CPANEL_USER: ${{ steps.target.outputs.username }}
+          CPANEL_PASS: ${{ secrets.FTP_PASSWORD || vars.FTP_PASSWORD || secrets.FTP_PASS }}
+          SERVER_DIR: ${{ steps.target.outputs.server_dir }}
         run: |
-          rsync -avz --delete \
-            -e "ssh -i ~/.ssh/deploy_key -p ${{ steps.target.outputs.port }} -o StrictHostKeyChecking=no" \
-            --exclude='.git/' \
-            --exclude='.github/' \
-            --exclude='node_modules/' \
-            --exclude='.env' \
-            --exclude='.env.*' \
-            --exclude='storage/logs/' \
-            --exclude='storage/framework/cache/' \
-            --exclude='storage/framework/sessions/' \
-            --exclude='storage/framework/views/' \
-            --exclude='bootstrap/cache/' \
-            --exclude='public/storage' \
-            --exclude='public/hot' \
-            --exclude='.phpunit.result.cache' \
-            --exclude='.freebuff/' \
-            --exclude='tests/' \
-            --exclude='phpunit.xml' \
-            --exclude='.editorconfig' \
-            --exclude='.gitattributes' \
-            --exclude='*.log' \
-            --exclude='database/*.sqlite' \
-            ./ \
-            ${{ secrets.FTP_USERNAME || secrets.FTP_USER }}@${{ steps.target.outputs.server }}:${{ steps.target.outputs.server_dir }}
+          set -euo pipefail
+          BASE_URL="https://${CPANEL_HOST}:${CPANEL_PORT}"
+          AUTH="${CPANEL_USER}:${CPANEL_PASS}"
+
+          echo "Uploading deploy.tar.gz to cPanel home directory..."
+          UPLOAD=$(curl -sSf -k \
+            -u "${AUTH}" \
+            -F "dir=/home/${CPANEL_USER}" \
+            -F "file-1=@/tmp/deploy.tar.gz" \
+            "${BASE_URL}/execute/Fileman/upload_files")
+          echo "Upload result: $UPLOAD"
+
+          # Check upload succeeded
+          if ! echo "$UPLOAD" | grep -q '"status":1'; then
+            echo "::error::Upload failed. Response: $UPLOAD"
+            exit 1
+          fi
+
+          echo "Extracting archive to ${SERVER_DIR}..."
+          EXTRACT=$(curl -sSf -k \
+            -u "${AUTH}" \
+            -G \
+            --data-urlencode "destdir=${SERVER_DIR}" \
+            --data-urlencode "files=[{\"file\":\"/home/${CPANEL_USER}/deploy.tar.gz\"}]" \
+            "${BASE_URL}/execute/Fileman/extract")
+          echo "Extract result: $EXTRACT"
+
+          if ! echo "$EXTRACT" | grep -q '"status":1'; then
+            echo "::error::Extraction failed. Response: $EXTRACT"
+            exit 1
+          fi
+
+          echo "Cleaning up remote archive..."
+          curl -sSf -k \
+            -u "${AUTH}" \
+            -G \
+            --data-urlencode 'files=[{"file":"/home/'"${CPANEL_USER}"'/deploy.tar.gz"}]' \
+            "${BASE_URL}/execute/Fileman/delete_files" || true
+
+          echo "Deployment complete!"
 
       - name: Deployment summary
         if: success()
         run: |
           {
-            echo "### Deployed to cPanel"
+            echo "### ✅ Deployed to cPanel via HTTPS API"
             echo ""
             echo "- Ref: \`${GITHUB_SHA::7}\` on \`${GITHUB_REF_NAME}\`"
-            echo "- Only changed files were uploaded; \`.env\`, uploads, logs and caches on the server were left untouched."
+            echo "- Deployed to: \`${{ steps.target.outputs.server_dir }}\`"
             echo ""
-            echo "If this release ships migrations, run this once in cPanel Terminal (app root):"
+            echo "If this release ships migrations, run in cPanel Terminal:"
             echo ""
             echo '```bash'
             echo "php artisan migrate --force"
