@@ -190,7 +190,8 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p ${{ steps.target.outputs.port }} ${{ steps.target.outputs.server }} >> ~/.ssh/known_hosts 2>/dev/null
+          # ssh-keyscan may fail if port is filtered; StrictHostKeyChecking=no in rsync handles it
+          ssh-keyscan -p ${{ steps.target.outputs.port }} ${{ steps.target.outputs.server }} >> ~/.ssh/known_hosts 2>/dev/null || true
 
       - name: Upload application over SSH (rsync)
         run: |
