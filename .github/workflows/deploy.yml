@@ -155,7 +155,7 @@ jobs:
           echo "Set CPANEL_PORT variable in GitHub repo settings with the correct port."
           exit 1
 
-
+      - name: Verify cPanel credentials
         env:
           CPANEL_PASS: ${{ secrets.FTP_PASSWORD || vars.FTP_PASSWORD || secrets.FTP_PASS }}
         run: |
@@ -163,6 +163,7 @@ jobs:
             echo "::error::FTP_PASSWORD is not configured. Add it under Settings -> Secrets."
             exit 1
           fi
+
 
       - name: Create deployment archive
         run: |
