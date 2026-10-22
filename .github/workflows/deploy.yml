@@ -3,7 +3,11 @@
 # Required repository configuration (Settings -> Secrets and variables -> Actions):
 #
 #   Secrets (any of the accepted aliases):
-#     FTP_SERVER   (alias: FTP_HOST)      FTP hostname, e.g. ftp.example.com
+#     FTP_SERVER   (alias: FTP_HOST)      FTP hostname or server IP, BARE value only:
+#                                         e.g. ftp.example.com or 203.0.113.10
+#                                         (no ftp:// scheme, no :port, no path, no
+#                                         spaces/newline - see "Resolve and validate
+#                                         FTP target" below for why)
 #     FTP_USERNAME (alias: FTP_USER)      cPanel FTP account
 #     FTP_PASSWORD (alias: FTP_PASS)      cPanel FTP password
 #
@@ -11,7 +15,8 @@
 #     FTP_SERVER_DIR   Absolute path of the Laravel app root on the server,
 #                      e.g. /home/cpaneluser/app/  (MUST end with a slash).
 #                      Defaults to the FTP login directory ("/").
-#     FTP_PORT         Optional, defaults to 21.
+#     FTP_PORT         Optional, defaults to 21 (a port embedded in FTP_SERVER is
+#                      honoured when this is unset).
 #     FTP_PROTOCOL     Optional: `ftp` (default) or `ftps` (recommended when the
 #                      host supports explicit FTPS).
 #
@@ -46,12 +51,17 @@ concurrency:
 jobs:
   deploy:
     name: Build and deploy
-    runs-on: ubuntu-latest
+    # Pinned on purpose: the `ubuntu-latest` label migrates to Ubuntu 26 from
+    # October 2026, and an unattended OS change during a production deploy is a
+    # needless risk. Bump this deliberately once the newer image is validated.
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        # v5+ runs on the Node 24 action runtime (v4 still targets Node 20, which
+        # GitHub has deprecated).
+        uses: actions/checkout@v7
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -67,9 +77,11 @@ jobs:
         run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-progress
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        # Also on the Node 24 action runtime. Node 20 is end-of-life, so the
+        # front-end is built with Node 22 (LTS) - Vite 6 supports it.
+        uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '22'
           cache: npm
 
       - name: Build front-end assets
@@ -84,27 +96,107 @@ jobs:
             exit 1
           fi
 
-      - name: Resolve deployment target
+      - name: Resolve and validate FTP target
         id: target
         env:
-          FTP_SERVER_DIR: ${{ vars.FTP_SERVER_DIR || './' }}
+          RAW_SERVER: ${{ secrets.FTP_SERVER || vars.FTP_SERVER || secrets.FTP_HOST || vars.FTP_HOST }}
+          RAW_SERVER_DIR: ${{ vars.FTP_SERVER_DIR || './' }}
+          RAW_PORT: ${{ vars.FTP_PORT }}
+          RAW_PROTOCOL: ${{ vars.FTP_PROTOCOL }}
         run: |
+          set -euo pipefail
+
+          # The deployment action hands `server` to the DNS resolver verbatim and
+          # does not strip a scheme, port or path. A value like
+          # "ftp://ftp.example.com", "ftp.example.com:21", "ftp.example.com/app"
+          # or one with a pasted trailing newline therefore dies inside the action
+          # with the unhelpful "getaddrinfo ENOTFOUND ... (control socket)".
+          # Normalise to a bare hostname/IP here and fail fast with a real message.
+          # Only surrounding whitespace is trimmed (a pasted secret often ends
+          # with a newline). Interior whitespace is left in place on purpose so
+          # it is rejected below instead of being glued into a wrong hostname.
+          server="$(printf '%s' "${RAW_SERVER:-}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+          server="${server#[\"\']}"
+          server="${server%[\"\']}"
+
+          scheme=""
+          case "$server" in
+            *://*) scheme="${server%%://*}"; server="${server#*://}" ;;
+          esac
+
+          server="${server##*@}"   # drop any user:pass@ prefix
+          server="${server%%/*}"   # drop any path
+
+          explicit_port=""
+          if printf '%s' "$server" | grep -Eq '^[^:]+:[0-9]+$'; then
+            explicit_port="${server##*:}"
+            server="${server%%:*}"
+          fi
+          server="${server%.}"     # drop a trailing root dot
+
+          if [ -z "$server" ]; then
+            echo "::error::No FTP server configured. Add FTP_SERVER (or FTP_HOST) under Settings -> Secrets and variables -> Actions."
+            exit 1
+          fi
+
+          if ! printf '%s' "$server" | grep -Eq '^[A-Za-z0-9_]([A-Za-z0-9_-]*[A-Za-z0-9_])?(\.[A-Za-z0-9_]([A-Za-z0-9_-]*[A-Za-z0-9_])?)*$'; then
+            echo "::error::FTP_SERVER is not a usable hostname or IP address (it may contain spaces, quotes, a scheme, a port or a path). Use the bare value from cPanel, e.g. ftp.example.com or 203.0.113.10."
+            exit 1
+          fi
+
+          if [ "$server" != "${RAW_SERVER:-}" ]; then
+            echo "::warning::The configured FTP server value had to be normalised (scheme/port/path/whitespace removed). Store only the bare hostname in FTP_SERVER."
+          fi
+
+          # Fail here, with the actual DNS state, instead of inside the FTP action.
+          if ! resolved="$(getent ahosts "$server" 2>/dev/null)" || [ -z "$resolved" ]; then
+            echo "::error::FTP server \"$server\" does not resolve from the runner (this is the getaddrinfo ENOTFOUND failure)."
+            echo "Check, in this order:"
+            echo "  1. FTP_SERVER/FTP_HOST must be the FTP hostname shown in cPanel, or the account's IP address."
+            echo "  2. The website domain is often NOT the FTP host - use the server IP or the hostname cPanel displays."
+            echo "  3. Keep the value bare: no ftp:// scheme, no :port suffix, no path, no quotes, no trailing newline."
+            echo "  4. Verify it resolves publicly: nslookup ${server} (it must work outside your network too)."
+            echo "  5. Confirm FTP is enabled for the account (cPanel -> Files -> FTP Accounts)."
+            exit 1
+          fi
+          echo "FTP host resolves to $(printf '%s\n' "$resolved" | awk 'NR==1{print $1}')"
+
+          protocol="$(printf '%s' "${RAW_PROTOCOL:-${scheme:-ftp}}" | tr '[:upper:]' '[:lower:]')"
+          case "$protocol" in
+            ftp|ftps|ftps-legacy) ;;
+            *)
+              echo "::error::FTP_PROTOCOL must be one of ftp, ftps or ftps-legacy (got \"$protocol\")."
+              exit 1
+              ;;
+          esac
+
+          port="${RAW_PORT:-${explicit_port:-21}}"
+          if ! printf '%s' "$port" | grep -Eq '^[0-9]{1,5}$'; then
+            echo "::error::FTP_PORT must be a number (got \"$port\")."
+            exit 1
+          fi
+
           # The action requires the server path to end with a slash.
-          dir="$FTP_SERVER_DIR"
+          dir="${RAW_SERVER_DIR:-./}"
           case "$dir" in
             */) ;;
             *) dir="$dir/" ;;
           esac
-          echo "server_dir=$dir" >> "$GITHUB_OUTPUT"
 
-      - name: Verify FTP configuration
+          {
+            echo "server=$server"
+            echo "port=$port"
+            echo "protocol=$protocol"
+            echo "server_dir=$dir"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Verify FTP credentials
         env:
-          FTP_SERVER: ${{ secrets.FTP_SERVER || vars.FTP_SERVER || secrets.FTP_HOST || vars.FTP_HOST }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME || vars.FTP_USERNAME || secrets.FTP_USER || vars.FTP_USER }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD || vars.FTP_PASSWORD || secrets.FTP_PASS }}
         run: |
           missing=0
-          for name in FTP_SERVER FTP_USERNAME FTP_PASSWORD; do
+          for name in FTP_USERNAME FTP_PASSWORD; do
             if [ -z "${!name}" ]; then
               echo "::error::$name is not configured. Add it under Settings -> Secrets and variables -> Actions."
               missing=1
@@ -115,11 +207,11 @@ jobs:
       - name: Upload application over FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
-          server: ${{ secrets.FTP_SERVER || vars.FTP_SERVER || secrets.FTP_HOST || vars.FTP_HOST }}
+          server: ${{ steps.target.outputs.server }}
           username: ${{ secrets.FTP_USERNAME || vars.FTP_USERNAME || secrets.FTP_USER || vars.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD || vars.FTP_PASSWORD || secrets.FTP_PASS }}
-          port: ${{ vars.FTP_PORT || '21' }}
-          protocol: ${{ vars.FTP_PROTOCOL || 'ftp' }}
+          port: ${{ steps.target.outputs.port }}
+          protocol: ${{ steps.target.outputs.protocol }}
           local-dir: ./
           server-dir: ${{ steps.target.outputs.server_dir }}
           state-name: .ftp-deploy-sync-state.json
