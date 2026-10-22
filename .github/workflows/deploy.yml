@@ -111,9 +111,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
           # Work in a throw-away directory so we never pollute the main worktree.
           DEPLOY_DIR=$(mktemp -d)
 
@@ -142,6 +139,9 @@ jobs:
 
           cd "$DEPLOY_DIR"
 
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
           # Minimal .gitignore — only keep genuinely server-side secrets/state.
           cat > .gitignore << 'GITIGNORE'
           .env
@@ -160,7 +160,8 @@ jobs:
           git remote add origin \
             "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
-          if git fetch origin deploy; then
+          if git ls-remote --exit-code --heads origin deploy >/dev/null; then
+            git fetch origin deploy
             git read-tree FETCH_HEAD
             git update-ref refs/heads/deploy FETCH_HEAD
           fi
