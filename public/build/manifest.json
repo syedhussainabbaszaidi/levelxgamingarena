@@ -1,0 +1,29 @@
+{
+  "_ScrollTrigger-C8IefbVz.js": {
+    "file": "assets/ScrollTrigger-C8IefbVz.js",
+    "name": "ScrollTrigger"
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-D2jz3e9Q.css",
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-fM7EaxT5.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "imports": [
+      "_ScrollTrigger-C8IefbVz.js"
+    ]
+  },
+  "resources/js/public.js": {
+    "file": "assets/public-OCMtTewb.js",
+    "name": "public",
+    "src": "resources/js/public.js",
+    "isEntry": true,
+    "imports": [
+      "_ScrollTrigger-C8IefbVz.js"
+    ]
+  }
+}

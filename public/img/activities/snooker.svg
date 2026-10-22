@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450" role="img" aria-label="Snooker">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b0b10"/><stop offset="1" stop-color="#03382a"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.75" cy="0.2" r="0.8">
+      <stop offset="0" stop-color="#10b981" stop-opacity="0.35"/><stop offset="1" stop-color="#10b981" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg)"/>
+  <rect width="800" height="450" fill="url(#glow)"/>
+  <g stroke="#ffffff" stroke-opacity="0.05" stroke-width="1">
+    <path d="M100 0V450M200 0V450M300 0V450M400 0V450M500 0V450M600 0V450M700 0V450M0 100H800M0 200H800M0 300H800M0 400H800"/>
+  </g>
+  <g transform="translate(400 200)" fill="none" stroke="#10b981" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="0" cy="0" r="52"/><circle cx="14" cy="-14" r="58" stroke-opacity="0.35"/>
+    <line x1="58" y1="58" x2="155" y2="155"/>
+  </g>
+  <text x="44" y="382" font-family="Outfit, Segoe UI, Arial, sans-serif" font-size="34" font-weight="700" fill="#ffffff">Snooker</text>
+  <text x="44" y="414" font-family="Outfit, Segoe UI, Arial, sans-serif" font-size="17" letter-spacing="3" fill="#a1a1aa">PLAY A FRAME</text>
+</svg>

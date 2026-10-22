@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 760" width="720" height="760" role="img" aria-label="Neon gaming zone setup">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#12121a"/>
+      <stop offset="0.55" stop-color="#0d0d14"/>
+      <stop offset="1" stop-color="#1a0a14"/>
+    </linearGradient>
+    <linearGradient id="rgb" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff2d55"/>
+      <stop offset="0.5" stop-color="#a855f7"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.32" r="0.7">
+      <stop offset="0" stop-color="#ff2d55" stop-opacity="0.45"/>
+      <stop offset="0.55" stop-color="#a855f7" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#22d3ee" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1b1b26"/>
+      <stop offset="1" stop-color="#0b0b10"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="720" height="760" fill="url(#sky)"/>
+  <ellipse cx="360" cy="250" rx="330" ry="250" fill="url(#glow)"/>
+
+  {{-- Perspective floor grid --}}
+  <g stroke="#ffffff" stroke-opacity="0.05" stroke-width="1">
+    <path d="M40 640H680M30 690H690M20 740H700"/>
+    <path d="M360 470L120 760M360 470L240 760M360 470L360 760M360 470L480 760M360 470L600 760"/>
+  </g>
+  <rect x="0" y="600" width="720" height="160" fill="url(#floor)" opacity="0.6"/>
+
+  {{-- Monitor --}}
+  <g transform="translate(360 258)">
+    <rect x="-230" y="-150" width="460" height="270" rx="16" fill="#0f0f16" stroke="url(#rgb)" stroke-width="6"/>
+    <rect x="-206" y="-128" width="412" height="226" rx="10" fill="#141420"/>
+    <g stroke="url(#rgb)" stroke-width="7" stroke-linecap="round" fill="none" opacity="0.9">
+      <path d="M-150 40 L-70 -34 L-10 30 L60 -60 L150 44"/>
+    </g>
+    <circle cx="-150" cy="-84" r="10" fill="#ff2d55"/>
+    <circle cx="150" cy="-84" r="10" fill="#22d3ee"/>
+    <path d="M0 120 V170" stroke="#3a3a4a" stroke-width="10"/>
+    <rect x="-90" y="168" width="180" height="16" rx="8" fill="#2a2a36"/>
+  </g>
+
+  {{-- Console --}}
+  <g transform="translate(140 592)">
+    <rect x="-64" y="-30" width="128" height="60" rx="10" fill="#12121a" stroke="#3d3d4d" stroke-width="4"/>
+    <path d="M-40 -6 H-16 M-28 -18 V6" stroke="#22d3ee" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="34" cy="-6" r="8" fill="#ff2d55"/>
+    <circle cx="56" cy="10" r="8" fill="#a855f7"/>
+  </g>
+
+  {{-- Controller --}}
+  <g transform="translate(556 604)" fill="none" stroke="url(#rgb)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M-58 -22 C-74 -22 -84 -6 -84 14 C-84 34 -70 44 -58 40 L-32 30 H32 L58 40 C70 44 84 34 84 14 C84 -6 74 -22 58 -22 Z"/>
+    <path d="M-40 -2 H-20 M-30 -12 V8" stroke-width="6"/>
+    <circle cx="38" cy="-2" r="6" fill="#ffffff" stroke="none" opacity="0.85"/>
+    <circle cx="56" cy="10" r="6" fill="#ffffff" stroke="none" opacity="0.85"/>
+  </g>
+
+  {{-- Neon sign bars --}}
+  <g stroke-linecap="round">
+    <path d="M70 120 H190" stroke="#ff2d55" stroke-width="6" opacity="0.8"/>
+    <path d="M530 120 H650" stroke="#22d3ee" stroke-width="6" opacity="0.8"/>
+    <path d="M70 148 H130" stroke="#a855f7" stroke-width="6" opacity="0.6"/>
+  </g>
+</svg>

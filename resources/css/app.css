@@ -1,0 +1,224 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Orbitron:wght@500;700;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    /* Alpine x-cloak: hidden until Alpine boots, prevents dropdown flash. */
+    [x-cloak] {
+        display: none !important;
+    }
+
+    html {
+        @apply scroll-smooth;
+    }
+
+    body {
+        @apply bg-ink-900 text-zinc-200 antialiased;
+        background-image:
+            radial-gradient(60rem 40rem at 15% -10%, rgba(255, 45, 85, 0.10), transparent 60%),
+            radial-gradient(50rem 35rem at 100% 0%, rgba(120, 20, 60, 0.16), transparent 55%);
+        background-attachment: fixed;
+    }
+
+    ::selection {
+        @apply bg-neon-500/40 text-white;
+    }
+
+    /* Slim dark scrollbars */
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+    ::-webkit-scrollbar-track {
+        @apply bg-ink-900;
+    }
+    ::-webkit-scrollbar-thumb {
+        @apply rounded-full bg-ink-400;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        @apply bg-neon-700;
+    }
+}
+
+@layer components {
+    /* ---------- Surfaces ---------- */
+    .neon-card {
+        @apply rounded-2xl border border-white/[0.06] bg-ink-800/80 shadow-panel backdrop-blur;
+    }
+
+    .neon-card-hover {
+        @apply transition duration-200 hover:border-neon-500/40 hover:shadow-neon-sm;
+    }
+
+    .neon-panel {
+        @apply rounded-xl border border-white/[0.05] bg-ink-700/60 p-4;
+    }
+
+    .neon-divider {
+        @apply border-t border-white/[0.06];
+    }
+
+    /* ---------- Text ---------- */
+    .neon-title {
+        @apply font-display font-bold uppercase tracking-wider text-white;
+    }
+
+    .glow-text {
+        text-shadow: 0 0 18px rgba(255, 45, 85, 0.55);
+    }
+
+    .neon-label {
+        @apply mb-1.5 block text-xs font-semibold uppercase tracking-wider text-zinc-400;
+    }
+
+    /* ---------- Buttons ---------- */
+    .btn-neon {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg bg-neon-600 px-4 py-2 text-sm font-semibold text-white
+               shadow-neon-sm transition duration-200 hover:bg-neon-500 hover:shadow-neon focus:outline-none
+               focus:ring-2 focus:ring-neon-400/60 focus:ring-offset-2 focus:ring-offset-ink-900 disabled:opacity-50;
+    }
+
+    .btn-ghost {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.02] px-4 py-2
+               text-sm font-semibold text-zinc-300 transition duration-200 hover:border-neon-500/40 hover:text-white;
+    }
+
+    .btn-danger {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg border border-rose-500/40 bg-rose-500/10 px-3 py-1.5
+               text-xs font-semibold text-rose-300 transition hover:bg-rose-500/20;
+    }
+
+    .btn-mini {
+        @apply inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/[0.02] px-2.5 py-1 text-xs
+               font-medium text-zinc-300 transition hover:border-neon-500/40 hover:text-white;
+    }
+
+    /* ---------- Forms ---------- */
+    .input-neon {
+        @apply w-full rounded-lg border border-white/10 bg-ink-900/70 px-3 py-2 text-sm text-zinc-100
+               placeholder-zinc-500 transition focus:border-neon-500 focus:ring-1 focus:ring-neon-500/50;
+    }
+
+    .select-neon {
+        @apply input-neon pr-8;
+    }
+
+    /* Invalid field state — pair with @error('field') on the element. */
+    .input-invalid {
+        @apply border-rose-500/70 focus:border-rose-500 focus:ring-rose-500/40;
+    }
+
+    /* Inline spinner used by buttons while a form is submitting. */
+    .spinner {
+        @apply inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white;
+    }
+
+    /* Slim top progress bar shown during navigation / form submits. */
+    .admin-progress {
+        @apply pointer-events-none fixed inset-x-0 top-0 z-[60] h-0.5 origin-left scale-x-0 bg-neon-500 shadow-neon-sm transition-transform duration-200;
+    }
+    .admin-progress.is-active {
+        @apply scale-x-100;
+    }
+
+    /* ---------- Badges ---------- */
+    .badge {
+        @apply inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold;
+    }
+
+    /* ---------- Tables ---------- */
+    .table-neon {
+        @apply w-full text-left text-sm;
+    }
+    .table-neon thead th {
+        @apply border-b border-white/[0.07] px-4 py-3 text-xs font-semibold uppercase tracking-wider text-zinc-500;
+    }
+    .table-neon tbody td {
+        @apply border-b border-white/[0.04] px-4 py-3 align-middle text-zinc-300;
+    }
+    .table-neon tbody tr {
+        @apply transition hover:bg-white/[0.02];
+    }
+
+    /* Hover glow layer for cards — pointer-events none so it never blocks
+       clicks or drops shadows on interactive elements. */
+    .neon-hover-glow {
+        @apply pointer-events-none absolute inset-0 rounded-2xl border border-transparent
+               bg-gradient-to-br from-neon-500/5 via-transparent to-transparent;
+    }
+
+    /* ---------- Navigation ---------- */
+    .side-link {
+        @apply flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-zinc-400 transition duration-150
+               hover:bg-white/[0.04] hover:text-white;
+    }
+
+    .side-link-active {
+        @apply bg-neon-500/10 text-white shadow-[inset_2px_0_0_0_#ff2d55];
+    }
+
+    .side-group {
+        @apply px-3 pb-1 pt-4 text-[11px] font-bold uppercase tracking-widest text-zinc-600;
+    }
+
+    /* ---------- Mobile card slider ---------- */
+    /* Phones: swipeable row showing one card plus a peek of the next.
+       From `sm` upwards the component switches back to a normal grid. */
+    .mobile-slider {
+        @apply relative;
+    }
+
+    .mobile-slider__track {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .mobile-slider__track::-webkit-scrollbar {
+        display: none;
+    }
+
+    @media (max-width: 639px) {
+        .mobile-slider__track > * {
+            flex: 0 0 66%;
+            max-width: 66%;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+        }
+
+        .mobile-slider__track::after {
+            /* Trailing gutter so the last card is never flush with the edge. */
+            content: '';
+            flex: 0 0 0.25rem;
+        }
+    }
+
+    .mobile-slider__dots {
+        @apply mt-5 flex items-center justify-center gap-2 sm:hidden;
+    }
+
+    .mobile-slider__dot {
+        @apply h-1.5 w-1.5 rounded-full bg-white/25 transition-all duration-200;
+    }
+
+    .mobile-slider__dot.is-active {
+        @apply w-5 bg-neon-500;
+    }
+
+    /* ---------- Misc ---------- */
+    .stat-value {
+        @apply font-display text-3xl font-bold text-white;
+    }
+
+    .chip {
+        @apply inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-zinc-300;
+    }
+}
+
+@layer utilities {
+    .text-glow-sm {
+        text-shadow: 0 0 10px rgba(255, 45, 85, 0.5);
+    }
+}
