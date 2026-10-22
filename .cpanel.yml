@@ -1,0 +1,10 @@
+---
+deployment:
+  tasks:
+    - export APPPATH="$HOME/levelxgamingarena/"
+    - export PUBLICPATH="$HOME/public_html/"
+    - rsync -a --exclude='.git/' --exclude='.cpanel.yml' --exclude='.env' --exclude='.env.*' --exclude='node_modules/' --exclude='tests/' --exclude='storage/logs/' --exclude='storage/framework/cache/' --exclude='storage/framework/sessions/' --exclude='storage/framework/views/' --exclude='bootstrap/cache/*.php' --exclude='database/database.sqlite' --exclude='public/storage' --exclude='public/hot' ./ "$APPPATH"
+    - rsync -a --exclude='storage/' --exclude='hot' public/ "$PUBLICPATH"
+    - /bin/cp index.php "$PUBLICPATH/index.php"
+    - if [ -L "$PUBLICPATH/storage" ]; then :; elif [ -e "$PUBLICPATH/storage" ]; then echo "Refusing to replace existing public_html/storage; verify it is a storage symlink first." >&2; exit 1; else /bin/ln -s "$APPPATH/storage/app/public" "$PUBLICPATH/storage"; fi
+    - /bin/chmod -R u+rwX "$APPPATH/storage" "$APPPATH/bootstrap/cache"
