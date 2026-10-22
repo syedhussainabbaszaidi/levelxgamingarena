@@ -124,7 +124,38 @@ jobs:
             echo "username=$username"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Verify cPanel credentials
+      - name: Find reachable cPanel port
+        id: cpanel_port
+        env:
+          CPANEL_HOST: ${{ steps.target.outputs.server }}
+          PREF_PORT: ${{ vars.CPANEL_PORT }}
+        run: |
+          set -euo pipefail
+          HOST="${CPANEL_HOST}"
+          # If user set a specific port, use it directly
+          if [ -n "${PREF_PORT:-}" ]; then
+            echo "port=${PREF_PORT}" >> "$GITHUB_OUTPUT"
+            echo "Using configured port ${PREF_PORT}"
+            exit 0
+          fi
+          # Try common cPanel HTTPS ports in order
+          for PORT in 2083 2096 443; do
+            echo -n "Testing port ${PORT}... "
+            if curl -sSf -k --max-time 10 --connect-timeout 8 \
+                -o /dev/null -w "%{http_code}" \
+                "https://${HOST}:${PORT}/execute/Fileman/list" \
+                2>/dev/null | grep -qE '^[0-9]+$'; then
+              echo "reachable ✓"
+              echo "port=${PORT}" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "timeout/refused"
+          done
+          echo "::error::cPanel HTTPS API not reachable on ports 2083, 2096 or 443 from GitHub runners."
+          echo "Set CPANEL_PORT variable in GitHub repo settings with the correct port."
+          exit 1
+
+
         env:
           CPANEL_PASS: ${{ secrets.FTP_PASSWORD || vars.FTP_PASSWORD || secrets.FTP_PASS }}
         run: |
@@ -161,7 +192,7 @@ jobs:
       - name: Upload archive via cPanel HTTPS API
         env:
           CPANEL_HOST: ${{ steps.target.outputs.server }}
-          CPANEL_PORT: ${{ steps.target.outputs.port }}
+          CPANEL_PORT: ${{ steps.cpanel_port.outputs.port }}
           CPANEL_USER: ${{ steps.target.outputs.username }}
           CPANEL_PASS: ${{ secrets.FTP_PASSWORD || vars.FTP_PASSWORD || secrets.FTP_PASS }}
           SERVER_DIR: ${{ steps.target.outputs.server_dir }}
