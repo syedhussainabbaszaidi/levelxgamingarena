@@ -180,12 +180,13 @@ jobs:
           bye
           LFTP
 
-          LFTP_PASSWORD="$FTP_PASSWORD" lftp "sftp://$FTP_USERNAME@$SFTP_HOST:$SFTP_PORT" \
-            -e "source $RUNNER_TEMP/deploy.lftp"
+          LFTP_PASSWORD="$FTP_PASSWORD" lftp --env-password -u "$FTP_USERNAME" \
+            "sftp://$SFTP_HOST:$SFTP_PORT" -e "source $RUNNER_TEMP/deploy.lftp"
 
           # public_html/storage -> app storage. Tolerate "already exists" so the
           # step stays idempotent (a pre-existing directory is never replaced).
-          LFTP_PASSWORD="$FTP_PASSWORD" lftp "sftp://$FTP_USERNAME@$SFTP_HOST:$SFTP_PORT" \
+          LFTP_PASSWORD="$FTP_PASSWORD" lftp --env-password -u "$FTP_USERNAME" \
+            "sftp://$SFTP_HOST:$SFTP_PORT" \
             -e "set cmd:fail-exit no; ln -s ../$APP_DIR/storage/app/public public_html/storage; bye" \
             || echo "::warning::Could not create public_html/storage symlink (it may already exist)."
 
