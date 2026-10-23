@@ -1,199 +1,111 @@
-# HOW IT WORKS
-# ─────────────────────────────────────────────────────────────────────────────
-# Push to main  →  GitHub Actions builds the app (composer + npm)  →  pushes
-# ALL built files (including vendor/ and public/build/) to the `deploy` branch
-# on this same repo  →  cPanel's "Git Version Control" pulls that branch.
+# Save as: .github/workflows/deploy.yml
 #
-# WHY NO FTP/SSH: FTP/SSH uploads from GitHub-hosted runners have repeatedly
-# failed. This model lets cPanel fetch over HTTPS instead.
+# Push to main -> build (composer + npm) -> upload over FTP to cPanel.
 #
-# ONE-TIME cPanel SETUP:
-#   1. cPanel → Git Version Control → Create / Clone a Repository
-#      Clone URL : https://github.com/syedhussainabbaszaidi/levelxgamingarena
-#      Branch    : deploy
-#      Repository Path: /home/<user>/repositories/levelxgamingarena
-#   2. In "Manage" → "Pull or Deploy", update from Remote and deploy HEAD.
-#      Repeat those two actions after each successful workflow run unless your
-#      hosting provider has separately configured automatic pulls/deployments.
-#   3. The included .cpanel.yml installs app files at $HOME/levelxgamingarena
-#      and public files at $HOME/public_html. Change it for a different layout.
-# ─────────────────────────────────────────────────────────────────────────────
+# ONE-TIME SETUP
+#   1. cPanel -> FTP Accounts -> create an FTP account whose directory is your
+#      HOME folder (e.g. /home/<user>), NOT public_html.
+#   2. GitHub repo -> Settings -> Secrets and variables -> Actions -> add:
+#        FTP_SERVER    (e.g. ftp.yourdomain.com)
+#        FTP_USERNAME  (e.g. deploy@yourdomain.com)
+#        FTP_PASSWORD
+#   3. Create .env manually on the server at ~/levelxgamingarena/.env (once).
+#
+# SERVER LAYOUT RESULT
+#   ~/levelxgamingarena/   <- Laravel app (vendor, app, config, ...)
+#   ~/public_html/         <- contents of Laravel's public/ (index.php patched)
+#
+# The action keeps a state file on the server and only uploads changed files,
+# so after the first (slow) run, deploys are fast.
 
-name: Build → deploy branch
+name: Build and deploy via FTP
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
-# Write permission is required to push the deploy branch.
-permissions:
-  contents: write
-
 concurrency:
   group: deploy-production
   cancel-in-progress: false
 
 jobs:
-  build-and-push:
-    name: Build and push to deploy branch
+  deploy:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
 
     steps:
-      # ── 1. Source ────────────────────────────────────────────────────────────
-      - name: Checkout main
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
 
-      # ── 2. PHP ───────────────────────────────────────────────────────────────
-      - name: Set up PHP 8.2
-        uses: shivammathur/setup-php@v2
+      - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
           extensions: mbstring, xml, ctype, curl, dom, fileinfo, openssl, pdo, pdo_mysql, tokenizer, zip, gd, bcmath, intl
           coverage: none
           tools: composer:v2
 
-      - name: Install Composer dependencies (production, no dev)
-        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-progress
+      - run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-progress
 
-      # ── 3. Node / Vite ───────────────────────────────────────────────────────
-      - name: Set up Node.js 22 (LTS)
-        uses: actions/setup-node@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: '22'
           cache: npm
 
-      - name: Build front-end assets
+      - name: Build assets
         run: |
           npm ci
           npm run build
+          test -f public/build/manifest.json
 
-      - name: Verify Vite manifest exists
+      # Split the project into "app" (outside web root) and "public" (web root)
+      - name: Stage files
         run: |
-          [ -f public/build/manifest.json ] || {
-            echo "::error::public/build/manifest.json missing — Vite build failed."
-            exit 1
-          }
+          mkdir -p .stage/app .stage/public
 
-      # ── 4. Stamp ─────────────────────────────────────────────────────────────
-      - name: Write version stamp
-        run: echo "$GITHUB_SHA" > public/version.txt
+          # Public files -> public_html
+          rsync -a --exclude='storage' --exclude='hot' public/ .stage/public/
+          echo "${GITHUB_SHA}" > .stage/public/version.txt
+          sed -i "s#__DIR__.'/../#__DIR__.'/../levelxgamingarena/#g" .stage/public/index.php
+          grep -q "levelxgamingarena/vendor/autoload.php" .stage/public/index.php
 
-      # ── 5. Prepare the public document root ──────────────────────────────────
-      - name: Prepare cPanel public document root
-        run: |
-          cp -a public/index.php index.php
-          cp -a public/.htaccess .htaccess
-          for path in public/*; do
-            [ -e "$path" ] || continue
-            case "$path" in
-              public/index.php|public/storage|public/hot) continue ;;
-            esac
-            cp -a "$path" .
-          done
+          # App files -> ~/levelxgamingarena
+          rsync -a \
+            --exclude='.git/' --exclude='.github/' --exclude='.stage/' \
+            --exclude='node_modules/' --exclude='tests/' --exclude='public/' \
+            --exclude='.env' --exclude='.env.*' \
+            --exclude='storage/logs/*' --exclude='storage/framework/cache/*' \
+            --exclude='storage/framework/sessions/*' --exclude='storage/framework/views/*' \
+            --exclude='bootstrap/cache/*.php' --exclude='database/database.sqlite' \
+            ./ .stage/app/
 
-          # Keep application code outside public_html.
-          sed -i "s#__DIR__.'/../#__DIR__.'/../levelxgamingarena/#g" index.php
-          grep -Fq "__DIR__.'/../levelxgamingarena/vendor/autoload.php'" index.php || {
-            echo "::error::index.php path patch failed — check the sed expression."
-            exit 1
-          }
-          [ -f build/manifest.json ] || {
-            echo "::error::build/manifest.json missing after copying public assets."
-            exit 1
-          }
+      - name: Upload app (outside web root)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps          # change to "ftp" if your host has no TLS
+          local-dir: ./.stage/app/
+          server-dir: levelxgamingarena/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            .env
+            storage/**
 
-      # ── 6. Push to `deploy` branch ───────────────────────────────────────────
-      - name: Push built tree to deploy branch
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-
-          # Work in a throw-away directory so we never pollute the main worktree.
-          DEPLOY_DIR=$(mktemp -d)
-
-          # Copy the fully-built workspace there.
-          # rsync lets us exclude in one pass without a second gitignore.
-          rsync -a --delete \
-            --exclude='.git/' \
-            --exclude='node_modules/' \
-            --exclude='.freebuff/' \
-            --exclude='.env' \
-            --exclude='.env.*' \
-            --exclude='storage/logs/' \
-            --exclude='storage/framework/cache/' \
-            --exclude='storage/framework/sessions/' \
-            --exclude='storage/framework/views/' \
-            --exclude='bootstrap/cache/*.php' \
-            --exclude='database/database.sqlite' \
-            --exclude='public/storage' \
-            --exclude='public/hot' \
-            --exclude='.phpunit.result.cache' \
-            --exclude='tests/' \
-            --exclude='phpunit.xml' \
-            --exclude='.editorconfig' \
-            --exclude='.gitattributes' \
-            ./ "$DEPLOY_DIR/"
-
-          cd "$DEPLOY_DIR"
-
-          # Minimal .gitignore — only keep genuinely server-side secrets/state.
-          cat > .gitignore << 'GITIGNORE'
-          .env
-          .env.*
-          storage/logs/
-          storage/framework/cache/
-          storage/framework/sessions/
-          storage/framework/views/
-          bootstrap/cache/*.php
-          database/database.sqlite
-          public/storage
-          public/hot
-          GITIGNORE
-
-          git init -b deploy
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git remote add origin \
-            "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-
-          if git ls-remote --exit-code --heads origin deploy >/dev/null; then
-            git fetch origin deploy
-            git read-tree FETCH_HEAD
-            git update-ref refs/heads/deploy FETCH_HEAD
-          fi
-
-          git add -A
-          # vendor/ and public/build/ are no longer ignored, so they are included.
-
-          git commit -m "deploy: ${GITHUB_SHA::7} from main
-
-          Built on: $(date -u '+%Y-%m-%d %H:%M UTC')
-          Triggered by: $GITHUB_ACTOR"
-
-          git push origin deploy
-
-          echo "Deploy branch updated. Refresh the cPanel repository and deploy HEAD."
-
-      # ── 8. Summary ───────────────────────────────────────────────────────────
-      - name: Deployment summary
-        if: success()
-        run: |
-          {
-            echo "### ✅ Deploy branch updated"
-            echo ""
-            echo "| | |"
-            echo "|---|---|"
-            echo "| Commit | \`${GITHUB_SHA::7}\` |"
-            echo "| Branch | \`${GITHUB_REF_NAME}\` |"
-            echo "| Actor  | $GITHUB_ACTOR |"
-            echo ""
-            echo "> In cPanel, update this repository from the \`deploy\` branch and deploy HEAD."
-            echo ""
-            echo "**Before serving traffic**, verify the server .env, writable Laravel storage/cache directories, and run any pending migrations in cPanel Terminal:"
-            echo '```bash'
-            echo "php artisan migrate --force && php artisan optimize:clear && php artisan optimize"
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload public files (web root)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./.stage/public/
+          server-dir: public_html/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            storage/**
+            cgi-bin/**
+            .well-known/**
