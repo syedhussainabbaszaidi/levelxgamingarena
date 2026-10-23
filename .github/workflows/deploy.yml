@@ -177,12 +177,20 @@ jobs:
           bye
           LFTP
 
-          LFTP_PASSWORD="$FTP_PASSWORD" lftp -u "$FTP_USERNAME" -f "$RUNNER_TEMP/deploy.lftp"
+          LFTP_PASSWORD="$FTP_PASSWORD" lftp -f "$RUNNER_TEMP/deploy.lftp"
 
           # public_html/storage -> app storage. Tolerate "already exists" so the
           # step stays idempotent (a pre-existing directory is never replaced).
-          LFTP_PASSWORD="$FTP_PASSWORD" lftp -u "$FTP_USERNAME" -p "$SFTP_PORT" "sftp://$SFTP_HOST" \
-            -e "set sftp:auto-confirm yes; set sftp:connect-program 'ssh -a -x -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'; set cmd:fail-exit no; ln -s ../$APP_DIR/storage/app/public public_html/storage; bye" \
+          cat > "$RUNNER_TEMP/symlink.lftp" <<LFTP
+          set sftp:auto-confirm yes
+          set sftp:connect-program "ssh -a -x -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+          set cmd:fail-exit no
+          open -u "$FTP_USERNAME" -p $SFTP_PORT sftp://$SFTP_HOST
+          ln -s ../$APP_DIR/storage/app/public public_html/storage
+          bye
+          LFTP
+
+          LFTP_PASSWORD="$FTP_PASSWORD" lftp -f "$RUNNER_TEMP/symlink.lftp" \
             || echo "::warning::Could not create public_html/storage symlink (it may already exist)."
 
       - name: Verify deployment
