@@ -81,7 +81,7 @@ jobs:
       - name: Upload app (outside web root)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ftp.levelxgamingarena.com
+          server: 116.90.103.28
           username: levelxgamingarena.com
           password: ^*&_D[`&hh_P
           protocol: ftps          # change to "ftp" if your host has no TLS
@@ -97,7 +97,7 @@ jobs:
       - name: Upload public files (web root)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ftp.levelxgamingarena.com
+          server: 116.90.103.28
           username: levelxgamingarena.com
           password: ^*&_D[`&hh_P
           protocol: ftps
