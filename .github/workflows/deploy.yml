@@ -155,14 +155,14 @@ jobs:
           mkdir -p $APP_DIR/bootstrap/cache
 
           # Application code. storage/ and .env stay server-side.
-          mirror -R --delete --verbose=1 --parallel=8 \
+          mirror -R --delete --verbose=1 --parallel=4 \
             -X storage -X 'storage/*' \
             -X .env -X '.env.*' \
             -X 'database/*.sqlite' \
             .stage/app/ $APP_DIR/
 
           # Storage skeleton + committed images. No --delete: uploads/logs kept.
-          mirror -R --verbose=1 --parallel=8 \
+          mirror -R --verbose=1 --parallel=2 \
             -X 'logs/*' \
             -X 'framework/cache/*' \
             -X 'framework/sessions/*' \
@@ -171,7 +171,7 @@ jobs:
             .stage/app/storage/ $APP_DIR/storage/
 
           # Web root.
-          mirror -R --delete --verbose=1 --parallel=8 \
+          mirror -R --delete --verbose=1 --parallel=2 \
             -X storage -X 'storage/*' \
             -X cgi-bin -X 'cgi-bin/*' \
             -X .well-known -X '.well-known/*' \
