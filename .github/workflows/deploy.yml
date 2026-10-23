@@ -133,15 +133,18 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq lftp
 
-          cat > "$RUNNER_TEMP/deploy.lftp" <<LFTP
+          # Connection settings must exist before lftp connects, so they go in
+          # ~/.lftprc (command-line URL + LFTP_PASSWORD handles credentials).
+          cat > "$HOME/.lftprc" <<'LFTPRC'
           set sftp:auto-confirm yes
           set sftp:connect-program "ssh -a -x -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
           set net:max-retries 5
           set net:timeout 30
           set net:reconnect-interval-base 5
           set cmd:fail-exit yes
+          LFTPRC
 
-          open -u "$FTP_USERNAME" -p $SFTP_PORT sftp://$SFTP_HOST
+          cat > "$RUNNER_TEMP/deploy.lftp" <<LFTP
           mkdir -p $APP_DIR
           mkdir -p $APP_DIR/storage/app/public
           mkdir -p $APP_DIR/storage/app/private
@@ -177,20 +180,13 @@ jobs:
           bye
           LFTP
 
-          LFTP_PASSWORD="$FTP_PASSWORD" lftp -f "$RUNNER_TEMP/deploy.lftp"
+          LFTP_PASSWORD="$FTP_PASSWORD" lftp "sftp://$FTP_USERNAME@$SFTP_HOST:$SFTP_PORT" \
+            -e "source $RUNNER_TEMP/deploy.lftp"
 
           # public_html/storage -> app storage. Tolerate "already exists" so the
           # step stays idempotent (a pre-existing directory is never replaced).
-          cat > "$RUNNER_TEMP/symlink.lftp" <<LFTP
-          set sftp:auto-confirm yes
-          set sftp:connect-program "ssh -a -x -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-          set cmd:fail-exit no
-          open -u "$FTP_USERNAME" -p $SFTP_PORT sftp://$SFTP_HOST
-          ln -s ../$APP_DIR/storage/app/public public_html/storage
-          bye
-          LFTP
-
-          LFTP_PASSWORD="$FTP_PASSWORD" lftp -f "$RUNNER_TEMP/symlink.lftp" \
+          LFTP_PASSWORD="$FTP_PASSWORD" lftp "sftp://$FTP_USERNAME@$SFTP_HOST:$SFTP_PORT" \
+            -e "set cmd:fail-exit no; ln -s ../$APP_DIR/storage/app/public public_html/storage; bye" \
             || echo "::warning::Could not create public_html/storage symlink (it may already exist)."
 
       - name: Verify deployment
