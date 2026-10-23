@@ -1,24 +1,27 @@
-# Save as: .github/workflows/deploy.yml
+# Push to main -> build (composer + npm) -> deploy to 20i/StackCP over SFTP.
 #
-# Push to main -> build (composer + npm) -> upload over FTP to cPanel.
+# WHY SFTP AND NOT FTP:
+#   The site is hosted on 20i/StackCP. The FTP/SFTP endpoint is
+#   ftp.stackcp.com. Port 21 (plain/explicit FTPS) is filtered from GitHub's
+#   runners, which is what produced "Error: Timeout (control socket)".
+#   Port 22 (SFTP) is reachable and is the supported 20i endpoint.
 #
 # ONE-TIME SETUP
-#   1. cPanel -> FTP Accounts -> create an FTP account whose directory is your
-#      HOME folder (e.g. /home/<user>), NOT public_html.
-#   2. GitHub repo -> Settings -> Secrets and variables -> Actions -> add:
-#        FTP_SERVER    (e.g. ftp.yourdomain.com)
-#        FTP_USERNAME  (e.g. deploy@yourdomain.com)
+#   1. GitHub repo -> Settings -> Secrets and variables -> Actions -> add:
+#        FTP_USERNAME  (the cPanel/FTP account, e.g. yourdomain.com)
 #        FTP_PASSWORD
-#   3. Create .env manually on the server at ~/levelxgamingarena/.env (once).
+#   2. Create ~/levelxgamingarena/.env on the server once (see README). It is
+#      never uploaded by this workflow, so it survives every deploy.
 #
-# SERVER LAYOUT RESULT
-#   ~/levelxgamingarena/   <- Laravel app (vendor, app, config, ...)
+# SERVER LAYOUT
+#   ~/levelxgamingarena/   <- Laravel app (vendor, app, config, storage, ...)
 #   ~/public_html/         <- contents of Laravel's public/ (index.php patched)
+#   ~/public_html/storage  -> ../levelxgamingarena/storage/app/public
 #
-# The action keeps a state file on the server and only uploads changed files,
-# so after the first (slow) run, deploys are fast.
+# Storage, logs, caches and .env are excluded from the sync so server-side
+# files (uploads, logs, sessions) are never deleted by a deployment.
 
-name: Build and deploy via FTP
+name: Build and deploy to cPanel (SFTP)
 
 on:
   push:
@@ -29,24 +32,38 @@ concurrency:
   group: deploy-production
   cancel-in-progress: false
 
+env:
+  APP_DIR: levelxgamingarena
+  SFTP_HOST: ftp.stackcp.com
+  SFTP_PORT: '22'
+
 jobs:
   deploy:
+    name: Deploy
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 45
+    # Fail fast with a clear message instead of a mid-upload auth error.
+    env:
+      FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+      FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
 
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout
+        uses: actions/checkout@v5
 
-      - uses: shivammathur/setup-php@v2
+      - name: Set up PHP 8.2
+        uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
           extensions: mbstring, xml, ctype, curl, dom, fileinfo, openssl, pdo, pdo_mysql, tokenizer, zip, gd, bcmath, intl
           coverage: none
           tools: composer:v2
 
-      - run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-progress
+      - name: Install Composer dependencies
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-progress
 
-      - uses: actions/setup-node@v6
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v6
         with:
           node-version: '22'
           cache: npm
@@ -60,13 +77,16 @@ jobs:
       # Split the project into "app" (outside web root) and "public" (web root)
       - name: Stage files
         run: |
+          set -euo pipefail
+          rm -rf .stage
           mkdir -p .stage/app .stage/public
 
           # Public files -> public_html
           rsync -a --exclude='storage' --exclude='hot' public/ .stage/public/
           echo "${GITHUB_SHA}" > .stage/public/version.txt
-          sed -i "s#__DIR__.'/../#__DIR__.'/../levelxgamingarena/#g" .stage/public/index.php
-          grep -q "levelxgamingarena/vendor/autoload.php" .stage/public/index.php
+          sed -i "s#__DIR__.'/../#__DIR__.'/../${APP_DIR}/#g" .stage/public/index.php
+          grep -q "${APP_DIR}/vendor/autoload.php" .stage/public/index.php
+          grep -q "${APP_DIR}/bootstrap/app.php" .stage/public/index.php
 
           # App files -> ~/levelxgamingarena
           rsync -a \
@@ -78,34 +98,114 @@ jobs:
             --exclude='bootstrap/cache/*.php' --exclude='database/database.sqlite' \
             ./ .stage/app/
 
-      - name: Upload app (outside web root)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps          # change to "ftp" if your host has no TLS
-          local-dir: ./.stage/app/
-          server-dir: levelxgamingarena/
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            .env
-            storage/**
+          # Directories Laravel needs to exist and write to at runtime.
+          mkdir -p \
+            .stage/app/storage/app/public \
+            .stage/app/storage/app/private \
+            .stage/app/storage/framework/cache/data \
+            .stage/app/storage/framework/sessions \
+            .stage/app/storage/framework/views \
+            .stage/app/storage/logs \
+            .stage/app/bootstrap/cache
 
-      - name: Upload public files (web root)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
-          local-dir: ./.stage/public/
-          server-dir: public_html/
-          exclude: |
-            **/.git*
-            **/.git*/**
-            storage/**
-            cgi-bin/**
-            .well-known/**
+          test -f .stage/app/vendor/autoload.php
+
+      - name: Check SFTP credentials and endpoint
+        run: |
+          set -euo pipefail
+          if [ -z "${FTP_USERNAME:-}" ] || [ -z "${FTP_PASSWORD:-}" ]; then
+            echo "::error::FTP_USERNAME / FTP_PASSWORD secrets are not configured (Settings -> Secrets and variables -> Actions)."
+            exit 1
+          fi
+          getent hosts "$SFTP_HOST" >/dev/null || {
+            echo "::error::Cannot resolve $SFTP_HOST from the runner."
+            exit 1
+          }
+          timeout 20 bash -c "exec 3<>/dev/tcp/$SFTP_HOST/$SFTP_PORT" || {
+            echo "::error::$SFTP_HOST:$SFTP_PORT is unreachable from this runner (firewall or wrong host/port)."
+            exit 1
+          }
+          echo "SFTP endpoint $SFTP_HOST:$SFTP_PORT is reachable."
+
+      - name: Deploy over SFTP
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lftp
+
+          cat > "$RUNNER_TEMP/deploy.lftp" <<LFTP
+          set sftp:auto-confirm yes
+          set sftp:connect-program "ssh -a -x -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+          set net:max-retries 5
+          set net:timeout 30
+          set net:reconnect-interval-base 5
+          set cmd:fail-exit yes
+
+          open -u "$FTP_USERNAME" -p $SFTP_PORT sftp://$SFTP_HOST
+          mkdir -p $APP_DIR
+          mkdir -p $APP_DIR/storage/app/public
+          mkdir -p $APP_DIR/storage/app/private
+          mkdir -p $APP_DIR/storage/framework/cache/data
+          mkdir -p $APP_DIR/storage/framework/sessions
+          mkdir -p $APP_DIR/storage/framework/views
+          mkdir -p $APP_DIR/storage/logs
+          mkdir -p $APP_DIR/bootstrap/cache
+
+          # Application code. storage/ and .env stay server-side.
+          mirror -R --delete --verbose=1 --parallel=8 \
+            -X storage -X 'storage/*' \
+            -X .env -X '.env.*' \
+            -X 'database/*.sqlite' \
+            .stage/app/ $APP_DIR/
+
+          # Storage skeleton + committed images. No --delete: uploads/logs kept.
+          mirror -R --verbose=1 --parallel=8 \
+            -X 'logs/*' \
+            -X 'framework/cache/*' \
+            -X 'framework/sessions/*' \
+            -X 'framework/views/*' \
+            -X 'framework/testing/*' \
+            .stage/app/storage/ $APP_DIR/storage/
+
+          # Web root.
+          mirror -R --delete --verbose=1 --parallel=8 \
+            -X storage -X 'storage/*' \
+            -X cgi-bin -X 'cgi-bin/*' \
+            -X .well-known -X '.well-known/*' \
+            .stage/public/ public_html/
+
+          bye
+          LFTP
+
+          LFTP_PASSWORD="$FTP_PASSWORD" lftp -u "$FTP_USERNAME" -f "$RUNNER_TEMP/deploy.lftp"
+
+          # public_html/storage -> app storage. Tolerate "already exists" so the
+          # step stays idempotent (a pre-existing directory is never replaced).
+          LFTP_PASSWORD="$FTP_PASSWORD" lftp -u "$FTP_USERNAME" -p "$SFTP_PORT" "sftp://$SFTP_HOST" \
+            -e "set sftp:auto-confirm yes; set sftp:connect-program 'ssh -a -x -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'; set cmd:fail-exit no; ln -s ../$APP_DIR/storage/app/public public_html/storage; bye" \
+            || echo "::warning::Could not create public_html/storage symlink (it may already exist)."
+
+      - name: Verify deployment
+        run: |
+          set -euo pipefail
+          ok=0
+          for i in $(seq 1 12); do
+            if curl -fsS --max-time 20 -H 'Cache-Control: no-cache' \
+              "https://levelxgamingarena.com/version.txt?t=${GITHUB_RUN_ID}-${i}" | grep -qx "$GITHUB_SHA"; then
+              ok=1
+              break
+            fi
+            sleep 5
+          done
+          if [ "$ok" -ne 1 ]; then
+            echo "::error::Deployment verification failed: https://levelxgamingarena.com/version.txt does not serve $GITHUB_SHA."
+            exit 1
+          fi
+          echo "Deployed commit $GITHUB_SHA is live (version.txt matches)."
+
+          status=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 \
+            -H 'Cache-Control: no-cache' https://levelxgamingarena.com/)
+          echo "Homepage HTTP status: $status"
+          if [ "$status" != "200" ]; then
+            echo "::warning::Homepage returned $status. Check ~/$APP_DIR/.env (APP_KEY, DB_*), migrations and storage permissions."
+          fi
