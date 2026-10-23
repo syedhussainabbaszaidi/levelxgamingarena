@@ -81,9 +81,9 @@ jobs:
       - name: Upload app (outside web root)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
+          server: ftp.levelxgamingarena.com
+          username: levelxgamingarena.com
+          password: ^*&_D[`&hh_P
           protocol: ftps          # change to "ftp" if your host has no TLS
           local-dir: ./.stage/app/
           server-dir: levelxgamingarena/
@@ -97,9 +97,9 @@ jobs:
       - name: Upload public files (web root)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
+          server: ftp.levelxgamingarena.com
+          username: levelxgamingarena.com
+          password: ^*&_D[`&hh_P
           protocol: ftps
           local-dir: ./.stage/public/
           server-dir: public_html/
