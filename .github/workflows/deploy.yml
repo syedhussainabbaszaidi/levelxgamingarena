@@ -60,9 +60,9 @@ permissions:
 
 env:
   PUBLIC_DIR: public_html
-  SFTP_HOST: ftp.stackcp.com
+  SFTP_HOST: ftp.gb.stackcp.com
   SFTP_PORT: '22'
-  FTP_HOST: ftp.stackcp.com
+  FTP_HOST: ftp.gb.stackcp.com
   FTP_PORT: '21'
   SITE_URL: https://levelxgamingarena.com
 
