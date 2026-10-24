@@ -61,7 +61,7 @@ jobs:
     # Pinned (not ubuntu-latest) so a runner image migration cannot change the
     # toolchain under us. ubuntu-24.04 is the current GA image.
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 220
     env:
       FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
       FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
