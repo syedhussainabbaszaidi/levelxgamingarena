@@ -86,13 +86,19 @@ jobs:
           EOF
           cat > "$RUNNER_TEMP/insp.lftp" <<EOF
           set cmd:fail-exit no
-          cls -la levelxgamingarena/
           cls -la public_html/
-          cls -la levelxgamingarena/storage/
-          cls -la levelxgamingarena/storage/logs/
-          get levelxgamingarena/.env -o $RUNNER_TEMP/app.env
+          cls -la public_html/build/
+          cls -la public_html/build/assets/
+          cls -la public_html/img/
+          cls -la public_html/storage/
+          cls -la public_html/storage/logs/
+          cls -la public_html/public
+          cls -la levelxgamingarena
+          get public_html/.env -o $RUNNER_TEMP/app.env
           get public_html/index.php -o $RUNNER_TEMP/deployed-index.php
-          get levelxgamingarena/storage/logs/laravel.log -o $RUNNER_TEMP/laravel.log
+          get public_html/.htaccess -o $RUNNER_TEMP/deployed-htaccess
+          get public_html/version.txt -o $RUNNER_TEMP/deployed-version.txt
+          get public_html/storage/logs/laravel.log -o $RUNNER_TEMP/laravel.log
           bye
           EOF
           LFTP_PASSWORD="$FTP_PASSWORD" lftp --env-password -u "$FTP_USERNAME" \
@@ -110,6 +116,12 @@ jobs:
 
           echo "===== deployed public_html/index.php (path lines) ====="
           grep -nE "require|maintenance|bootstrap" "$RUNNER_TEMP/deployed-index.php" 2>/dev/null || echo "index.php not downloaded"
+
+          echo "===== deployed public_html/version.txt ====="
+          cat "$RUNNER_TEMP/deployed-version.txt" 2>/dev/null || echo "version.txt not downloaded"
+
+          echo "===== deployed public_html/.htaccess (front-controller lines) ====="
+          grep -nE "RewriteRule|RewriteCond.*RewriteRule" "$RUNNER_TEMP/deployed-htaccess" 2>/dev/null || echo ".htaccess not downloaded"
 
           echo "===== laravel.log (last 120 lines) ====="
           if [ -s "$RUNNER_TEMP/laravel.log" ]; then

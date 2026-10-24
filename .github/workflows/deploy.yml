@@ -125,8 +125,8 @@ jobs:
             .stage/site/storage/logs \
             .stage/site/bootstrap/cache
 
-          # 3. Guards: flat-layout front controller, dependencies and the
-          #    hardening rules must all be present in the staged tree.
+          # 3. Guards: flat-layout front controller, dependencies, web assets
+          #    and the hardening rules must all be present in the staged tree.
           test -f .stage/site/vendor/autoload.php
           grep -q "__DIR__.'/vendor/autoload.php'" .stage/site/index.php
           grep -q "__DIR__.'/bootstrap/app.php'" .stage/site/index.php
@@ -134,8 +134,41 @@ jobs:
             echo "::error::Staged index.php still uses the nested layout paths."
             exit 1
           fi
+
+          # Everything below is served straight from public_html on cPanel, so a
+          # missing public/ asset means a broken website even if PHP works.
+          for f in .htaccess robots.txt favicon.ico build/manifest.json \
+                   img/logo.png img/favicon.png img/hero/gaming-zone.svg \
+                   img/activities/snooker.svg img/gallery/arcade.jpg \
+                   app/Http/Controllers/PageController.php resources/views/welcome.blade.php \
+                   bootstrap/app.php routes/web.php artisan; do
+            if [ ! -f ".stage/site/$f" ]; then
+              echo "::error::.stage/site/$f is missing - public/ assets or application sources were not staged."
+              exit 1
+            fi
+          done
+          ls .stage/site/build/assets/*.css .stage/site/build/assets/*.js >/dev/null
+
           grep -q 'RewriteRule ^(app|bootstrap|config|database' .stage/site/.htaccess
-          test -f .stage/site/build/manifest.json
+
+          # .htaccess must stay one directive per line. A merged
+          # `RewriteCond ... RewriteRule ...` line is a syntax error that makes
+          # Apache/LiteSpeed answer HTTP 500 for EVERY request in public_html,
+          # static files included (this is what broke the previous deploy).
+          if grep -nE '^[[:space:]]*RewriteCond[[:space:]].*RewriteRule' .stage/site/.htaccess; then
+            echo "::error::.htaccess has two directives merged on one line; every request would return 500."
+            exit 1
+          fi
+          if ! grep -qE '^[[:space:]]*RewriteRule \^ index\.php \[L\]$' .stage/site/.htaccess; then
+            echo "::error::.htaccess is missing its front-controller rule."
+            exit 1
+          fi
+
+          # Secrets are never staged, never uploaded.
+          if [ -e .stage/site/.env ]; then
+            echo "::error::.stage/site/.env exists; .env must never be deployed."
+            exit 1
+          fi
 
       - name: Check SFTP credentials and endpoint
         run: |
@@ -195,6 +228,7 @@ jobs:
             -X storage -X 'storage/*' \\
             -X .env -X '.env.*' \\
             -X 'database/*.sqlite' \\
+            -X php.ini -X .user.ini -X .htpasswd -X .ftpquota -X error_log \\
             -X cgi-bin -X 'cgi-bin/*' \\
             -X .well-known -X '.well-known/*' \\
             .stage/site/ $PUBLIC_DIR/
@@ -207,6 +241,55 @@ jobs:
             -X 'framework/views/*' \\
             -X 'framework/testing/*' \\
             .stage/site/storage/ $PUBLIC_DIR/storage/
+
+          # --- Server-side structure proof, in the SAME session as the upload ---
+          # 20i rate-limits extra logins, so verification must not need a second
+          # connection. cmd:fail-exit is on: any missing required path below
+          # aborts this session and fails the deploy.
+          echo "###STRUCTURE public_html root"
+          cls -la $PUBLIC_DIR/
+          echo "###STRUCTURE build"
+          cls -la $PUBLIC_DIR/build/
+          echo "###STRUCTURE build/assets"
+          cls -la $PUBLIC_DIR/build/assets/
+          echo "###STRUCTURE img"
+          cls -la $PUBLIC_DIR/img/
+          echo "###STRUCTURE img/gallery"
+          cls -la $PUBLIC_DIR/img/gallery/
+          echo "###STRUCTURE storage"
+          cls -la $PUBLIC_DIR/storage/
+
+          # public/ assets are served from the web root (flat layout).
+          echo "###REQUIRED index.php"
+          cls -la $PUBLIC_DIR/index.php
+          echo "###REQUIRED .htaccess"
+          cls -la $PUBLIC_DIR/.htaccess
+          echo "###REQUIRED version.txt"
+          cat $PUBLIC_DIR/version.txt
+          echo "###REQUIRED build/manifest.json + compiled CSS/JS"
+          cls -la $PUBLIC_DIR/build/manifest.json
+          echo "###REQUIRED img/logo.png"
+          cls -la $PUBLIC_DIR/img/logo.png
+          echo "###REQUIRED favicon.ico"
+          cls -la $PUBLIC_DIR/favicon.ico
+          echo "###REQUIRED robots.txt"
+          cls -la $PUBLIC_DIR/robots.txt
+          echo "###REQUIRED vendor/autoload.php"
+          cls -la $PUBLIC_DIR/vendor/autoload.php
+          echo "###REQUIRED bootstrap/app.php"
+          cls -la $PUBLIC_DIR/bootstrap/app.php
+          echo "###REQUIRED routes/web.php"
+          cls -la $PUBLIC_DIR/routes/web.php
+          echo "###REQUIRED artisan"
+          cls -la $PUBLIC_DIR/artisan
+          echo "###REQUIRED .env - server-side secret; create it in StackCP File Manager if this fails"
+          cls -la $PUBLIC_DIR/.env
+
+          # Informational only: the old nested layout must not come back.
+          set cmd:fail-exit no
+          echo "###INFO stale nested public/ directory"
+          cls -la $PUBLIC_DIR/public
+          set cmd:fail-exit yes
 
           bye
           LFTP
@@ -249,6 +332,26 @@ jobs:
             exit 1
           fi
           echo "Deployed commit $GITHUB_SHA is live (version.txt matches)."
+
+          # public/ assets must actually be served from the web root. A 404 here
+          # means the public folder was not deployed even if index.php was.
+          for asset in build/manifest.json img/logo.png img/favicon.png favicon.ico robots.txt; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 -H 'Cache-Control: no-cache' "$SITE_URL/$asset")
+            echo "$asset -> $code"
+            if [ "$code" != "200" ]; then
+              echo "::error::$SITE_URL/$asset returned $code; public/ assets are missing from $PUBLIC_DIR."
+              exit 1
+            fi
+          done
+
+          # A real routed page proves the front controller, Blade views and the
+          # database connection all work, not just static files.
+          page_status=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 -H 'Cache-Control: no-cache' "$SITE_URL/about-us")
+          echo "/about-us HTTP status: $page_status"
+          if [ "$page_status" != "200" ]; then
+            echo "::error::A routed page returned $page_status after deployment; the Laravel application is not booting."
+            exit 1
+          fi
 
           # Sensitive paths must not be downloadable.
           for path in .env .git/config composer.json artisan storage/logs/laravel.log vendor/autoload.php config/app.php; do

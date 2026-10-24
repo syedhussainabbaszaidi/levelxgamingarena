@@ -29,7 +29,8 @@
 
     # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_FILENAME} !-f        RewriteRule ^ index.php [L]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
 </IfModule>
 
 # Belt-and-braces block for secrets, logs and metadata (Apache 2.4 / LiteSpeed).
