@@ -5,6 +5,15 @@
 
     RewriteEngine On
 
+    # --- Flat cPanel layout: the whole Laravel app lives in public_html ---
+    # Never serve application source, dependencies, config or metadata over HTTP.
+    RewriteRule ^(app|bootstrap|config|database|lang|routes|tests|vendor|resources)(/|$) - [F,L]
+    RewriteRule ^(\.env.*|\.git.*|artisan|composer\.(json|lock)|package(-lock)?\.json|phpunit\.xml|vite\.config\.js|tailwind\.config\.js|postcss\.config\.js|server\.php)$ - [F,L]
+    # Runtime storage: expose storage/app/public through /storage/<path> and
+    # keep logs, caches, sessions and views unreachable.
+    RewriteCond %{REQUEST_URI} !^/storage/app/public/
+    RewriteRule ^storage/(.*)$ storage/app/public/$1 [L]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
@@ -20,6 +29,12 @@
 
     # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^ index.php [L]
+    RewriteCond %{REQUEST_FILENAME} !-f        RewriteRule ^ index.php [L]
+</IfModule>
+
+# Belt-and-braces block for secrets, logs and metadata (Apache 2.4 / LiteSpeed).
+<IfModule mod_authz_core.c>
+    <FilesMatch "(^\.|\.(env|log|sqlite|md|ya?ml|lock|dist|example)$|^(artisan|composer\.(json|lock)|package(-lock)?\.json|phpunit\.xml)$)">
+        Require all denied
+    </FilesMatch>
 </IfModule>

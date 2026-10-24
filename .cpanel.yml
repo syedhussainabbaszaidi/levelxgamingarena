@@ -1,10 +1,14 @@
 ---
+# cPanel/StackCP "Git Version Control" deployment (optional alternative to
+# .github/workflows/deploy.yml).
+#
+# Flat layout: the whole Laravel application lives in public_html/, so the repo
+# is rsynced straight into the document root and index.php (repository root) is
+# the front controller. .env and runtime storage are preserved.
 deployment:
   tasks:
-    - export APPPATH="$HOME/levelxgamingarena/"
-    - export PUBLICPATH="$HOME/public_html/"
-    - rsync -a --exclude='.git/' --exclude='.cpanel.yml' --exclude='.env' --exclude='.env.*' --exclude='node_modules/' --exclude='tests/' --exclude='storage/logs/' --exclude='storage/framework/cache/' --exclude='storage/framework/sessions/' --exclude='storage/framework/views/' --exclude='bootstrap/cache/*.php' --exclude='database/database.sqlite' --exclude='public/storage' --exclude='public/hot' ./ "$APPPATH"
-    - rsync -a --exclude='storage/' --exclude='hot' public/ "$PUBLICPATH"
-    - /bin/cp index.php "$PUBLICPATH/index.php"
-    - if [ -L "$PUBLICPATH/storage" ]; then :; elif [ -e "$PUBLICPATH/storage" ]; then echo "Refusing to replace existing public_html/storage; verify it is a storage symlink first." >&2; exit 1; else /bin/ln -s "$APPPATH/storage/app/public" "$PUBLICPATH/storage"; fi
-    - /bin/chmod -R u+rwX "$APPPATH/storage" "$APPPATH/bootstrap/cache"
+    - export DEPLOYPATH="$HOME/public_html/"
+    - /bin/mkdir -p "$DEPLOYPATH/storage/app/public" "$DEPLOYPATH/storage/app/private" "$DEPLOYPATH/storage/framework/cache/data" "$DEPLOYPATH/storage/framework/sessions" "$DEPLOYPATH/storage/framework/views" "$DEPLOYPATH/storage/logs" "$DEPLOYPATH/bootstrap/cache"
+    - rsync -a --exclude='.git/' --exclude='.github/' --exclude='.cpanel.yml' --exclude='.env' --exclude='.env.*' --exclude='node_modules/' --exclude='tests/' --exclude='storage/logs/' --exclude='storage/framework/cache/' --exclude='storage/framework/sessions/' --exclude='storage/framework/views/' --exclude='bootstrap/cache/*.php' --exclude='database/database.sqlite' --exclude='public/' ./ "$DEPLOYPATH"
+    - rsync -a --exclude='storage/' --exclude='hot' public/ "$DEPLOYPATH"
+    - /bin/chmod -R u+rwX "$DEPLOYPATH/storage" "$DEPLOYPATH/bootstrap/cache"

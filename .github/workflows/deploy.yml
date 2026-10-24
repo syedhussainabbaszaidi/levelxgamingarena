@@ -1,5 +1,13 @@
 # Build and deploy this Laravel app to 20i / StackCP shared hosting.
 #
+# DEPLOY LAYOUT (flat): the complete Laravel application — app/, bootstrap/,
+# config/, database/, resources/, routes/, storage/, vendor/, .env, artisan —
+# is pushed into the existing public_html/ directory. There is no nested
+# project folder under public_html and no separate app directory outside it.
+# index.php at the repository root is the front controller for that layout
+# (paths are relative to __DIR__), and public/.htaccess blocks HTTP access to
+# app source, vendor, config, storage internals, .env and other metadata.
+#
 # WHY SFTP (and not FTP/FTPS):
 #   20i locks FTP access per package ("unlock FTP by time or by IP"). GitHub's
 #   hosted runners get a random egress IP on every run, so an IP-unlocked FTP
@@ -19,16 +27,12 @@
 #   1. GitHub repo -> Settings -> Secrets and variables -> Actions:
 #        FTP_USERNAME  (20i FTP username, e.g. levelxgamingarena.com)
 #        FTP_PASSWORD
-#   2. Create ~/levelxgamingarena/.env on the server once (StackCP File Manager).
-#      It is never uploaded or deleted by this workflow.
-#   3. Run `php artisan migrate --force` once against the production database.
+#   2. Create public_html/.env once (StackCP File Manager). It is never uploaded
+#      or deleted by this workflow, so it survives every deployment.
+#   3. Run migrations once against the production database
+#      (`php artisan migrate --force`).
 #
-# SERVER LAYOUT
-#   ~/levelxgamingarena/   <- Laravel app (vendor, app, config, storage, ...)
-#   ~/public_html/         <- contents of Laravel's public/ (index.php patched)
-#   ~/public_html/storage  -> ../levelxgamingarena/storage/app/public
-#
-# storage/, logs, caches and .env are excluded from the sync so server-side
+# Storage, logs, caches and .env are excluded from the sync so server-side
 # files (uploads, logs, sessions) are never deleted by a deployment.
 
 name: Build and deploy to cPanel (SFTP)
@@ -46,7 +50,6 @@ permissions:
   contents: read
 
 env:
-  APP_DIR: levelxgamingarena
   PUBLIC_DIR: public_html
   SFTP_HOST: ftp.stackcp.com
   SFTP_PORT: '22'
@@ -90,21 +93,19 @@ jobs:
           npm run build
           test -f public/build/manifest.json
 
-      # Split the project into "app" (outside web root) and "public" (web root)
+      # One staging tree that mirrors public_html exactly.
       - name: Stage files
         run: |
           set -euo pipefail
           rm -rf .stage
-          mkdir -p .stage/app .stage/public
+          mkdir -p .stage/site
 
-          # Public files -> public_html
-          rsync -a --exclude='storage' --exclude='hot' public/ .stage/public/
-          echo "${GITHUB_SHA}" > .stage/public/version.txt
-          sed -i "s#__DIR__.'/../#__DIR__.'/../${APP_DIR}/#g" .stage/public/index.php
-          grep -q "${APP_DIR}/vendor/autoload.php" .stage/public/index.php
-          grep -q "${APP_DIR}/bootstrap/app.php" .stage/public/index.php
+          # 1. Web assets first: build/, img/, robots.txt, .htaccess, ...
+          rsync -a --exclude='storage' --exclude='hot' public/ .stage/site/
+          echo "${GITHUB_SHA}" > .stage/site/version.txt
 
-          # App files -> ~/levelxgamingarena
+          # 2. Application + dependencies on top. The root index.php (flat
+          #    layout) replaces public/index.php in the staged tree.
           rsync -a \
             --exclude='.git/' --exclude='.github/' --exclude='.stage/' \
             --exclude='node_modules/' --exclude='tests/' --exclude='public/' \
@@ -112,19 +113,29 @@ jobs:
             --exclude='storage/logs/*' --exclude='storage/framework/cache/*' \
             --exclude='storage/framework/sessions/*' --exclude='storage/framework/views/*' \
             --exclude='bootstrap/cache/*.php' --exclude='database/database.sqlite' \
-            ./ .stage/app/
+            ./ .stage/site/
 
           # Directories Laravel needs to exist and write to at runtime.
           mkdir -p \
-            .stage/app/storage/app/public \
-            .stage/app/storage/app/private \
-            .stage/app/storage/framework/cache/data \
-            .stage/app/storage/framework/sessions \
-            .stage/app/storage/framework/views \
-            .stage/app/storage/logs \
-            .stage/app/bootstrap/cache
+            .stage/site/storage/app/public \
+            .stage/site/storage/app/private \
+            .stage/site/storage/framework/cache/data \
+            .stage/site/storage/framework/sessions \
+            .stage/site/storage/framework/views \
+            .stage/site/storage/logs \
+            .stage/site/bootstrap/cache
 
-          test -f .stage/app/vendor/autoload.php
+          # 3. Guards: flat-layout front controller, dependencies and the
+          #    hardening rules must all be present in the staged tree.
+          test -f .stage/site/vendor/autoload.php
+          grep -q "__DIR__.'/vendor/autoload.php'" .stage/site/index.php
+          grep -q "__DIR__.'/bootstrap/app.php'" .stage/site/index.php
+          if grep -q "__DIR__.'/../vendor" .stage/site/index.php; then
+            echo "::error::Staged index.php still uses the nested layout paths."
+            exit 1
+          fi
+          grep -q 'RewriteRule ^(app|bootstrap|config|database' .stage/site/.htaccess
+          test -f .stage/site/build/manifest.json
 
       - name: Check SFTP credentials and endpoint
         run: |
@@ -164,21 +175,29 @@ jobs:
           LFTPRC
 
           cat > "$RUNNER_TEMP/deploy.lftp" <<LFTP
-          mkdir -p $APP_DIR
-          mkdir -p $APP_DIR/storage/app/public
-          mkdir -p $APP_DIR/storage/app/private
-          mkdir -p $APP_DIR/storage/framework/cache/data
-          mkdir -p $APP_DIR/storage/framework/sessions
-          mkdir -p $APP_DIR/storage/framework/views
-          mkdir -p $APP_DIR/storage/logs
-          mkdir -p $APP_DIR/bootstrap/cache
+          set cmd:fail-exit no
+          # The old layout linked public_html/storage to ../levelxgamingarena.
+          # The flat layout keeps storage inside public_html, so drop the link.
+          rm -f $PUBLIC_DIR/storage
+          set cmd:fail-exit yes
 
-          # Application code. storage/, .env and the caches stay server-side.
+          mkdir -p $PUBLIC_DIR/storage/app/public
+          mkdir -p $PUBLIC_DIR/storage/app/private
+          mkdir -p $PUBLIC_DIR/storage/framework/cache/data
+          mkdir -p $PUBLIC_DIR/storage/framework/sessions
+          mkdir -p $PUBLIC_DIR/storage/framework/views
+          mkdir -p $PUBLIC_DIR/storage/logs
+          mkdir -p $PUBLIC_DIR/bootstrap/cache
+
+          # Whole application into the web root. storage/, .env and caches are
+          # excluded so server-side files survive the --delete.
           mirror -R --delete --verbose=1 \\
             -X storage -X 'storage/*' \\
             -X .env -X '.env.*' \\
             -X 'database/*.sqlite' \\
-            .stage/app/ $APP_DIR/
+            -X cgi-bin -X 'cgi-bin/*' \\
+            -X .well-known -X '.well-known/*' \\
+            .stage/site/ $PUBLIC_DIR/
 
           # Storage skeleton + committed images. No --delete: uploads/logs kept.
           mirror -R --verbose=1 \\
@@ -187,14 +206,7 @@ jobs:
             -X 'framework/sessions/*' \\
             -X 'framework/views/*' \\
             -X 'framework/testing/*' \\
-            .stage/app/storage/ $APP_DIR/storage/
-
-          # Web root.
-          mirror -R --delete --verbose=1 \\
-            -X storage -X 'storage/*' \\
-            -X cgi-bin -X 'cgi-bin/*' \\
-            -X .well-known -X '.well-known/*' \\
-            .stage/public/ $PUBLIC_DIR/
+            .stage/site/storage/ $PUBLIC_DIR/storage/
 
           bye
           LFTP
@@ -220,23 +232,6 @@ jobs:
             exit 1
           fi
 
-      - name: Link public storage directory
-        run: |
-          set -euo pipefail
-          # Create the link from inside public_html so the relative target is
-          # resolved by the server, not by lftp's working directory.
-          cat > "$RUNNER_TEMP/link.lftp" <<LFTP
-          set cmd:fail-exit no
-          cd $PUBLIC_DIR
-          rm -f storage
-          ln -s ../$APP_DIR/storage/app/public storage
-          cls -l storage
-          bye
-          LFTP
-          LFTP_PASSWORD="$FTP_PASSWORD" lftp --env-password -u "$FTP_USERNAME" \
-            "sftp://$SFTP_HOST:$SFTP_PORT" -e "source $RUNNER_TEMP/link.lftp" \
-            || echo "::warning::Could not refresh $PUBLIC_DIR/storage symlink."
-
       - name: Verify deployment
         run: |
           set -euo pipefail
@@ -255,11 +250,21 @@ jobs:
           fi
           echo "Deployed commit $GITHUB_SHA is live (version.txt matches)."
 
+          # Sensitive paths must not be downloadable.
+          for path in .env .git/config composer.json artisan storage/logs/laravel.log vendor/autoload.php config/app.php; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$SITE_URL/$path")
+            echo "$path -> $code"
+            if [ "$code" = "200" ]; then
+              echo "::error::$SITE_URL/$path is publicly accessible."
+              exit 1
+            fi
+          done
+
           status=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 \
             -H 'Cache-Control: no-cache' "$SITE_URL/")
           echo "Homepage HTTP status: $status"
           if [ "$status" != "200" ]; then
             echo "::error::Homepage returned $status after a successful upload."
-            echo "::error::The code is deployed; the application itself is failing. Check ~/$APP_DIR/.env (APP_KEY, DB_*), migrations and storage permissions."
+            echo "::error::The code is deployed; the application itself is failing. Check $PUBLIC_DIR/.env (APP_KEY, DB_*), migrations and storage permissions."
             exit 1
           fi
