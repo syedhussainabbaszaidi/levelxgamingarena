@@ -93,7 +93,11 @@ jobs:
           cls -la public_html/storage/
           cls -la public_html/storage/logs/
           cls -la public_html/public
+          cls -la public_html/database/
           cls -la levelxgamingarena
+          cls -la levelxgamingarena/database/
+          cls -la levelxgamingarena/storage/
+          get levelxgamingarena/.env -o $RUNNER_TEMP/app-old.env
           get public_html/.env -o $RUNNER_TEMP/app.env
           get public_html/index.php -o $RUNNER_TEMP/deployed-index.php
           get public_html/.htaccess -o $RUNNER_TEMP/deployed-htaccess
@@ -110,6 +114,14 @@ jobs:
             grep -oE '^(APP_ENV|APP_DEBUG|APP_URL|APP_KEY|DB_CONNECTION|DB_HOST|DB_PORT|DB_DATABASE|DB_USERNAME|SESSION_DRIVER|CACHE_STORE|LOG_CHANNEL|APP_TIMEZONE)=' "$RUNNER_TEMP/app.env" | sort -u
             keylen=$(grep -E '^APP_KEY=' "$RUNNER_TEMP/app.env" | sed 's/^APP_KEY=//' | tr -d '\r\n' | wc -c)
             echo "APP_KEY length: $keylen"
+          else
+            echo "MISSING"
+          fi
+
+          echo "===== legacy levelxgamingarena/.env (keys only) ====="
+          if [ -s "$RUNNER_TEMP/app-old.env" ]; then
+            echo "present, $(wc -c < "$RUNNER_TEMP/app-old.env") bytes"
+            grep -oE '^(APP_ENV|APP_URL|DB_CONNECTION|DB_DATABASE|DB_HOST|DB_USERNAME|SESSION_DRIVER|CACHE_STORE)=' "$RUNNER_TEMP/app-old.env" | sort -u
           else
             echo "MISSING"
           fi
