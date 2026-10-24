@@ -1,24 +1,34 @@
-# Push to main -> build (composer + npm) -> deploy to 20i/StackCP over SFTP.
+# Build and deploy this Laravel app to 20i / StackCP shared hosting.
 #
-# WHY SFTP AND NOT FTP:
-#   The site is hosted on 20i/StackCP. The FTP/SFTP endpoint is
-#   ftp.stackcp.com. Port 21 (plain/explicit FTPS) is filtered from GitHub's
-#   runners, which is what produced "Error: Timeout (control socket)".
-#   Port 22 (SFTP) is reachable and is the supported 20i endpoint.
+# WHY SFTP (and not FTP/FTPS):
+#   20i locks FTP access per package ("unlock FTP by time or by IP"). GitHub's
+#   hosted runners get a random egress IP on every run, so an IP-unlocked FTP
+#   account works at best intermittently. Plain-FTP/FTPS uploads from runners
+#   are what produced "Error: Timeout (control socket)" in earlier revisions.
+#   SFTP on port 22 is reachable from GitHub runners and is the supported 20i
+#   endpoint, so this workflow uses SFTP only.
+#
+# WHY THE DEPLOY IS SEQUENTIAL AND RETRIED:
+#   20i throttles/refuses new SFTP logins when the same account opens several
+#   sessions in a burst (lftp's --parallel). That showed up as
+#   "Login failed: Login incorrect" part-way through an upload. This workflow
+#   keeps ONE session per attempt, transfers sequentially, and retries the whole
+#   session with backoff instead of hammering the host.
 #
 # ONE-TIME SETUP
-#   1. GitHub repo -> Settings -> Secrets and variables -> Actions -> add:
-#        FTP_USERNAME  (the cPanel/FTP account, e.g. yourdomain.com)
+#   1. GitHub repo -> Settings -> Secrets and variables -> Actions:
+#        FTP_USERNAME  (20i FTP username, e.g. levelxgamingarena.com)
 #        FTP_PASSWORD
-#   2. Create ~/levelxgamingarena/.env on the server once (see README). It is
-#      never uploaded by this workflow, so it survives every deploy.
+#   2. Create ~/levelxgamingarena/.env on the server once (StackCP File Manager).
+#      It is never uploaded or deleted by this workflow.
+#   3. Run `php artisan migrate --force` once against the production database.
 #
 # SERVER LAYOUT
 #   ~/levelxgamingarena/   <- Laravel app (vendor, app, config, storage, ...)
 #   ~/public_html/         <- contents of Laravel's public/ (index.php patched)
 #   ~/public_html/storage  -> ../levelxgamingarena/storage/app/public
 #
-# Storage, logs, caches and .env are excluded from the sync so server-side
+# storage/, logs, caches and .env are excluded from the sync so server-side
 # files (uploads, logs, sessions) are never deleted by a deployment.
 
 name: Build and deploy to cPanel (SFTP)
@@ -32,17 +42,23 @@ concurrency:
   group: deploy-production
   cancel-in-progress: false
 
+permissions:
+  contents: read
+
 env:
   APP_DIR: levelxgamingarena
+  PUBLIC_DIR: public_html
   SFTP_HOST: ftp.stackcp.com
   SFTP_PORT: '22'
+  SITE_URL: https://levelxgamingarena.com
 
 jobs:
   deploy:
     name: Deploy
+    # Pinned (not ubuntu-latest) so a runner image migration cannot change the
+    # toolchain under us. ubuntu-24.04 is the current GA image.
     runs-on: ubuntu-24.04
     timeout-minutes: 45
-    # Fail fast with a clear message instead of a mid-upload auth error.
     env:
       FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
       FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
@@ -133,14 +149,17 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq lftp
 
-          # Connection settings must exist before lftp connects, so they go in
-          # ~/.lftprc (command-line URL + LFTP_PASSWORD handles credentials).
+          # Connection settings must exist before lftp connects.
           cat > "$HOME/.lftprc" <<'LFTPRC'
           set sftp:auto-confirm yes
-          set sftp:connect-program "ssh -a -x -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-          set net:max-retries 5
-          set net:timeout 30
-          set net:reconnect-interval-base 5
+          set sftp:connect-program "ssh -a -x -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=25 -o ServerAliveInterval=20 -o ServerAliveCountMax=6"
+          set sftp:max-packets-in-flight 16
+          set net:timeout 60
+          set net:max-retries 3
+          set net:persist-retries 5
+          set net:reconnect-interval-base 10
+          set net:reconnect-interval-max 60
+          set mirror:parallel-transfer-count 1
           set cmd:fail-exit yes
           LFTPRC
 
@@ -154,41 +173,69 @@ jobs:
           mkdir -p $APP_DIR/storage/logs
           mkdir -p $APP_DIR/bootstrap/cache
 
-          # Application code. storage/ and .env stay server-side.
-          mirror -R --delete --verbose=1 --parallel=4 \
-            -X storage -X 'storage/*' \
-            -X .env -X '.env.*' \
-            -X 'database/*.sqlite' \
+          # Application code. storage/, .env and the caches stay server-side.
+          mirror -R --delete --verbose=1 \\
+            -X storage -X 'storage/*' \\
+            -X .env -X '.env.*' \\
+            -X 'database/*.sqlite' \\
             .stage/app/ $APP_DIR/
 
           # Storage skeleton + committed images. No --delete: uploads/logs kept.
-          mirror -R --verbose=1 --parallel=2 \
-            -X 'logs/*' \
-            -X 'framework/cache/*' \
-            -X 'framework/sessions/*' \
-            -X 'framework/views/*' \
-            -X 'framework/testing/*' \
+          mirror -R --verbose=1 \\
+            -X 'logs/*' \\
+            -X 'framework/cache/*' \\
+            -X 'framework/sessions/*' \\
+            -X 'framework/views/*' \\
+            -X 'framework/testing/*' \\
             .stage/app/storage/ $APP_DIR/storage/
 
           # Web root.
-          mirror -R --delete --verbose=1 --parallel=2 \
-            -X storage -X 'storage/*' \
-            -X cgi-bin -X 'cgi-bin/*' \
-            -X .well-known -X '.well-known/*' \
-            .stage/public/ public_html/
+          mirror -R --delete --verbose=1 \\
+            -X storage -X 'storage/*' \\
+            -X cgi-bin -X 'cgi-bin/*' \\
+            -X .well-known -X '.well-known/*' \\
+            .stage/public/ $PUBLIC_DIR/
 
           bye
           LFTP
 
-          LFTP_PASSWORD="$FTP_PASSWORD" lftp --env-password -u "$FTP_USERNAME" \
-            "sftp://$SFTP_HOST:$SFTP_PORT" -e "source $RUNNER_TEMP/deploy.lftp"
+          # 20i occasionally answers a burst of logins with
+          # "Login failed: Login incorrect" even for valid credentials, so the
+          # whole session is retried with backoff rather than blindly rerun.
+          ok=0
+          for attempt in 1 2 3; do
+            echo "::group::SFTP deploy attempt $attempt/3"
+            if LFTP_PASSWORD="$FTP_PASSWORD" lftp --env-password -u "$FTP_USERNAME" \
+                 "sftp://$SFTP_HOST:$SFTP_PORT" -e "source $RUNNER_TEMP/deploy.lftp"; then
+              echo "::endgroup::"
+              ok=1
+              break
+            fi
+            echo "::endgroup::"
+            echo "::warning::SFTP attempt $attempt failed; retrying after backoff."
+            sleep $((attempt * 20))
+          done
+          if [ "$ok" -ne 1 ]; then
+            echo "::error::SFTP upload failed after 3 attempts. Check that FTP is unlocked in My20i/StackCP for this package and that FTP_USERNAME/FTP_PASSWORD are the package FTP details."
+            exit 1
+          fi
 
-          # public_html/storage -> app storage. Tolerate "already exists" so the
-          # step stays idempotent (a pre-existing directory is never replaced).
+      - name: Link public storage directory
+        run: |
+          set -euo pipefail
+          # Create the link from inside public_html so the relative target is
+          # resolved by the server, not by lftp's working directory.
+          cat > "$RUNNER_TEMP/link.lftp" <<LFTP
+          set cmd:fail-exit no
+          cd $PUBLIC_DIR
+          rm -f storage
+          ln -s ../$APP_DIR/storage/app/public storage
+          cls -l storage
+          bye
+          LFTP
           LFTP_PASSWORD="$FTP_PASSWORD" lftp --env-password -u "$FTP_USERNAME" \
-            "sftp://$SFTP_HOST:$SFTP_PORT" \
-            -e "set cmd:fail-exit no; ln -s ../$APP_DIR/storage/app/public public_html/storage; bye" \
-            || echo "::warning::Could not create public_html/storage symlink (it may already exist)."
+            "sftp://$SFTP_HOST:$SFTP_PORT" -e "source $RUNNER_TEMP/link.lftp" \
+            || echo "::warning::Could not refresh $PUBLIC_DIR/storage symlink."
 
       - name: Verify deployment
         run: |
@@ -196,21 +243,23 @@ jobs:
           ok=0
           for i in $(seq 1 12); do
             if curl -fsS --max-time 20 -H 'Cache-Control: no-cache' \
-              "https://levelxgamingarena.com/version.txt?t=${GITHUB_RUN_ID}-${i}" | grep -qx "$GITHUB_SHA"; then
+              "$SITE_URL/version.txt?t=${GITHUB_RUN_ID}-${i}" | grep -qx "$GITHUB_SHA"; then
               ok=1
               break
             fi
             sleep 5
           done
           if [ "$ok" -ne 1 ]; then
-            echo "::error::Deployment verification failed: https://levelxgamingarena.com/version.txt does not serve $GITHUB_SHA."
+            echo "::error::Deployment verification failed: $SITE_URL/version.txt does not serve $GITHUB_SHA."
             exit 1
           fi
           echo "Deployed commit $GITHUB_SHA is live (version.txt matches)."
 
           status=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 \
-            -H 'Cache-Control: no-cache' https://levelxgamingarena.com/)
+            -H 'Cache-Control: no-cache' "$SITE_URL/")
           echo "Homepage HTTP status: $status"
           if [ "$status" != "200" ]; then
-            echo "::warning::Homepage returned $status. Check ~/$APP_DIR/.env (APP_KEY, DB_*), migrations and storage permissions."
+            echo "::error::Homepage returned $status after a successful upload."
+            echo "::error::The code is deployed; the application itself is failing. Check ~/$APP_DIR/.env (APP_KEY, DB_*), migrations and storage permissions."
+            exit 1
           fi
