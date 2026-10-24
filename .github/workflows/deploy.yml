@@ -408,7 +408,7 @@ jobs:
           echo "No production database yet; uploading the provisioned one."
           LFTP_PASSWORD="$FTP_PASSWORD" lftp --env-password -u "$FTP_USERNAME" \
             "sftp://$SFTP_HOST:$SFTP_PORT" \
-            -e "put -o $PUBLIC_DIR/database/ $db; cls -la $PUBLIC_DIR/database/database.sqlite; bye" \
+            -e "cd $PUBLIC_DIR/database; put $db; cls -la database.sqlite; bye" \
             | tee "$RUNNER_TEMP/db-upload.log"
           grep -q 'database.sqlite' "$RUNNER_TEMP/db-upload.log" || {
             echo "::error::The provisioned database was not found on the server after upload."
