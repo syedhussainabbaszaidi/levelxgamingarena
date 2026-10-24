@@ -29,18 +29,27 @@
 #        FTP_PASSWORD
 #   2. Create public_html/.env once (StackCP File Manager). It is never uploaded
 #      or deleted by this workflow, so it survives every deployment.
-#   3. Run migrations once against the production database
-#      (`php artisan migrate --force`).
+#   3. Provision the production database once. When the server .env uses
+#      SQLite, run this workflow manually with "provision_sqlite_db" enabled:
+#      it builds public_html/database/database.sqlite from the project's own
+#      migrations + seeders and uploads it only if no database exists yet.
+#      On MySQL, run `php artisan migrate --force` against the cPanel database
+#      yourself and leave the input disabled.
 #
 # Storage, logs, caches and .env are excluded from the sync so server-side
 # files (uploads, logs, sessions) are never deleted by a deployment.
 
-name: Build and deploy to cPanel (SFTP)
+name: Build and deploy to cPanel
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      provision_sqlite_db:
+        description: 'Create public_html/database/database.sqlite from migrations + seeders if it does not exist yet (first-time setup only)'
+        type: boolean
+        default: false
 
 concurrency:
   group: deploy-production
@@ -76,7 +85,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mbstring, xml, ctype, curl, dom, fileinfo, openssl, pdo, pdo_mysql, tokenizer, zip, gd, bcmath, intl
+          extensions: mbstring, xml, ctype, curl, dom, fileinfo, openssl, pdo, pdo_mysql, pdo_sqlite, sqlite3, tokenizer, zip, gd, bcmath, intl
           coverage: none
           tools: composer:v2
 
@@ -171,6 +180,24 @@ jobs:
             echo "::error::.stage/site/.env exists; .env must never be deployed."
             exit 1
           fi
+
+      # The server .env selects SQLite, and database/*.sqlite is excluded from
+      # the mirror so live data is never overwritten - which also means a fresh
+      # public_html has no schema at all and every request dies with
+      # "no such table: sessions". This builds that file once from the project's
+      # own migrations + seeders; it only runs when explicitly requested.
+      - name: Build production SQLite database (provisioning only)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.provision_sqlite_db }}
+        run: |
+          set -euo pipefail
+          db=".stage/site/database/database.sqlite"
+          : > "$db"
+          export DB_CONNECTION=sqlite
+          export DB_DATABASE="$PWD/$db"
+          export APP_KEY="base64:$(head -c 32 /dev/urandom | base64 -w0)"
+          php artisan migrate --seed --force
+          php -r '$p = new PDO("sqlite:".getenv("DB_DATABASE")); echo "schema objects: ", count($p->query("select name from sqlite_master")->fetchAll()), PHP_EOL;'
+          ls -l "$db"
 
       - name: Check upload endpoint and credentials
         run: |
@@ -341,6 +368,53 @@ jobs:
             echo "::error::Upload failed over SFTP, FTPS and FTP. Unlock FTP/SSH access in My20i/StackCP for this package and confirm FTP_USERNAME/FTP_PASSWORD are the package credentials."
             exit 1
           fi
+
+      # Upload the provisioned database only when the server has none. The probe
+      # is a separate read-only download so an existing production database can
+      # never be silently replaced; any transport error aborts instead.
+      - name: Upload provisioned SQLite database
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.provision_sqlite_db }}
+        run: |
+          set -euo pipefail
+          db=".stage/site/database/database.sqlite"
+          test -s "$db"
+          cat > "$HOME/.lftprc" <<'LFTPRC'
+          set net:timeout 60
+          set net:max-retries 3
+          set sftp:auto-confirm yes
+          set sftp:connect-program "ssh -a -x -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=25"
+          LFTPRC
+
+          probe="$RUNNER_TEMP/remote-db-probe"
+          rm -f "$probe"
+          set +e
+          LFTP_PASSWORD="$FTP_PASSWORD" lftp --env-password -u "$FTP_USERNAME" \
+            "sftp://$SFTP_HOST:$SFTP_PORT" \
+            -e "get $PUBLIC_DIR/database/database.sqlite -o $probe; bye" \
+            > "$RUNNER_TEMP/db-probe.log" 2>&1
+          rc=$?
+          set -e
+          cat "$RUNNER_TEMP/db-probe.log"
+
+          if [ "$rc" -eq 0 ] && [ -s "$probe" ]; then
+            echo "::notice::$PUBLIC_DIR/database/database.sqlite already exists ($(wc -c < "$probe") bytes) - leaving live data untouched."
+            exit 0
+          fi
+          if ! grep -qE 'No such file|not found' "$RUNNER_TEMP/db-probe.log"; then
+            echo "::error::Could not tell whether a production database exists (SFTP probe failed), so nothing was uploaded. Re-run to retry."
+            exit 1
+          fi
+
+          echo "No production database yet; uploading the provisioned one."
+          LFTP_PASSWORD="$FTP_PASSWORD" lftp --env-password -u "$FTP_USERNAME" \
+            "sftp://$SFTP_HOST:$SFTP_PORT" \
+            -e "put -o $PUBLIC_DIR/database/ $db; cls -la $PUBLIC_DIR/database/database.sqlite; bye" \
+            | tee "$RUNNER_TEMP/db-upload.log"
+          grep -q 'database.sqlite' "$RUNNER_TEMP/db-upload.log" || {
+            echo "::error::The provisioned database was not found on the server after upload."
+            exit 1
+          }
+          echo "Provisioned database uploaded."
 
       - name: Verify deployment
         run: |
