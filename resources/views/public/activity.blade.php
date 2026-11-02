@@ -3,6 +3,12 @@
 @section('title', $resource->name.' — Book')
 
 @section('content')
+    @php
+        $durationLabel = fn (int $minutes) => $minutes % 60 === 0
+            ? intdiv($minutes, 60).' '.Str::plural('hour', intdiv($minutes, 60))
+            : $minutes.' minutes';
+    @endphp
+
     <a href="{{ route('public.index') }}#activities" class="mb-4 inline-block text-xs text-zinc-500 transition hover:text-neon-400">← All activities</a>
 
     <div class="grid gap-6 lg:grid-cols-3">
@@ -42,10 +48,10 @@
 
                     <dl class="mt-5 space-y-2 text-sm">
                         <div class="flex justify-between gap-3"><dt class="text-zinc-500">Capacity</dt><dd class="text-right text-zinc-300">{{ $resource->capacity }} players</dd></div>
-                        <div class="flex justify-between gap-3"><dt class="text-zinc-500">Default session</dt><dd class="text-right text-zinc-300">{{ $policy['default_duration'] }} min</dd></div>
+                        <div class="flex justify-between gap-3"><dt class="text-zinc-500">Default session</dt><dd class="text-right text-zinc-300">{{ $durationLabel($policy['default_duration']) }}</dd></div>
                         <div class="flex justify-between gap-3">
                             <dt class="text-zinc-500">Minimum</dt>
-                            <dd class="text-right text-zinc-300">{{ $policy['min_duration'] }} min</dd>
+                            <dd class="text-right text-zinc-300">{{ $durationLabel($policy['min_duration']) }}</dd>
                         </div>
                         @if($resource->isFixed() && $resource->packageLabel())
                             <div class="flex justify-between gap-3"><dt class="text-zinc-500">Package</dt><dd class="text-right text-zinc-300">{{ $resource->packageLabel() }}</dd></div>
@@ -117,14 +123,14 @@
                         <div>
                             <label class="neon-label" for="duration">Duration</label>
                             <select id="duration" name="duration_minutes" class="select-neon">
-                                @for($m = $policy['min_duration']; $m <= $policy['max_duration']; $m += 30)
+                                @foreach($policy['duration_options'] as $m)
                                     <option value="{{ $m }}" @selected($m === $policy['default_duration'])>
-                                        {{ $m % 60 === 0 ? ($m / 60).' hour'.($m === 60 ? '' : 's') : $m.' minutes' }}
+                                        {{ $durationLabel($m) }}
                                     </option>
-                                @endfor
+                                @endforeach
                             </select>
                             @if($resource->maximumMinutes())
-                                <p class="mt-1 text-xs text-zinc-500">Maximum {{ $resource->maximumMinutes() }} minutes per booking.</p>
+                                <p class="mt-1 text-xs text-zinc-500">Maximum {{ $durationLabel($resource->maximumMinutes()) }} per booking.</p>
                             @endif
                         </div>
                     </div>
@@ -252,8 +258,10 @@
 (function () {
   function init() {
     const resourceId = {{ $resource->id }};
-    const policyMin = {{ $policy['min_duration'] }};
-    const policyMax = {{ $policy['max_duration'] }};
+    const policyDurations = @json($policy['duration_options']);
+    const policyMin = Math.min(...policyDurations);
+    const policyMax = Math.max(...policyDurations);
+    const defaultDuration = {{ $policy['default_duration'] }};
     const isFixedPackage = {{ $policy['fixed'] ? 'true' : 'false' }};
     const slotsEl = document.getElementById('slots');
     const msgEl = document.getElementById('slots-message');
@@ -276,26 +284,40 @@
             : minutes + ' minutes';
     }
 
-    // Rate windows can demand a longer minimum (e.g. the 3-hour PC special).
-    // Rebuild the duration choices so the form never offers an invalid length.
-    function applyMinimum(minutes) {
-        if (isFixedPackage) return false;
-
-        minutes = Math.max(policyMin, Math.ceil(minutes / 30) * 30);
-        if (minutes <= minAllowed) return false;
-
-        minAllowed = minutes;
-        const previous = Number(durationEl.value);
+    // Durations are sold in whole hours; rebuild the options from a minimum.
+    function fillDurationOptions(minMinutes) {
+        const start = Math.max(policyMin, Math.ceil(minMinutes / 60) * 60);
         durationEl.innerHTML = '';
 
-        for (let m = minutes; m <= policyMax; m += 30) {
+        for (let m = start; m <= policyMax; m += 60) {
             const option = document.createElement('option');
             option.value = m;
             option.textContent = durationLabel(m);
             durationEl.appendChild(option);
         }
 
-        durationEl.value = String(Math.max(previous, minutes));
+        if (!durationEl.options.length) {
+            const option = document.createElement('option');
+            option.value = start;
+            option.textContent = durationLabel(start);
+            durationEl.appendChild(option);
+        }
+
+        return start;
+    }
+
+    // Rate windows can demand a longer minimum (e.g. the 3-hour PC special).
+    // Rebuild the duration choices so the form never offers an invalid length.
+    function applyMinimum(minutes) {
+        if (isFixedPackage) return false;
+
+        const snapped = Math.max(policyMin, Math.ceil(minutes / 60) * 60);
+        if (snapped <= minAllowed) return false;
+
+        minAllowed = snapped;
+        const previous = Number(durationEl.value);
+        fillDurationOptions(snapped);
+        durationEl.value = String(Math.max(previous, snapped));
 
         return true;
     }
@@ -304,7 +326,7 @@
         slotsEl.innerHTML = '<p class="text-sm text-zinc-500">Loading…</p>';
         msgEl.textContent = '';
         try {
-            const res = await fetch(`{{ route('public.slots') }}?resource_id=${resourceId}&date=${dateEl.value}`, {
+            const res = await fetch(`{{ route('public.slots') }}?resource_id=${resourceId}&date=${dateEl.value}&duration_minutes=${durationEl.value}`, {
                 headers: {'Accept': 'application/json'}
             });
             const data = await res.json();
@@ -314,9 +336,12 @@
                 return;
             }
             if (!data.slots.length) {
-                slotsEl.innerHTML = '<p class="text-sm text-zinc-500">No slots available on this date.</p>';
+                slotsEl.innerHTML = '<p class="text-sm text-zinc-500">No slots available for this duration on this date.</p>';
                 return;
             }
+
+            // The selected slot may no longer fit after a duration change.
+            let stillAvailable = false;
 
             slotsEl.innerHTML = '';
             data.slots.forEach(slot => {
@@ -329,16 +354,32 @@
                     btn.className = 'rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-xs font-semibold text-zinc-200 transition hover:border-neon-500/60 hover:bg-neon-500/10 hover:text-white';
                     btn.textContent = slot.label;
                     btn.addEventListener('click', () => selectSlot(btn, slot));
+
+                    if (slot.time === selectedTime) {
+                        btn.classList.add('!border-neon-500', '!bg-neon-500/20', '!text-white');
+                        stillAvailable = true;
+                    }
                 } else {
                     btn.className = 'cursor-not-allowed rounded-lg border border-white/5 bg-white/[0.01] px-3 py-2.5 text-xs font-semibold text-zinc-600';
-                    btn.title = 'Unavailable — this slot is already booked';
+                    btn.title = slot.state === 'past'
+                        ? 'Unavailable — this time has passed'
+                        : 'Unavailable — this slot is already booked';
                     btn.setAttribute('aria-disabled', 'true');
                     btn.innerHTML = '<span class="line-through">' + slot.label + '</span>' +
-                        '<span class="ml-1 text-[10px] font-bold uppercase tracking-wide text-rose-400/70">booked</span>';
+                        '<span class="ml-1 text-[10px] font-bold uppercase tracking-wide text-rose-400/70">' +
+                        (slot.state === 'past' ? 'past' : 'booked') + '</span>';
                 }
 
                 slotsEl.appendChild(btn);
             });
+
+            if (selectedTime && !stillAvailable) {
+                selectedTime = null;
+                timeInput.value = '';
+                totalEl.textContent = '—';
+                breakdownEl.innerHTML = '<p>Select an available slot to see the price.</p>';
+                windowEl.textContent = '';
+            }
         } catch (e) {
             slotsEl.innerHTML = '<p class="text-sm text-rose-300">Could not load availability.</p>';
         }
@@ -349,9 +390,6 @@
         timeInput.value = slot.time;
         document.querySelectorAll('#slots button').forEach(b => b.classList.remove('!border-neon-500', '!bg-neon-500/20', '!text-white'));
         btn.classList.add('!border-neon-500', '!bg-neon-500/20', '!text-white');
-        if (slot.minutes && [...durationEl.options].some(o => +o.value === slot.minutes)) {
-            durationEl.value = slot.minutes;
-        }
         loadPrice();
     }
 
@@ -362,7 +400,6 @@
     async function loadPrice() {
         if (!selectedTime) return;
         breakdownEl.innerHTML = '<p>Calculating…</p>';
-        const requestedDuration = durationEl.value;
         noteEl.textContent = '';
         try {
             const url = `{{ route('public.price') }}?resource_id=${resourceId}` +
@@ -373,10 +410,9 @@
 
             if (data.min_minutes && applyMinimum(data.min_minutes)) {
                 noteEl.textContent = 'A minimum booking of ' + minimumLabel(minAllowed) + ' applies at this time — your duration was adjusted.';
-                if (Number(durationEl.value) !== Number(requestedDuration)) {
-                    loadPrice();
-                    return;
-                }
+                await loadSlots();
+                if (selectedTime) loadPrice();
+                return;
             }
 
             if (!data.ok) {
@@ -410,26 +446,33 @@
         }
     });
 
-    dateEl.addEventListener('change', () => {
+    function clearSelection() {
         selectedTime = null;
         timeInput.value = '';
-        minAllowed = policyMin;
         noteEl.textContent = '';
+        totalEl.textContent = '—';
+        breakdownEl.innerHTML = '<p>Select a slot to calculate the exact price.</p>';
+        windowEl.textContent = '';
+    }
+
+    dateEl.addEventListener('change', () => {
+        clearSelection();
+        minAllowed = policyMin;
 
         if (!isFixedPackage) {
-            durationEl.innerHTML = '';
-            for (let m = policyMin; m <= policyMax; m += 30) {
-                const option = document.createElement('option');
-                option.value = m;
-                option.textContent = durationLabel(m);
-                durationEl.appendChild(option);
-            }
-            durationEl.value = String(Math.max(Number(durationEl.value), policyMin));
+            fillDurationOptions(policyMin);
+            durationEl.value = String(defaultDuration);
         }
 
         loadSlots();
     });
-    durationEl.addEventListener('change', loadPrice);
+
+    durationEl.addEventListener('change', () => {
+        noteEl.textContent = '';
+        loadSlots().then(() => {
+            if (selectedTime) loadPrice();
+        });
+    });
 
     loadSlots();
   }

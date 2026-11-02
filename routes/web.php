@@ -139,6 +139,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'role:ad
     Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show')->middleware('permission:bookings.view');
     Route::patch('/bookings/{booking}/status', [BookingController::class, 'updateStatus'])->name('bookings.status')->middleware('permission:bookings.status');
     Route::patch('/bookings/{booking}/payment-status', [BookingController::class, 'updatePaymentStatus'])->name('bookings.payment-status')->middleware('permission:bookings.edit');
+    Route::delete('/bookings/{booking}', [BookingController::class, 'destroy'])->name('bookings.destroy')->middleware('permission:bookings.edit');
 
     /*
      | Gaming activities (a.k.a. resources) + categories.

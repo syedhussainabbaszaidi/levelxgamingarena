@@ -16,23 +16,43 @@ class ActivityLogger
 {
     /** Action constants keep log filters stable across the codebase. */
     public const BOOKING_CREATED = 'booking.created';
+
     public const BOOKING_UPDATED = 'booking.updated';
+
     public const BOOKING_STATUS = 'booking.status_changed';
+
     public const BOOKING_CANCELLED = 'booking.cancelled';
+
+    public const BOOKING_DELETED = 'booking.deleted';
+
     public const ACTIVITY_CREATED = 'activity.created';
+
     public const ACTIVITY_UPDATED = 'activity.updated';
+
     public const ACTIVITY_DELETED = 'activity.deleted';
+
     public const PRICE_CHANGED = 'price.changed';
+
     public const CUSTOMER_UPDATED = 'customer.updated';
+
     public const CUSTOMER_CREATED = 'customer.created';
+
     public const USER_CREATED = 'user.created';
+
     public const USER_UPDATED = 'user.updated';
+
     public const USER_DELETED = 'user.deleted';
+
     public const ROLE_UPDATED = 'role.updated';
+
     public const SETTINGS_UPDATED = 'settings.updated';
+
     public const CONFIG_UPDATED = 'config.updated';
+
     public const AUTH_LOGIN = 'auth.login';
+
     public const AUTH_LOGOUT = 'auth.logout';
+
     public const AUTH_REGISTERED = 'auth.registered';
 
     /**

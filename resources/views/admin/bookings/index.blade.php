@@ -137,8 +137,17 @@
                                 @endif
                             </td>
                             <td><span class="badge {{ $b->statusBadge() }}">{{ str_replace('_', ' ', $b->status) }}</span></td>
-                            <td class="text-right">
-                                <a href="{{ route('admin.bookings.show', $b) }}" class="btn-mini">View</a>
+                            <td>
+                                <div class="flex justify-end gap-2">
+                                    <a href="{{ route('admin.bookings.show', $b) }}" class="btn-mini">View</a>
+                                    @if(auth()->user()->hasPermissionTo('bookings.edit'))
+                                        <form method="POST" action="{{ route('admin.bookings.destroy', $b) }}" class="inline"
+                                              data-confirm="Delete booking {{ $b->code }}? This cannot be undone.">
+                                            @csrf @method('DELETE')
+                                            <button class="btn-danger">Delete</button>
+                                        </form>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @empty

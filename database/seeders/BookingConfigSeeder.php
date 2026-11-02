@@ -17,7 +17,6 @@ class BookingConfigSeeder extends Seeder
             ['players_count', 'Number of players', 'number', 'e.g. 4', true, true, 2],
             ['phone', 'Contact number', 'tel', '+92 300 0000000', true, true, 3],
             ['email', 'Email (optional)', 'email', 'you@example.com', false, true, 4],
-            ['special_requests', 'Special requests', 'textarea', 'Anything we should prepare?', false, true, 5],
         ];
 
         foreach ($global as [$key, $label, $type, $placeholder, $required, $visible, $order]) {

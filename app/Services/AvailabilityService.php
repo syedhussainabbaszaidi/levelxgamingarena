@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\Business;
 use App\Models\Booking;
+use App\Models\Business;
 use App\Models\Resource;
 use App\Models\TimeSlot;
 use Carbon\Carbon;
@@ -21,9 +21,13 @@ class AvailabilityService
     /**
      * Bookable slot grid for a resource + date.
      *
+     * When $durationMinutes is given, every slot reserves that whole block
+     * ("12:00 PM – 1:00 PM" for a one-hour booking) and is only offered when
+     * the complete window is free.
+     *
      * @return array{ slots: array, business_open: bool, message: ?string }
      */
-    public function slotsForResource(Resource $resource, Carbon $date, int $slotMinutes = 30): array
+    public function slotsForResource(Resource $resource, Carbon $date, int $slotMinutes = 30, ?int $durationMinutes = null): array
     {
         $business = $resource->business;
         $open = $this->businessOpenAt($business, $date);
@@ -41,13 +45,22 @@ class AvailabilityService
         }
 
         $busyRanges = $this->busyRanges($resource, $open, $close);
+        $step = $durationMinutes !== null ? max(15, $durationMinutes) : $slotMinutes;
+        $withRange = $durationMinutes !== null;
 
-        for ($t = $open->copy(); $t->lt($close); $t->addMinutes($slotMinutes)) {
-            $slotEnd = $t->copy()->addMinutes($slotMinutes);
+        for ($t = $open->copy(); $t->lt($close); $t->addMinutes($step)) {
+            $slotEnd = $t->copy()->addMinutes($step);
+            if ($slotEnd->gt($close)) {
+                break;
+            }
+
+            $state = $this->slotState($t, $slotEnd, $busyRanges);
             $slots[] = [
                 'time' => $t->format('H:i'),
-                'label' => $t->format('g:i A'),
-                'available' => $slotEnd->gt(Carbon::now()) && ! $this->anyOverlap($busyRanges, $t, $slotEnd),
+                'label' => $this->slotLabel($t, $slotEnd, $withRange),
+                'minutes' => $step,
+                'state' => $state,
+                'available' => $state === 'available',
             ];
         }
 
@@ -64,12 +77,12 @@ class AvailabilityService
      *
      * @return array{ slots: array, business_open: bool, message: ?string }
      */
-    public function configuredSlots(Resource $resource, Carbon $date, int $defaultSlotMinutes = 60): array
+    public function configuredSlots(Resource $resource, Carbon $date, int $defaultSlotMinutes = 60, ?int $durationMinutes = null): array
     {
         $override = $this->slotWindowsFor($resource, $date);
 
         if ($override->isEmpty()) {
-            return $this->slotsForResource($resource, $date, $defaultSlotMinutes);
+            return $this->slotsForResource($resource, $date, $defaultSlotMinutes, $durationMinutes);
         }
 
         if (! $resource->isBookable()) {
@@ -87,6 +100,8 @@ class AvailabilityService
         $busy = $this->busyRanges($resource, $open, $close);
 
         $slots = [];
+        $withRange = $durationMinutes !== null;
+
         foreach ($override as $window) {
             $windowStart = $date->copy()->setTimeFromTimeString($window->start_time);
             $windowEnd = $date->copy()->setTimeFromTimeString($window->end_time);
@@ -97,7 +112,9 @@ class AvailabilityService
             // Clamp to business hours.
             $start = $windowStart->lt($open) ? $open->copy() : $windowStart->copy();
             $end = $windowEnd->gt($close) ? $close->copy() : $windowEnd->copy();
-            $step = max(15, (int) $window->slot_minutes);
+            $step = $durationMinutes !== null
+                ? max(15, $durationMinutes)
+                : max(15, (int) $window->slot_minutes);
 
             for ($t = $start->copy(); $t->lt($end); $t->addMinutes($step)) {
                 $slotEnd = $t->copy()->addMinutes($step);
@@ -105,18 +122,45 @@ class AvailabilityService
                     break;
                 }
 
-                $slots[] = [
-                    'time' => $t->format('H:i'),
-                    'label' => $t->format('g:i A'),
+                $state = $this->slotState($t, $slotEnd, $busy);
+                $key = $t->format('H:i');
+
+                // Overlapping windows can produce the same start — first wins.
+                if (isset($slots[$key])) {
+                    continue;
+                }
+
+                $slots[$key] = [
+                    'time' => $key,
+                    'label' => $this->slotLabel($t, $slotEnd, $withRange),
                     'window' => $window->label,
                     'minutes' => $step,
+                    'state' => $state,
                     // A slot is bookable only if it is in the future and free.
-                    'available' => $slotEnd->gt(Carbon::now()) && ! $this->anyOverlap($busy, $t, $slotEnd),
+                    'available' => $state === 'available',
                 ];
             }
         }
 
-        return ['slots' => $slots, 'business_open' => true, 'message' => null];
+        return ['slots' => array_values($slots), 'business_open' => true, 'message' => null];
+    }
+
+    /** "available", "booked" (overlaps a booking) or "past". */
+    protected function slotState(Carbon $startsAt, Carbon $endsAt, array $busyRanges): string
+    {
+        if ($endsAt->lte(Carbon::now())) {
+            return 'past';
+        }
+
+        return $this->anyOverlap($busyRanges, $startsAt, $endsAt) ? 'booked' : 'available';
+    }
+
+    /** "7:00 AM" for a grid slot, "12:00 PM – 1:00 PM" for a timed booking. */
+    protected function slotLabel(Carbon $startsAt, Carbon $endsAt, bool $withRange): string
+    {
+        return $withRange
+            ? $startsAt->format('g:i A').' – '.$endsAt->format('g:i A')
+            : $startsAt->format('g:i A');
     }
 
     /** Whether a resource still has at least one bookable slot on a given date. */

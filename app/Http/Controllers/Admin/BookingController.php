@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -25,6 +26,7 @@ class BookingController extends Controller
 {
     /** Whitelisted sort columns — never interpolate user input into SQL. */
     public const SORTABLE = ['code', 'starts_at', 'ends_at', 'status', 'final_cost', 'created_at'];
+
     /** Payment methods offered in the admin UI (Booking Method = Cash | Online). */
     public const METHOD_OPTIONS = ['cash', 'online'];
 
@@ -243,6 +245,37 @@ class BookingController extends Controller
         $this->bookingService->changeStatus($booking, $data['status'], $data['note'] ?? null);
 
         return back()->with('success', "Booking marked as {$data['status']}.");
+    }
+
+    /** Permanently delete a booking together with its payments and form answers. */
+    public function destroy(Booking $booking, ActivityLogger $logger): RedirectResponse
+    {
+        $code = $booking->code;
+        $activity = $booking->resource?->name;
+        $customerId = $booking->customer_id;
+        $paid = (float) $booking->payments()->sum('amount');
+
+        DB::transaction(function () use ($booking, $customerId, $paid) {
+            $booking->payments()->delete();
+            $booking->fieldValues()->delete();
+            $booking->delete();
+
+            // Keep the customer's lifetime spend in step with the ledger.
+            if ($customerId && $paid > 0) {
+                Customer::whereKey($customerId)->update([
+                    'total_spent' => DB::raw('MAX(0, total_spent - '.$paid.')'),
+                ]);
+            }
+        });
+
+        $logger->log(
+            ActivityLogger::BOOKING_DELETED,
+            "Booking {$code} deleted".($activity ? " ({$activity})" : '').'.',
+            null,
+            ['code' => $code, 'activity' => $activity]
+        );
+
+        return redirect()->route('admin.bookings.index')->with('success', "Booking {$code} deleted.");
     }
 
     /** CSV export of the current filtered booking list. */

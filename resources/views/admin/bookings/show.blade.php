@@ -4,7 +4,16 @@
 @section('subtitle', $booking->resource?->name)
 
 @section('header')
-    <a href="{{ route('admin.bookings.index') }}" class="btn-ghost">← All bookings</a>
+    <div class="flex flex-wrap items-center gap-2">
+        <a href="{{ route('admin.bookings.index') }}" class="btn-ghost">← All bookings</a>
+        @if(auth()->user()->hasPermissionTo('bookings.edit'))
+            <form method="POST" action="{{ route('admin.bookings.destroy', $booking) }}"
+                  data-confirm="Delete booking {{ $booking->code }}? This cannot be undone.">
+                @csrf @method('DELETE')
+                <button class="btn-danger"><x-icon name="trash" class="h-4 w-4" /> Delete booking</button>
+            </form>
+        @endif
+    </div>
 @endsection
 
 @section('content')

@@ -102,6 +102,7 @@ class PublicBookingController extends Controller
         $data = $request->validate([
             'resource_id' => ['required', 'exists:resources,id'],
             'date' => ['required', 'date_format:Y-m-d'],
+            'duration_minutes' => ['nullable', 'integer', 'min:15', 'max:1440'],
         ]);
 
         $resource = Resource::with('business')->findOrFail($data['resource_id']);
@@ -110,7 +111,8 @@ class PublicBookingController extends Controller
         $result = $this->availability->configuredSlots(
             $resource,
             Carbon::parse($data['date']),
-            $resource->business->slot_minutes ?? 60
+            $resource->business->slot_minutes ?? 60,
+            isset($data['duration_minutes']) ? (int) $data['duration_minutes'] : null
         );
 
         return response()->json($result);
@@ -283,14 +285,34 @@ class PublicBookingController extends Controller
             $default = $max;
         }
 
+        // Durations are sold in whole hours. Sub-hour policies keep their own
+        // single option so the form can never offer an unbookable length.
+        $options = $this->durationOptions($min, $max);
+        $default = collect($options)->first(fn (int $m) => $m >= $default) ?? end($options);
+
         return [
             'min_duration' => $min,
             'max_duration' => $max,
             'slot_minutes' => (int) ($resource->business->slot_minutes ?? 60),
             'max_advance_days' => (int) ($resource->business->max_advance_days ?? 30),
             'default_duration' => $default,
+            'duration_options' => $options,
             'fixed' => $resource->isFixed(),
         ];
+    }
+
+    /** Whole-hour duration choices (in minutes) between the min and max policy. */
+    protected function durationOptions(int $min, int $max): array
+    {
+        $firstHour = max(1, (int) ceil($min / 60));
+        $lastHour = (int) floor($max / 60);
+
+        $options = [];
+        for ($hour = $firstHour; $hour <= $lastHour; $hour++) {
+            $options[] = $hour * 60;
+        }
+
+        return $options ?: [$min];
     }
 
     /** Active rate windows that can change this activity's price. */

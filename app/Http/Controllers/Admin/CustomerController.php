@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Business;
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class CustomerController extends Controller
@@ -79,13 +81,17 @@ class CustomerController extends Controller
 
     public function destroy(Customer $customer)
     {
-        if ($customer->bookings()->exists()) {
-            return back()->with('error', 'Customer has bookings and cannot be deleted.');
-        }
+        $name = $customer->name;
 
-        $customer->delete();
+        DB::transaction(function () use ($customer) {
+            // Keep booking history and revenue intact — deleting a customer only
+            // removes their profile, so their bookings become unlinked records.
+            $customer->bookings()->update(['customer_id' => null]);
+            $customer->payments()->update(['customer_id' => null]);
+            $customer->delete();
+        });
 
-        return back()->with('success', 'Customer deleted.');
+        return back()->with('success', "Customer \"{$name}\" deleted.");
     }
 
     protected function validated(Request $request, ?int $ignoreId = null): array
@@ -99,7 +105,7 @@ class CustomerController extends Controller
             'notes' => ['nullable', 'string'],
         ]);
 
-        $data['business_id'] = \App\Models\Business::primary()?->id;
+        $data['business_id'] = Business::primary()?->id;
 
         return $data;
     }
