@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: read
+  contents: write
   actions: write
 
 env:
@@ -32,6 +32,28 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+      - name: Download and optimize unbranded gaming photos
+        run: |
+          set -euo pipefail
+          mkdir -p public/img/site
+          curl -fL --retry 3 --retry-delay 2 'https://images.pexels.com/photos/9072394/pexels-photo-9072394.jpeg?auto=compress&cs=tinysrgb&w=2400' -o "$RUNNER_TEMP/arena.jpg"
+          curl -fL --retry 3 --retry-delay 2 'https://images.pexels.com/photos/13071304/pexels-photo-13071304.jpeg?auto=compress&cs=tinysrgb&w=2400' -o "$RUNNER_TEMP/pc-setup.jpg"
+          python -m pip install --quiet --break-system-packages Pillow
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from PIL import Image, ImageOps
+          root = Path(os.environ["RUNNER_TEMP"])
+          jobs = [
+              (root / "arena.jpg", Path("public/img/site/arena.webp")),
+              (root / "pc-setup.jpg", Path("public/img/site/pc-setup.webp")),
+          ]
+          for source, target in jobs:
+              image = ImageOps.exif_transpose(Image.open(source)).convert("RGB")
+              image.thumbnail((2200, 1600), Image.Resampling.LANCZOS)
+              image.save(target, "WEBP", quality=82, method=6)
+              print(f"{target}: {image.width}x{image.height}, {target.stat().st_size} bytes")
+          PY
 
       - name: Cancel superseded Laravel deployment before static upload
         env:
@@ -205,6 +227,24 @@ jobs:
             grep -qi 'Level X' "$RUNNER_TEMP/page.html" || { echo "::error::Expected site content missing at $path"; exit 1; }
           done
           echo "All required static pages returned HTTP 200."
+
+      - name: Commit optimized gaming images to main
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/img/site/arena.webp public/img/site/pc-setup.webp
+          if git diff --cached --quiet; then
+            echo "Optimized image assets are already committed."
+            exit 0
+          fi
+          git commit -m "Add optimized unbranded gaming images"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
           primary_code=$(curl -sS -L -o "$RUNNER_TEMP/primary.html" -w '%{http_code}' --max-redirs 10 --max-time 30 "https://levelxgamingarena.com/" || true)
           echo "https://levelxgamingarena.com/ -> ${primary_code:-request-failed}"
           if [ "$primary_code" != "200" ]; then
