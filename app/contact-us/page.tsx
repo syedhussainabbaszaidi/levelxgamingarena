@@ -2,5 +2,38 @@ import type { Metadata } from "next";
 import { Clock3, Mail, MapPin, Phone } from "lucide-react";
 import { PageIntro, WhatsAppButton } from "../components";
 import { emailAddress, phoneDisplay, whatsappLink } from "../data";
-export const metadata:Metadata={title:"Contact us",description:"Contact Level X Gaming Arena for bookings and enquiries."};
-export default function Contact(){return <><section className="page-hero"><div className="container"><PageIntro eyebrow="Get in touch" title="Let's talk games." copy="Questions about activities, packages, group visits or a booking? Reach our team directly and we will be happy to help."/></div></section><section className="content-section"><div className="container contact-grid"><div className="contact-stack"><a className="contact-item" href={whatsappLink("Hi Level X, I have an enquiry.")} target="_blank" rel="noreferrer"><span className="contact-icon"><Phone/></span><span><small>WhatsApp · fastest reply</small><strong>Chat with our team</strong></span></a><a className="contact-item" href="tel:+923422631057"><span className="contact-icon"><Phone/></span><span><small>Phone</small><strong>{phoneDisplay}</strong></span></a><a className="contact-item" href={`mailto:${emailAddress}`}><span className="contact-icon"><Mail/></span><span><small>Email</small><strong>{emailAddress}</strong></span></a><div className="contact-item"><span className="contact-icon"><Clock3/></span><span><small>Opening hours</small><strong>Open 24 hours · every day</strong></span></div><div className="contact-item"><span className="contact-icon"><MapPin/></span><span><small>Visit us</small><strong>Contact us on WhatsApp for location details</strong></span></div></div><div className="legal-card"><span className="eyebrow">Bookings & enquiries</span><h2 style={{marginTop:12}}>Book directly with our team</h2><p>We have moved to simple WhatsApp booking. There is no account creation, customer dashboard or online payment form on this website.</p><p>When you message us, include the activity, preferred date, time and number of players. We will reply with availability and the applicable rate.</p><WhatsAppButton message="Hi Level X, I would like to enquire about a visit. Activity: ____. Preferred date: ____. Preferred time: ____. Number of players: ____."/><p className="muted" style={{fontSize:12,marginTop:20}}>For general questions, you can also email us at {emailAddress}.</p></div></div></section></>;}
+import { pageMetadata } from "../seo";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Contact & WhatsApp Booking",
+  description: "Contact Level X Gaming Arena in Karachi for PC gaming, PS5, snooker, table tennis, group visits and booking enquiries.",
+  path: "/contact-us/",
+  keywords: ["contact Level X Gaming Arena", "book gaming Karachi", "WhatsApp gaming booking Karachi"],
+});
+
+export default function Contact() {
+  return (
+    <>
+      <section className="page-hero"><div className="container"><PageIntro eyebrow="Get in touch" title="Let&apos;s talk games." copy="Questions about activities, packages, group visits or a booking? Reach our team directly and we will be happy to help." /></div></section>
+      <section className="content-section">
+        <div className="container contact-grid">
+          <div className="contact-stack">
+            <a className="contact-item" href={whatsappLink("Hi Level X, I have an enquiry.")} target="_blank" rel="noopener noreferrer"><span className="contact-icon"><Phone /></span><span><small>WhatsApp · fastest reply</small><strong>Chat with our team</strong></span></a>
+            <a className="contact-item" href="tel:+923422631057"><span className="contact-icon"><Phone /></span><span><small>Phone</small><strong>{phoneDisplay}</strong></span></a>
+            <a className="contact-item" href={`mailto:${emailAddress}`}><span className="contact-icon"><Mail /></span><span><small>Email</small><strong>{emailAddress}</strong></span></a>
+            <div className="contact-item"><span className="contact-icon"><Clock3 /></span><span><small>Opening hours</small><strong>Open 24 hours · every day</strong></span></div>
+            <div className="contact-item"><span className="contact-icon"><MapPin /></span><span><small>Visit us</small><strong>Contact us on WhatsApp for location details</strong></span></div>
+          </div>
+          <div className="legal-card">
+            <span className="eyebrow">Bookings & enquiries</span>
+            <h2 className="contact-card-title">Book directly with our team</h2>
+            <p>We have moved to simple WhatsApp booking. There is no account creation, customer dashboard or online payment form on this website.</p>
+            <p>When you message us, include the activity, preferred date, time and number of players. We will reply with availability and the applicable rate.</p>
+            <WhatsAppButton message="Hi Level X, I would like to enquire about a visit. Activity: ____. Preferred date: ____. Preferred time: ____. Number of players: ____." />
+            <p className="muted contact-email-note">For general questions, you can also email us at {emailAddress}.</p>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}

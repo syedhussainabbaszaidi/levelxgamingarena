@@ -1,52 +1,36 @@
 # Level X Gaming Arena
 
-Static business website built with **Next.js App Router** and exported as plain HTML, CSS, JavaScript and image assets for cPanel hosting.
+Production website built with **Next.js 15, React 19, TypeScript and GSAP**. The app is exported as static HTML, CSS, JavaScript and image assets for cPanel hosting.
 
 ## Stack
-
-- Next.js 15
-- React 19
-- TypeScript
-- Static export (`output: "export"`)
-- Plain responsive CSS
-- Lucide icons
+- Next.js App Router with static export
+- React 19 and TypeScript
+- GSAP + ScrollTrigger for hero entrances, scroll reveals, staggered grids and interactive button motion
+- Responsive CSS and Lucide icons
+- Page-level metadata, canonical URLs, Open Graph, Twitter cards, JSON-LD, robots.txt and sitemap.xml
 
 ## Local development
-
 ```bash
 npm install
 npm run dev
 ```
 
 ## Production build
-
 ```bash
+npm run lint
 npm run build
 ```
 
-The fully static website is generated in `out/`. No Node.js server, PHP runtime, Laravel application, database, login system, admin dashboard, customer dashboard or booking API is required in production.
+The complete static website is generated in `out/`. cPanel serves these files directly; no Node.js production server, PHP runtime, Laravel application, database, login system, admin dashboard, customer dashboard or booking API is required.
 
-## Website pages
-
-- Homepage
-- Activity detail pages (PC Games, PS5, Premium Snooker Room, Private Table Tennis Room)
-- Packages and pricing
-- About us
-- Contact us
-- Privacy policy
-- Cookie policy
-- Terms and conditions
-- Disclaimer
-- Photo credits
+## Pages
+Homepage; PC Games; PS5; Premium Snooker Room; Private Table Tennis Room; Packages and pricing; About; Contact; Privacy policy; Cookie policy; Terms and conditions; Disclaimer; Photo credits.
 
 ## Booking
+Every booking CTA opens WhatsApp with a pre-filled enquiry. No online payments or automatic reservations are processed by this website.
 
-Every booking CTA opens WhatsApp with a pre-filled enquiry. The visitor can add a preferred date, time and number of players before sending. The website does not accept online payments or claim to reserve a slot automatically.
-
-## Content updates
-
-Activity descriptions, published prices, promotional windows and prepaid account bundles are maintained in `app/data.ts`. The WhatsApp number is configured there as well.
+## Content
+Activity details, pricing, offers, account bundles, WhatsApp number and gallery data are maintained in `app/data.ts`.
 
 ## Deployment
-
-GitHub Actions builds the static export and uploads the contents of `out/` to the cPanel `public_html/` directory. The deployment workflow preserves existing server-side `.env`, `database/` and `storage/` data rather than deleting potential historical records. These paths are denied by the static site's Apache rules and are not used by the website.
+GitHub Actions builds and audits the static export, then uploads the contents of `out/` to cPanel `public_html/`. The canonical public hostname is `https://www.levelxgamingarena.com/`; the apex domain redirects to it.

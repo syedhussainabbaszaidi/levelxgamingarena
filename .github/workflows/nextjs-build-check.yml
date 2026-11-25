@@ -1,7 +1,9 @@
 name: Validate static Next.js build
 on:
   push:
-    branches: [nextjs-static-migration]
+    branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
@@ -15,9 +17,10 @@ jobs:
           node-version: "22"
       - name: Install dependencies
         run: npm install --no-audit --no-fund
-      - name: Build and validate static export
+      - name: Typecheck and build
         run: |
           set -euo pipefail
+          npm run lint
           npm run build
           test -s out/index.html
           test -s out/about-us/index.html

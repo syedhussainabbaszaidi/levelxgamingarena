@@ -18,7 +18,7 @@ env:
   SFTP_PORT: "22"
   FTP_HOST: ftp.gb.stackcp.com
   FTP_PORT: "21"
-  SITE_URL: https://levelxgamingarena.com
+  SITE_URL: https://www.levelxgamingarena.com
 
 jobs:
   deploy:
@@ -66,6 +66,7 @@ jobs:
       - name: Build static Next.js export
         run: |
           set -euo pipefail
+          npm run lint
           npm run build
           test -s out/index.html
           test -s out/about-us/index.html
@@ -75,6 +76,13 @@ jobs:
           test -s out/activities/ps5/index.html
           test -s out/activities/premium-snooker-room/index.html
           test -s out/activities/private-table-tennis-room/index.html
+          test -s out/privacy-policy/index.html
+          test -s out/cookie-policy/index.html
+          test -s out/terms-and-conditions/index.html
+          test -s out/disclaimer/index.html
+          test -s out/photo-credits/index.html
+          test -s out/robots.txt
+          test -s out/sitemap.xml
           test -s out/.htaccess
           if find out -type f -name '*.php' | grep -q .; then
             echo "::error::PHP files found in static export."
@@ -84,6 +92,27 @@ jobs:
             echo "::error::Environment files found in static export."
             exit 1
           fi
+          python - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          class Audit(HTMLParser):
+              def __init__(self):
+                  super().__init__(); self.images=[]; self.title=False; self.description=False; self.canonical=False
+              def handle_starttag(self, tag, attrs):
+                  a=dict(attrs)
+                  if tag == "img": self.images.append(a.get("alt", "").strip())
+                  if tag == "title": self.title=True
+                  if tag == "meta" and a.get("name") == "description" and a.get("content", "").strip(): self.description=True
+                  if tag == "link" and a.get("rel") == "canonical" and a.get("href", "").strip(): self.canonical=True
+          pages=list(Path("out").rglob("*.html"))
+          assert pages, "No exported HTML pages found"
+          for page in pages:
+              parser=Audit(); parser.feed(page.read_text(encoding="utf-8"))
+              if any(not alt for alt in parser.images): raise SystemExit(f"Missing image alt text: {page}")
+              if page.name != "404.html" and not (parser.title and parser.description and parser.canonical):
+                  raise SystemExit(f"Missing SEO metadata: {page}")
+          print(f"SEO and image-alt audit passed for {len(pages)} HTML files.")
+          PY
           echo "Static export verified: $(find out -type f | wc -l) files."
 
       - name: Check deployment credentials and endpoint
@@ -168,12 +197,6 @@ jobs:
       - name: Verify live static website
         run: |
           set -euo pipefail
-          echo "### HTTPS redirect diagnostics"
-          curl -sS -D - -o /dev/null --max-redirs 5 "$SITE_URL/" || true
-          echo "### HTTP redirect diagnostics"
-          curl -sS -D - -o /dev/null --max-redirs 5 "http://levelxgamingarena.com/" || true
-          echo "### WWW redirect diagnostics"
-          curl -sS -D - -o /dev/null --max-redirs 5 "https://www.levelxgamingarena.com/" || true
           for path in / /about-us/ /contact-us/ /packages/ /activities/pc-games/ /activities/ps5/ /activities/premium-snooker-room/ /activities/private-table-tennis-room/; do
             code=$(curl -sS -L -o "$RUNNER_TEMP/page.html" -w '%{http_code}' --max-time 30 "$SITE_URL$path")
             echo "$path -> $code"
@@ -184,3 +207,9 @@ jobs:
             grep -qi 'Level X' "$RUNNER_TEMP/page.html" || { echo "::error::Expected site content missing at $path"; exit 1; }
           done
           echo "All required static pages returned HTTP 200."
+          primary_code=$(curl -sS -L -o "$RUNNER_TEMP/primary.html" -w '%{http_code}' --max-redirs 10 --max-time 30 "https://levelxgamingarena.com/")
+          echo "https://levelxgamingarena.com/ -> $primary_code"
+          if [ "$primary_code" != "200" ]; then
+            echo "::error::Primary domain did not resolve to the live site. Check domain/CDN redirect settings."
+            exit 1
+          fi
