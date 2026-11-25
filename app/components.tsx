@@ -49,7 +49,7 @@ export function Footer() {
           <p>Pick your game, bring your people and let us help plan your session.</p>
         </div>
         <div className="footer-cta-actions">
-          <a className="button button-light" href={whatsappLink("Hi Level X, I would like to plan a visit. Please share availability.")} target="_blank" rel="noopener noreferrer}><MessageCircle size={17} /> Chat on WhatsApp <ArrowUpRight size={15} /></a>
+          <a className="button button-light" href={whatsappLink("Hi Level X, I would like to plan a visit. Please share availability.")} target="_blank" rel="noopener noreferrer"><MessageCircle size={17} /> Chat on WhatsApp <ArrowUpRight size={15} /></a>
           <Link className="footer-secondary-link" href="/packages/">Explore packages <ArrowRight size={15} /></Link>
         </div>
         <div className="footer-cta-glow" aria-hidden="true" />
