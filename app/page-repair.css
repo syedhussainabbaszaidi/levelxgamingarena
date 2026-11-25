@@ -466,3 +466,164 @@ main section{min-width:0}
   .flagship-price-card .rate-confirm-link,
   .flagship-price-card .rate-confirm-link svg{transition:none}
 }
+
+
+/* Homepage prepaid account bundles: clearer hierarchy and mobile-friendly cards */
+.flagship-account-panel{
+  overflow:hidden;
+  padding:clamp(24px,3.2vw,40px);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:22px;
+  background:radial-gradient(ellipse at 92% 0%,rgba(255,45,62,.12),transparent 34%),linear-gradient(145deg,#17171f,#0e0e13);
+}
+.flagship-account-panel .account-panel-heading{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:24px;
+  margin-bottom:28px;
+}
+.flagship-account-panel .account-heading{margin:0;max-width:620px}
+.flagship-account-panel .account-heading h2{margin-top:10px;font-size:clamp(30px,3.6vw,42px);line-height:1.08}
+.flagship-account-panel .account-heading p{max-width:560px;margin:12px 0 0;color:#aeb0bb;font-size:14px;line-height:1.75}
+.flagship-account-panel .account-panel-mark{
+  flex:none;
+  padding:10px 13px;
+  border:1px solid rgba(255,75,88,.3);
+  border-radius:10px;
+  background:rgba(255,55,70,.08);
+  color:#ff747d;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.16em;
+}
+.flagship-account-panel .account-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+}
+.flagship-account-panel .account-card{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  min-width:0;
+  min-height:205px;
+  padding:20px;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:16px;
+  background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));
+  transition:transform .22s ease,border-color .22s ease,background .22s ease;
+}
+.flagship-account-panel .account-card:hover{
+  transform:translateY(-3px);
+  border-color:rgba(255,75,88,.48);
+  background:linear-gradient(145deg,rgba(255,65,80,.09),rgba(255,255,255,.025));
+}
+.flagship-account-panel .account-card>span{
+  display:inline-flex;
+  align-items:center;
+  min-height:25px;
+  padding:4px 9px;
+  border:1px solid rgba(255,76,89,.24);
+  border-radius:999px;
+  background:rgba(255,52,67,.09);
+  color:#ff8189;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.1em;
+}
+.flagship-account-panel .account-card>strong{
+  margin:13px 0 3px;
+  color:#fff;
+  font-size:clamp(23px,2.3vw,29px);
+  line-height:1.1;
+  overflow-wrap:anywhere;
+}
+.flagship-account-panel .account-card>b{
+  color:#f4f4f7;
+  font-size:13px;
+  line-height:1.4;
+}
+.flagship-account-panel .account-card>p{
+  margin:8px 0 14px;
+  color:#a6a8b3;
+  font-size:11px;
+  line-height:1.65;
+}
+.flagship-account-panel .account-card>a{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  margin-top:auto;
+  padding:8px 0 0;
+  color:#ff707a;
+  font-size:11px;
+  font-weight:800;
+}
+.flagship-account-panel .account-fine-print{
+  margin:20px 0 0;
+  padding-top:15px;
+  border-top:1px solid rgba(255,255,255,.09);
+  color:#8f929e;
+  font-size:10px;
+  line-height:1.65;
+}
+@media(max-width:900px){
+  .flagship-account-panel .account-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:600px){
+  .flagship-account-panel{padding:21px 16px;border-radius:18px}
+  .flagship-account-panel .account-panel-heading{gap:12px;margin-bottom:20px}
+  .flagship-account-panel .account-heading h2{font-size:32px}
+  .flagship-account-panel .account-heading p{font-size:12px;line-height:1.7}
+  .flagship-account-panel .account-panel-mark{padding:8px 9px;font-size:8px;letter-spacing:.1em}
+  .flagship-account-panel .account-grid{grid-template-columns:1fr;gap:10px}
+  .flagship-account-panel .account-card{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:"hours price" "name price" "description description" "action action";
+    align-items:center;
+    column-gap:12px;
+    row-gap:4px;
+    min-height:0;
+    padding:15px;
+    border-radius:14px;
+  }
+  .flagship-account-panel .account-card>span{grid-area:hours;width:max-content;max-width:100%;font-size:9px}
+  .flagship-account-panel .account-card>strong{
+    grid-area:price;
+    align-self:center;
+    margin:0;
+    text-align:right;
+    font-size:clamp(19px,6vw,25px);
+    white-space:nowrap;
+  }
+  .flagship-account-panel .account-card>b{grid-area:name;margin-top:2px;font-size:12px}
+  .flagship-account-panel .account-card>p{
+    grid-area:description;
+    margin:8px 0 4px;
+    font-size:10px;
+    line-height:1.55;
+  }
+  .flagship-account-panel .account-card>a{
+    grid-area:action;
+    justify-content:center;
+    width:100%;
+    min-height:39px;
+    margin-top:5px;
+    padding:9px 12px;
+    border:1px solid rgba(255,76,89,.32);
+    border-radius:9px;
+    background:rgba(255,52,67,.08);
+    font-size:11px;
+  }
+  .flagship-account-panel .account-fine-print{margin-top:15px;font-size:9px}
+}
+@media(max-width:360px){
+  .flagship-account-panel .account-panel-heading{flex-direction:column}
+  .flagship-account-panel .account-heading h2{font-size:29px}
+  .flagship-account-panel .account-card{padding:13px}
+  .flagship-account-panel .account-card>strong{font-size:19px}
+}
+@media(prefers-reduced-motion:reduce){
+  .flagship-account-panel .account-card{transition:none}
+}
