@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, CheckCircle2, Clock3, Gamepad2, Headphones, MessageCircle, ShieldCheck, Trophy, Users } from "lucide-react";
+import { ArrowRight, ArrowUpRight, CheckCircle2, ChevronDown, Clock3, Gamepad2, Headphones, MessageCircle, ShieldCheck, Trophy, Users } from "lucide-react";
 import { activities, additionalExperiences, accountPackages, faqs, gallery, hourlyPackages, whatsappLink } from "./data";
 import { SectionHeading, WhatsAppButton } from "./components";
 import { pageMetadata } from "./seo";
@@ -117,7 +117,7 @@ export default function HomePage() {
 
       <section className="section faq-section"><div className="container faq-layout">
         <div className="faq-intro"><span className="eyebrow">Before you visit</span><h2>Good to know.<br /><em>Ready to play.</em></h2><p>Quick answers about booking, payment, opening hours and the experiences available at Level X.</p><WhatsAppButton message="Hi Level X, I have a question before visiting. Could you please help?" label="Ask our team" /></div>
-        <div className="faq-list">{faqs.map((item, index) => <article className="faq-item" key={item.q}><span className="faq-index">0{index + 1}</span><div><h3>{item.q}</h3><p>{item.a}</p></div></article>)}</div>
+        <div className="faq-list">{faqs.map((item, index) => <details className="faq-item" key={item.q}><summary><span className="faq-index">0{index + 1}</span><h3>{item.q}</h3><ChevronDown size={18} /></summary><p>{item.a}</p></details>)}</div>
       </div></section>
 
       <section className="section final-cta-section"><div className="container"><div className="cta-band flagship-cta"><span className="eyebrow">THE ARENA IS READY</span><h2>Your next level starts here.</h2><p>Tell us what you want to play, when you want to visit and how many people are joining.</p><WhatsAppButton message="Hi Level X, I would like to book a session. Please help me with availability and pricing." label="Start a WhatsApp enquiry" /></div></div></section>
