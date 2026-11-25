@@ -109,6 +109,7 @@ jobs:
           test -s out/food-drinks/index.html
           test -s out/contact-us/index.html
           test -s out/packages/index.html
+          test -s out/gta-6/index.html
           test -s out/activities/pc-games/index.html
           test -s out/activities/ps5/index.html
           test -s out/activities/premium-snooker-room/index.html
@@ -229,7 +230,7 @@ jobs:
       - name: Verify live static website
         run: |
           set -euo pipefail
-          for path in / /about-us/ /activities/ /gallery/ /food-drinks/ /contact-us/ /packages/ /activities/pc-games/ /activities/ps5/ /activities/premium-snooker-room/ /activities/private-table-tennis-room/; do
+          for path in / /about-us/ /activities/ /gallery/ /food-drinks/ /contact-us/ /packages/ /activities/pc-games/ /activities/ps5/ /activities/premium-snooker-room/ /activities/private-table-tennis-room/ /gta-6/; do
             code=$(curl -sS -L -o "$RUNNER_TEMP/page.html" -w '%{http_code}' --max-time 30 "$SITE_URL$path")
             echo "$path -> $code"
             if [ "$code" != "200" ]; then
