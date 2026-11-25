@@ -1010,3 +1010,67 @@ main section{min-width:0}
   .flagship-gallery-grid{grid-auto-columns:86%;gap:11px}
   .food-preview-art{height:215px}
 }
+
+
+/* Food & Drinks hero: premium WhatsApp menu CTA with comfortable breathing room */
+.food-page-hero-grid>div:first-child>a.button-primary{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  min-height:56px;
+  margin-top:28px;
+  margin-bottom:28px;
+  padding:0 23px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.24)!important;
+  border-radius:10px!important;
+  background:linear-gradient(110deg,#f02c43 0%,#c91432 58%,#9e1029 100%)!important;
+  color:#fff!important;
+  font-size:12px;
+  font-weight:850;
+  letter-spacing:.015em;
+  box-shadow:0 12px 30px rgba(221,24,55,.28),inset 0 1px 0 rgba(255,255,255,.18);
+  transition:transform .25s ease,box-shadow .25s ease,filter .25s ease;
+}
+.food-page-hero-grid>div:first-child>a.button-primary:before{
+  position:absolute;
+  inset:0;
+  content:"";
+  background:linear-gradient(110deg,transparent 20%,rgba(255,255,255,.16) 48%,transparent 72%);
+  transform:translateX(-120%);
+  transition:transform .55s ease;
+  pointer-events:none;
+}
+.food-page-hero-grid>div:first-child>a.button-primary:hover{
+  transform:translateY(-3px);
+  filter:brightness(1.08);
+  box-shadow:0 17px 38px rgba(221,24,55,.38),inset 0 1px 0 rgba(255,255,255,.2);
+}
+.food-page-hero-grid>div:first-child>a.button-primary:hover:before{transform:translateX(120%)}
+.food-page-hero-grid>div:first-child>a.button-primary svg{
+  position:relative;
+  flex:none;
+  color:#fff!important;
+}
+.food-page-hero-grid>div:first-child>a.button-primary svg:first-child{
+  width:29px;height:29px;padding:6px;
+  border:1px solid rgba(255,255,255,.3);
+  border-radius:8px;
+  background:rgba(255,255,255,.12);
+}
+@media(max-width:760px){
+  .food-page-hero-grid>div:first-child>a.button-primary{
+    width:100%;
+    min-height:54px;
+    margin-top:24px;
+    margin-bottom:24px;
+    padding:0 18px;
+  }
+  .food-page-hero-grid{row-gap:20px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .food-page-hero-grid>div:first-child>a.button-primary{transition:none}
+  .food-page-hero-grid>div:first-child>a.button-primary:before{display:none}
+}
