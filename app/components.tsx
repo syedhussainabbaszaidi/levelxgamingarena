@@ -1,72 +1,101 @@
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Clock3, Mail, MessageCircle, Phone } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Clock3, Mail, MapPin, MessageCircle, Phone, Sparkles } from "lucide-react";
 import { emailAddress, phoneDisplay, whatsappLink } from "./data";
 import { MobileMenu } from "./mobile-menu";
 
 export function Header() {
   return (
-    <header className="site-header">
-      <div className="container nav-wrap">
-        <Link href="/" className="brand" aria-label="Level X Gaming Arena home">
-          <span className="brand-mark">LX</span>
-          <span>LEVEL X<small>GAMING ARENA</small></span>
-        </Link>
-        <nav className="desktop-nav" aria-label="Main navigation">
-          <Link href="/#activities">Activities</Link>
-          <Link href="/#packages">Packages</Link>
-          <Link href="/#gallery">Gallery</Link>
-          <Link href="/about-us/">About</Link>
-          <Link href="/contact-us/">Contact</Link>
-        </nav>
-        <div className="nav-actions">
-          <a className="button button-primary nav-cta" href={whatsappLink("Hi Level X, I would like to book a gaming session.")} target="_blank" rel="noopener noreferrer">
-            Book on WhatsApp <ArrowUpRight size={16} />
-          </a>
-          <MobileMenu />
+    <>
+      <div className="announcement-bar">
+        <div className="container announcement-inner">
+          <span><Sparkles size={14} /> Your gaming destination in Karachi</span>
+          <span className="announcement-hours"><Clock3 size={14} /> Open 24 hours · 7 days a week</span>
+          <a href={whatsappLink("Hi Level X, please share today's offers and availability.")} target="_blank" rel="noopener noreferrer">Ask about today&apos;s offers <ArrowUpRight size={13} /></a>
         </div>
       </div>
-    </header>
+      <header className="site-header">
+        <div className="container nav-wrap">
+          <Link href="/" className="brand" aria-label="Level X Gaming Arena home">
+            <Image src="/img/logo.png" alt="Level X Gaming Arena logo" width={156} height={58} priority />
+          </Link>
+          <nav className="desktop-nav" aria-label="Main navigation">
+            <Link href="/">Home</Link>
+            <Link href="/#activities">Experiences</Link>
+            <Link href="/packages/">Packages</Link>
+            <Link href="/#gallery">Gallery</Link>
+            <Link href="/about-us/">About</Link>
+            <Link href="/contact-us/">Contact</Link>
+          </nav>
+          <div className="nav-actions">
+            <a className="button button-primary nav-cta" href={whatsappLink("Hi Level X, I would like to book a gaming session. Please share availability.")} target="_blank" rel="noopener noreferrer">
+              <MessageCircle size={16} /> Book a session <ArrowUpRight size={15} />
+            </a>
+            <MobileMenu />
+          </div>
+        </div>
+      </header>
+    </>
   );
 }
 
 export function Footer() {
   return (
     <footer className="footer">
-      <div className="container footer-grid">
+      <div className="container footer-cta">
         <div>
-          <Link href="/" className="brand">
-            <span className="brand-mark">LX</span>
-            <span>LEVEL X<small>GAMING ARENA</small></span>
+          <span className="eyebrow">Your next match starts here</span>
+          <h2>Ready to play at Level X?</h2>
+          <p>Pick your game, bring your people and let us help plan your session.</p>
+        </div>
+        <div className="footer-cta-actions">
+          <a className="button button-light" href={whatsappLink("Hi Level X, I would like to plan a visit. Please share availability.")} target="_blank" rel="noopener noreferrer}><MessageCircle size={17} /> Chat on WhatsApp <ArrowUpRight size={15} /></a>
+          <Link className="footer-secondary-link" href="/packages/">Explore packages <ArrowRight size={15} /></Link>
+        </div>
+        <div className="footer-cta-glow" aria-hidden="true" />
+      </div>
+      <div className="container footer-grid">
+        <div className="footer-brand-column">
+          <Link href="/" className="brand" aria-label="Level X Gaming Arena home">
+            <Image src="/img/logo.png" alt="Level X Gaming Arena logo" width={156} height={58} />
           </Link>
-          <p className="muted footer-copy">A place for great games, friendly competition and unforgettable sessions. Open 24 hours, every day.</p>
+          <p className="footer-copy">A place for great games, friendly competition and memorable sessions. Discover PC gaming, PS5, snooker and private table tennis — all in one arena.</p>
+          <div className="footer-social-note"><span className="live-dot" /> Open 24 hours · Every day</div>
         </div>
         <div>
           <h4>Explore</h4>
-          <Link href="/#activities">Activities</Link>
-          <Link href="/#packages">Packages & pricing</Link>
+          <Link href="/#activities">All experiences</Link>
+          <Link href="/activities/pc-games/">PC gaming</Link>
+          <Link href="/activities/ps5/">PlayStation 5</Link>
+          <Link href="/activities/premium-snooker-room/">Premium snooker</Link>
+          <Link href="/activities/private-table-tennis-room/">Private table tennis</Link>
+        </div>
+        <div>
+          <h4>Plan your visit</h4>
+          <Link href="/packages/">Packages & pricing</Link>
           <Link href="/#gallery">Gallery</Link>
-          <Link href="/about-us/">About us</Link>
+          <Link href="/about-us/">About Level X</Link>
+          <Link href="/contact-us/">Contact & booking</Link>
+          <a href={whatsappLink("Hi Level X, please share your location and directions.")} target="_blank" rel="noopener noreferrer">Get directions <ArrowUpRight size={13} /></a>
         </div>
-        <div>
-          <h4>Information</h4>
-          <Link href="/contact-us/">Contact</Link>
-          <Link href="/terms-and-conditions/">Terms & conditions</Link>
-          <Link href="/privacy-policy/">Privacy policy</Link>
-          <Link href="/cookie-policy/">Cookie policy</Link>
-          <Link href="/disclaimer/">Disclaimer</Link>
-          <Link href="/photo-credits/">Photo credits</Link>
+        <div className="footer-contact-column">
+          <h4>Talk to our team</h4>
+          <a href={whatsappLink("Hi Level X, I have an enquiry.")} target="_blank" rel="noopener noreferrer"><span className="footer-icon"><MessageCircle size={16} /></span><span><small>WhatsApp</small><strong>Chat with us</strong></span></a>
+          <a href="tel:+923422631057"><span className="footer-icon"><Phone size={16} /></span><span><small>Call us</small><strong>{phoneDisplay}</strong></span></a>
+          <a href={`mailto:${emailAddress}`}><span className="footer-icon"><Mail size={16} /></span><span><small>Email</small><strong>{emailAddress}</strong></span></a>
+          <span className="footer-location"><MapPin size={15} /> Karachi, Pakistan</span>
         </div>
-        <div>
-          <h4>Get in touch</h4>
-          <a href={whatsappLink("Hi Level X, I have an enquiry.")} target="_blank" rel="noopener noreferrer"><MessageCircle size={16} /> WhatsApp us</a>
-          <a href="tel:+923422631057"><Phone size={16} /> {phoneDisplay}</a>
-          <a href={`mailto:${emailAddress}`}><Mail size={16} /> {emailAddress}</a>
-          <span><Clock3 size={16} /> Open 24/7</span>
-        </div>
+      </div>
+      <div className="container footer-legal-links">
+        <Link href="/terms-and-conditions/">Terms & conditions</Link>
+        <Link href="/privacy-policy/">Privacy policy</Link>
+        <Link href="/cookie-policy/">Cookie policy</Link>
+        <Link href="/disclaimer/">Disclaimer</Link>
+        <Link href="/photo-credits/">Photo credits</Link>
       </div>
       <div className="container footer-bottom">
         <span>© {new Date().getFullYear()} Level X Gaming Arena. All rights reserved.</span>
-        <span>Built for players.</span>
+        <span>Made for players. Built for the game.</span>
       </div>
     </footer>
   );
