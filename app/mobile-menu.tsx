@@ -91,8 +91,7 @@ export function MobileMenu() {
               <>
                 <nav className="mobile-nav" aria-label="Mobile navigation">
                   {links.slice(0,2).map((item,index)=><Link className="mobile-nav-item" href={item.href} onClick={close} key={item.href}><span className="mobile-nav-number">0{index+1}</span><span className="mobile-nav-label"><strong>{item.label}</strong><small>{item.note}</small></span></Link>)}
-                  <Link className="mobile-nav-item" href="/packages/" onClick={close}><span className="mobile-nav-number">03</span><span className="mobile-nav-label"><strong>Packages</strong><small>Rates and prepaid passes</small></span></Link>
-                  <button className="mobile-nav-item mobile-nav-parent" type="button" aria-expanded={nestedOpen} onClick={()=>setNestedOpen(true)}><span className="mobile-nav-number">04</span><span className="mobile-nav-label"><strong>Services</strong><small>Explore all gaming options</small></span><ChevronRight size={19}/></button>
+                  <button className="mobile-nav-item mobile-nav-parent" type="button" aria-expanded={nestedOpen} onClick={()=>setNestedOpen(true)}><span className="mobile-nav-number">03</span><span className="mobile-nav-label"><strong>Packages & Services</strong><small>Browse rates and gaming options</small></span><ChevronRight size={19}/></button>
                   {links.slice(2).map((item,index)=><Link className="mobile-nav-item" href={item.href} onClick={close} key={item.href}><span className="mobile-nav-number">0{index+5}</span><span className="mobile-nav-label"><strong>{item.label}</strong><small>{item.note}</small></span></Link>)}
                 </nav>
                 <div className="mobile-nav-bottom">
