@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowUpRight, ChevronRight, Menu, MessageCircle, X, Gamepad2, Monitor, Trophy, Table2, CircleDot, Crown } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, ChevronRight, Menu, MessageCircle, X, Gamepad2, Monitor, Trophy, Table2, CircleDot, Crown, Sparkles } from "lucide-react";
 import { whatsappLink } from "./data";
 import gsap from "gsap";
 
@@ -29,9 +29,27 @@ export function MobileMenu() {
   const [open, setOpen] = useState(false);
   const [nestedOpen, setNestedOpen] = useState(false);
   const panel = useRef<HTMLDivElement>(null);
+  const nestedPanel = useRef<HTMLDivElement>(null);
+  const closing = useRef(false);
   const closeButton = useRef<HTMLButtonElement>(null);
   const toggleButton = useRef<HTMLButtonElement>(null);
-  const close = () => { setOpen(false); setNestedOpen(false); };
+  const close = () => {
+    if (closing.current) return;
+    closing.current = true;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced || !panel.current) {
+      setOpen(false); setNestedOpen(false); closing.current = false; return;
+    }
+    gsap.to(panel.current, { x: "100%", autoAlpha: 0, duration: 0.32, ease: "power2.in", onComplete: () => {
+      setOpen(false); setNestedOpen(false); closing.current = false;
+    } });
+  };
+  const closeNested = () => {
+    if (!nestedOpen || !nestedPanel.current) { setNestedOpen(false); return; }
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) { setNestedOpen(false); return; }
+    gsap.to(nestedPanel.current, { x: "38px", autoAlpha: 0, duration: 0.24, ease: "power2.in", onComplete: () => setNestedOpen(false) });
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -57,7 +75,7 @@ export function MobileMenu() {
       window.removeEventListener("keydown", onKeyDown);
       ctx.revert();
     };
-  }, [open, nestedOpen]);
+  }, [open]);
 
   return (
     <div className="mobile-menu">
@@ -68,11 +86,11 @@ export function MobileMenu() {
         <div className="mobile-menu-backdrop" onClick={(event) => { if (event.target === event.currentTarget) close(); }}>
           <div className="mobile-nav-panel" id="mobile-navigation" ref={panel} role="dialog" aria-modal="true" aria-label="Site navigation">
             <div className="mobile-nav-head">
-              {nestedOpen ? <button className="mobile-nav-back" type="button" onClick={() => setNestedOpen(false)}><ArrowLeft size={17} /> Back to menu</button> : <span className="eyebrow">Navigate Level X</span>}
+              {nestedOpen ? <button className="mobile-nav-back" type="button" onClick={closeNested}><ArrowLeft size={17} /> Back to menu</button> : <span className="eyebrow">Navigate Level X</span>}
               <button ref={closeButton} className="mobile-nav-close" type="button" onClick={close} aria-label="Close menu"><X size={20} /></button>
             </div>
             {nestedOpen ? (
-              <div className="mobile-nested-panel">
+              <div className="mobile-nested-panel" ref={nestedPanel}>
                 <div className="mobile-nested-heading"><span>LEVEL X / EXPLORE</span><h2>Choose your game.</h2><p>Pick a gaming experience and explore its details, rates and availability.</p></div>
                 <div className="mobile-nested-columns">
                   <section>
