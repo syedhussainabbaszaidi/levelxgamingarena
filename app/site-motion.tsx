@@ -75,6 +75,11 @@ export function SiteMotion({ children }: { children: ReactNode }) {
           stagger: 0.08,
           ease: "power3.out",
         });
+        const aboutOrbit = pageHero.querySelector(".about-orbit-ring-outer");
+        const aboutOrbitInner = pageHero.querySelector(".about-orbit-ring-inner");
+        if (aboutOrbit) gsap.to(aboutOrbit, { rotation: 360, duration: 34, ease: "none", repeat: -1 });
+        if (aboutOrbitInner) gsap.to(aboutOrbitInner, { rotation: -360, duration: 26, ease: "none", repeat: -1 });
+
         const foodOrbit = pageHero.querySelector(".food-orbit-ring-outer");
         const foodOrbitInner = pageHero.querySelector(".food-orbit-ring-inner");
         if (foodOrbit) gsap.to(foodOrbit, { rotation: 360, duration: 34, ease: "none", repeat: -1 });
