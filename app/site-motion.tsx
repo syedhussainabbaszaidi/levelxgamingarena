@@ -114,6 +114,13 @@ export function SiteMotion({ children }: { children: ReactNode }) {
         ".packages-section-heading",
         ".packages-booking-panel > *",
         ".footer-cta",
+        ".gta-intro-grid > *",
+        ".gta-world-grid > *",
+        ".gta-section-heading",
+        ".gta-trailer-panel",
+        ".gta-update-list a",
+        ".gta-faq-grid > *",
+        ".gta-final-panel",
       ].join(",");
 
       gsap.utils.toArray<HTMLElement>(revealSelector).forEach((element) => {
@@ -142,6 +149,7 @@ export function SiteMotion({ children }: { children: ReactNode }) {
         ".activities-additional-grid",
         ".food-category-grid",
         ".gallery-editorial-grid",
+        ".gta-character-grid",
       ].join(",");
 
       gsap.utils.toArray<HTMLElement>(staggerSelector).forEach((grid) => {
