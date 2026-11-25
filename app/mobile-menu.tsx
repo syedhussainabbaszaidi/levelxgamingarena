@@ -82,6 +82,13 @@ export function MobileMenu() {
     };
   }, [open]);
 
+  useEffect(() => {
+    if (!open || !nestedOpen || !nestedPanel.current) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) return;
+    gsap.fromTo(nestedPanel.current, { x: "38px", autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.34, ease: "power3.out" });
+  }, [open, nestedOpen]);
+
   return (
     <div className="mobile-menu">
       <button ref={toggleButton} className="mobile-menu-toggle" type="button" aria-label={open ? "Close navigation menu" : "Open navigation menu"} aria-expanded={open} aria-controls="mobile-navigation" onClick={() => { setOpen((value) => !value); setNestedOpen(false); }}>
