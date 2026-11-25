@@ -27,13 +27,13 @@ export function pageMetadata({
       title: `${title} | ${SITE_NAME}`,
       description,
       url: path,
-      images: [{ url: "/img/gallery/esports-arena.jpg", alt: "Level X Gaming Arena esports and gaming floor" }],
+      images: [{ url: "/img/site/arena.webp", alt: "Level X Gaming Arena esports and gaming floor" }],
     },
     twitter: {
       card: "summary_large_image",
       title: `${title} | ${SITE_NAME}`,
       description,
-      images: ["/img/gallery/esports-arena.jpg"],
+      images: ["/img/site/arena.webp"],
     },
   };
 }
