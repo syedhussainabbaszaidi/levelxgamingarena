@@ -1087,3 +1087,7 @@ html{scroll-behavior:smooth;scroll-padding-top:100px}body{font-size:16px;color:#
   .nav-dropdown-panel{transition:none!important}
   .mobile-nav-panel,.mobile-nav-item{transition:none!important}
 }
+
+
+/* Keep typography local so static builds never depend on Google Fonts availability */
+:root{--font-outfit:"Outfit",Inter,ui-sans-serif,system-ui,sans-serif}

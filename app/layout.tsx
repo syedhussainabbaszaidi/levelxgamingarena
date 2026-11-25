@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
-import { Outfit } from "next/font/google";
 import "./globals.css";
 import { Header, Footer, LogoLoader } from "./components";
 import { SiteMotion } from "./site-motion";
 import { DEFAULT_DESCRIPTION, SITE_NAME, SITE_URL } from "./seo";
-
-const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit", display: "swap", weight: ["300", "400", "500", "600", "700", "800", "900"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -34,7 +31,7 @@ const businessSchema = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en-PK">
-      <body className={outfit.variable}>
+      <body>
         <a className="skip-link" href="#main-content">Skip to content</a>
         <SiteMotion><LogoLoader /><Header /><main id="main-content">{children}</main><Footer /></SiteMotion>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(businessSchema) }} />
