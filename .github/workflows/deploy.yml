@@ -6,11 +6,12 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: deploy-production
+  group: deploy-static-production
   cancel-in-progress: false
 
 permissions:
   contents: read
+  actions: write
 
 env:
   SFTP_HOST: ftp.gb.stackcp.com
@@ -31,6 +32,28 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+
+      - name: Cancel superseded Laravel deployment before static upload
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # Stop the legacy Laravel upload and its queued static predecessor so
+          # neither can race this replacement deployment.
+          for run_id in 45646880738 45643814029; do
+            gh run cancel "$run_id" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || true
+          done
+          for run_id in 45646880738 45643814029; do
+            for attempt in $(seq 1 36); do
+              status=$(gh run view "$run_id" --repo "$GITHUB_REPOSITORY" --json status --jq '.status' 2>/dev/null || echo completed)
+              if [ "$status" = "completed" ]; then break; fi
+              sleep 5
+            done
+            if [ "$status" != "completed" ]; then
+              echo "::error::Superseded deployment $run_id did not stop; refusing concurrent FTP upload."
+              exit 1
+            fi
+          done
 
       - name: Set up Node.js 22
         uses: actions/setup-node@v6
