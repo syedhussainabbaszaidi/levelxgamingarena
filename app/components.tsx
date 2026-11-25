@@ -39,6 +39,8 @@ export function Header() {
   );
 }
 
+export function LogoLoader() { return <div className="site-loader" aria-label="Loading Level X Gaming Arena"><Image src="/img/logo.png" alt="Level X Gaming Arena" width={190} height={72} priority/><span className="site-loader-line"/><small>LOADING THE ARENA</small></div>; }
+
 export function Footer() {
   return (
     <footer className="footer">
@@ -87,13 +89,6 @@ export function Footer() {
           <a href={`mailto:${emailAddress}`}><span className="footer-icon"><Mail size={16} /></span><span><small>Email</small><strong>{emailAddress}</strong></span></a>
           <span className="footer-location"><MapPin size={15} /> Karachi, Pakistan</span>
         </div>
-      </div>
-      <div className="container footer-legal-links">
-        <Link href="/terms-and-conditions/">Terms & conditions</Link>
-        <Link href="/privacy-policy/">Privacy policy</Link>
-        <Link href="/cookie-policy/">Cookie policy</Link>
-        <Link href="/disclaimer/">Disclaimer</Link>
-        <Link href="/photo-credits/">Photo credits</Link>
       </div>
       <div className="container footer-bottom">
         <span>© {new Date().getFullYear()} Level X Gaming Arena. All rights reserved.</span>

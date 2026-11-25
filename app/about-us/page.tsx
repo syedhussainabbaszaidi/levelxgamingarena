@@ -1,74 +1,18 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Clock3, Gamepad2, Monitor, Trophy, Users, Wallet } from "lucide-react";
-import { WhatsAppButton, SectionHeading } from "../components";
+import { ArrowRight, ArrowUpRight, Clock3, Gamepad2, Monitor, Trophy, Users } from "lucide-react";
+import { WhatsAppButton } from "../components";
 import { pageMetadata } from "../seo";
-
-export const metadata: Metadata = pageMetadata({
-  title: "About Level X Gaming Arena in Karachi",
-  description: "Discover Level X Gaming Arena in Karachi — PC gaming, PlayStation 5, premium snooker, table tennis, pool and private gaming rooms, open 24/7.",
-  path: "/about-us/",
-  keywords: ["about Level X Gaming Arena", "gaming zone Karachi", "gaming arena Karachi", "PC gaming Karachi", "PS5 Karachi"],
-});
-
-const arenaFeatures = [
-  { icon: Monitor, title: "PC gaming stations", copy: "Get into competitive favourites including CS2, PUBG, VALORANT and DOTA." },
-  { icon: Gamepad2, title: "PlayStation 5", copy: "Pick your game, grab a controller and enjoy a console session with friends." },
-  { icon: Trophy, title: "Cue sports & table games", copy: "Take a break from the screen with premium snooker, pool and private table tennis." },
-  { icon: Users, title: "Private spaces", copy: "Ask our team about VIP private rooms and options for your group." },
-];
-
-export default function About() {
-  return (
-    <>
-      <section className="page-hero about-hero">
-        <div className="container about-hero-grid">
-          <div className="page-intro" data-reveal="intro">
-            <span className="eyebrow">Inside Level X · Karachi</span>
-            <h1>A gaming zone built for <em>every kind of player.</em></h1>
-            <p>Level X brings PC gaming, PlayStation 5 and classic table games together in one place. Come for a competitive match, a casual session with friends or a night of games — we’re open around the clock.</p>
-            <div className="about-hero-actions">
-              <WhatsAppButton message="Hi Level X, I would like to plan a visit. Please share availability and current rates." label="Plan your visit" />
-              <Link className="button button-outline" href="/#activities">Explore activities <ArrowRight size={16} /></Link>
-            </div>
-            <div className="about-quick-facts">
-              <span><Clock3 size={16} /> Open 24/7</span>
-              <span><Gamepad2 size={16} /> PC · PS5 · Table games</span>
-            </div>
-          </div>
-          <div className="about-visual" data-reveal="about-visual">
-            <Image src="/img/gallery/esports-arena.jpg" alt="Gaming arena floor at Level X Gaming Arena" width={1100} height={850} priority />
-            <div className="about-visual-label"><span>LEVEL X / KARACHI</span><strong>Pick your game.<br />Make your move.</strong></div>
-            <span className="about-visual-index">01 — THE ARENA</span>
-          </div>
-        </div>
-      </section>
-
-      <section className="section about-intro-section">
-        <div className="container about-intro-grid">
-          <div><span className="eyebrow">What we’re about</span><h2>One place.<br /><em>So many ways to play.</em></h2></div>
-          <div className="about-intro-copy"><p>Not every visit has to look the same. Lock in at a PC station, challenge a friend on PS5, line up a shot at the snooker table or book a private table tennis room. Level X is a gaming zone where you can choose how you want to spend your time.</p><p>We keep booking simple: check the activities and published rates, then message our team on WhatsApp to confirm availability before you visit.</p><Link className="text-link" href="/packages/">View activities & rates <ArrowRight size={15} /></Link></div>
-        </div>
-      </section>
-
-      <section className="section about-activities-section">
-        <div className="container">
-          <SectionHeading eyebrow="The line-up" title="Find your way to play." copy="From high-performance PC sessions to table games away from the screen, there’s something to bring your crew together." />
-          <div className="feature-grid about-feature-grid">
-            {arenaFeatures.map(({ icon: Icon, title, copy }, index) => <article className="info-card about-feature-card" key={title}><span className="about-feature-number">0{index + 1}</span><span className="about-feature-icon"><Icon size={23} /></span><h3>{title}</h3><p>{copy}</p></article>)}
-          </div>
-          <div className="about-extra-line"><span>ALSO AT LEVEL X</span><strong>Pool table <i>·</i> VIP private rooms</strong><a href="https://wa.me/923422631057?text=Hi%20Level%20X%2C%20please%20share%20availability%20and%20rates%20for%20pool%20and%20VIP%20private%20rooms." target="_blank" rel="noopener noreferrer">Ask for availability <ArrowUpRight size={14} /></a></div>
-        </div>
-      </section>
-
-      <section className="about-availability">
-        <div className="container about-availability-inner">
-          <div className="about-availability-mark"><Clock3 size={25} /><span>24 / 7</span></div>
-          <div><span className="eyebrow">Whenever you’re ready</span><h2>Open all day.<br /><em>Ready for your next game.</em></h2><p>Level X Gaming Arena is open 24 hours a day, seven days a week. Message us before your visit to check activity availability and current offers.</p></div>
-          <div className="about-availability-action"><WhatsAppButton message="Hi Level X, I am planning to visit. Please confirm availability and current rates." label="Message the arena" /></div>
-        </div>
-      </section>
-    </>
-  );
-}
+export const metadata:Metadata=pageMetadata({title:"About Level X Gaming Arena in Karachi",description:"Discover Level X Gaming Arena in Karachi: PC gaming, PlayStation 5, premium snooker, table tennis, pool and VIP private rooms, open 24/7.",path:"/about-us/",keywords:["Level X Gaming Arena about","gaming zone Karachi","gaming arena Karachi","PC gaming Karachi","PS5 gaming Karachi","snooker Karachi","table tennis Karachi"]});
+const activities=[
+{icon:Monitor,number:"01",title:"PC Gaming",tag:"COMPETITIVE PLAY",copy:"Settle into a dedicated gaming station and jump into popular competitive titles including CS2, PUBG, VALORANT and DOTA.",image:"/img/activities/covers/pc-gaming.jpg"},
+{icon:Gamepad2,number:"02",title:"PlayStation 5",tag:"CONSOLE SESSIONS",copy:"Bring a friend, pick your favourite title and take on the next match with two controllers included.",image:"/img/activities/covers/ps5.jpg"},
+{icon:Trophy,number:"03",title:"Premium Snooker",tag:"CUE SPORTS",copy:"Take your time over the table in a dedicated snooker room. Sessions are charged by the minute.",image:"/img/activities/covers/snooker.jpg"},
+{icon:Users,number:"04",title:"Private Table Tennis",tag:"PLAY TOGETHER",copy:"Enjoy a private room for rallies, friendly competition and group play away from the screens.",image:"/img/activities/covers/table-tennis.jpg"}];
+export default function About(){return <>
+<section className="about-editorial-hero"><div className="container about-editorial-grid"><div className="about-editorial-copy"><span className="eyebrow">THE ARENA / KARACHI</span><p className="about-hero-kicker">A PLACE FOR PLAYERS, FRIENDS & COMPETITION</p><h1>Not just a game.<br/><em>Your next favourite place.</em></h1><p className="about-hero-description">Level X brings PC gaming, PlayStation 5 and classic table games together under one roof. Drop in for a quick match, plan a night with friends or make a whole session of it. We’re here around the clock.</p><div className="about-hero-actions"><WhatsAppButton message="Hi Level X, I would like to plan a visit. Please share availability and current rates." label="Plan your visit"/><Link className="button button-outline" href="/packages/">Explore packages <ArrowRight size={16}/></Link></div><div className="about-hero-meta"><span><Clock3 size={16}/> OPEN 24 HOURS</span><span>PC GAMING · PS5 · SNOOKER · TABLE GAMES</span></div></div><div className="about-editorial-visual"><Image src="/img/gallery/arcade.jpg" alt="Inside Level X Gaming Arena" width={1100} height={1000} priority/><div className="about-visual-frame"/><span className="about-image-caption">LEVEL X / BUILT FOR GAME TIME</span><div className="about-image-index">LX<span>01</span></div></div></div></section>
+<section className="about-manifesto"><div className="container about-manifesto-grid"><span className="eyebrow">THE LEVEL X IDEA</span><h2>Different games.<br/><em>One place to come together.</em></h2><div><p>Some days call for a competitive PC match. Other days are for a PS5 face-off, a focused snooker frame or a table tennis rally with friends. Level X gives you the choice without having to choose a different destination.</p><p>Explore the activities below, check the published rates and contact our team to confirm your preferred time. Simple, direct and all about the game.</p></div></div></section>
+<section className="about-lineup-section"><div className="container"><div className="about-lineup-heading"><div><span className="eyebrow">FIND YOUR WAY TO PLAY / 01—04</span><h2>Pick your <em>kind of game.</em></h2></div><p>Four ways to switch off, get competitive and make the most of your time at Level X.</p></div><div className="about-lineup-grid">{activities.map(({icon:Icon,number,title,tag,copy,image})=><article className="about-lineup-card" key={title}><div className="about-lineup-image"><Image src={image} alt={title+" at Level X Gaming Arena"} width={700} height={500}/><span>{number}</span></div><div className="about-lineup-content"><span className="about-lineup-tag"><Icon size={14}/>{tag}</span><h3>{title}</h3><p>{copy}</p><Link href="/packages/">View rates <ArrowUpRight size={15}/></Link></div></article>)}</div><div className="about-more-facilities"><div><span className="eyebrow">MORE AT THE ARENA</span><strong>Pool table <i>·</i> VIP private rooms</strong><p>Ask our team about current availability and pricing for these facilities.</p></div><a href="https://wa.me/923422631057?text=Hi%20Level%20X%2C%20please%20share%20availability%20and%20rates%20for%20pool%20and%20VIP%20private%20rooms." target="_blank" rel="noopener noreferrer">Ask about availability <ArrowUpRight size={15}/></a></div></div></section>
+<section className="about-hours-section"><div className="container about-hours-inner"><div className="about-hours-number"><strong>24<span>/7</span></strong><small>OPEN EVERY DAY</small></div><div className="about-hours-copy"><span className="eyebrow">MAKE TIME FOR A MATCH</span><h2>Whenever it works<br/><em>for your crew.</em></h2><p>Daytime session or late-night match, Level X is open 24 hours a day. Send us your preferred game and timing so our team can check availability before you visit.</p></div><div className="about-hours-action"><WhatsAppButton message="Hi Level X, I am planning to visit. Please confirm activity availability and current rates." label="Check availability"/></div></div></section>
+</>}

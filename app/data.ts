@@ -59,7 +59,7 @@ export const additionalExperiences = [
   {
     name: "Pool Table",
     category: "Cue Sports",
-    description: "A relaxed cue-sports experience for friends and groups. Contact the arena team to confirm current availability and rates.",
+    description: "A relaxed cue-sports session for friends and groups. Contact the arena team to confirm current availability and rates.",
     image: "/img/activities/pool.svg",
   },
   {
@@ -71,7 +71,7 @@ export const additionalExperiences = [
 ] as const;
 
 export const hourlyPackages = [
-  { name: "PC Games", regular: 250, offer: 200, monday: 140, midday: 150, unit: "per hour", image: "/img/activities/covers/pc-gaming.jpg", note: "Mid Day: 9 AM–5 PM (minimum 3 hours). Monday Madness: 12 PM–midnight (minimum 3 hours)." },
+  { name: "PC Gaming", regular: 250, offer: 200, monday: 140, midday: 150, unit: "per hour", image: "/img/activities/covers/pc-gaming.jpg", note: "Mid Day: 9 AM–5 PM (minimum 3 hours). Monday Madness: 12 PM–midnight (minimum 3 hours)." },
   { name: "PS5", regular: 1000, offer: 650, monday: 600, unit: "per hour", image: "/img/activities/covers/ps5.jpg", note: "Two controllers included. Extra controller: Rs. 300/hour. Monday Madness: 12 PM–midnight." },
   { name: "Premium Snooker", regular: 900, offer: 720, monday: 480, unit: "per hour equivalent", image: "/img/activities/covers/snooker.jpg", note: "Standard play is billed per minute: Rs. 15 regular / Rs. 12 opening offer. Monday Madness is Rs. 8 per minute." },
   { name: "Private Table Tennis", regular: 800, offer: 600, monday: 500, unit: "per hour", image: "/img/activities/covers/table-tennis.jpg", note: "Private room booking. Monday Madness: 12 PM–midnight." },

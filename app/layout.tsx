@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
-import { Header, Footer } from "./components";
+import { Header, Footer, LogoLoader } from "./components";
 import { SiteMotion } from "./site-motion";
 import { DEFAULT_DESCRIPTION, SITE_NAME, SITE_URL } from "./seo";
 
@@ -36,7 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en-PK">
       <body className={outfit.variable}>
         <a className="skip-link" href="#main-content">Skip to content</a>
-        <SiteMotion><Header /><main id="main-content">{children}</main><Footer /></SiteMotion>
+        <SiteMotion><LogoLoader /><Header /><main id="main-content">{children}</main><Footer /></SiteMotion>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(businessSchema) }} />
       </body>
     </html>
