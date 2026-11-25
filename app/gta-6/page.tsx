@@ -36,12 +36,12 @@ const faqSchema = {
 
 export default function GTA6Page() {
   return (
-    <main className="gta-page">
+    <div className="gta-page">
       <section className="page-hero gta-hero">
         <div className="gta-hero-art" aria-hidden="true">
           <Image
             src="https://www.rockstargames.com/VI/_next/static/media/poster_full.0az_iud2g3y4j.jpg?akim=1&imdensity=1&imwidth=3840"
-            alt=""
+            alt="Grand Theft Auto VI official cover artwork"
             fill
             priority
             sizes="(max-width: 760px) 100vw, 62vw"
@@ -130,6 +130,6 @@ export default function GTA6Page() {
       </section>
 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
-    </main>
+    </div>
   );
 }
