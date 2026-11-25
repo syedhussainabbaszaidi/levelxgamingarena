@@ -131,7 +131,9 @@ export function AIChat() {
         </>}
       </section>}
       <button className={"lx-chat-launcher" + (open ? " is-open" : "")} onClick={() => setOpen((value) => !value)} aria-label={open ? "Close chat assistant" : "Chat with Level X"} aria-expanded={open}>
-        {open ? <ChevronDown size={22}/> : <><MessageCircle size={22}/><span>Chat with us</span><i/></>}
+        <span className="lx-chat-launcher-icon">{open ? <ChevronDown size={21}/> : <MessageCircle size={21}/>}</span>
+        {!open && <span className="lx-chat-launcher-copy"><strong>Need a hand?</strong><small>Chat with our team</small></span>}
+        {!open && <span className="lx-chat-launcher-status" aria-label="Online"/>}
       </button>
     </div>
   );
