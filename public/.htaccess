@@ -5,8 +5,6 @@ ErrorDocument 404 /404.html
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteCond %{HTTPS} !=on
-  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
   RewriteRule (^|/)\. - [F,L]
   RewriteRule ^(app|bootstrap|config|database|routes|vendor|resources|tests|storage|node_modules)(/|$) - [F,L]
   RewriteRule \.(php[0-9]?|phtml|phar)$ - [F,L,NC]
