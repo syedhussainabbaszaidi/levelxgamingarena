@@ -168,6 +168,12 @@ jobs:
       - name: Verify live static website
         run: |
           set -euo pipefail
+          echo "### HTTPS redirect diagnostics"
+          curl -sS -D - -o /dev/null --max-redirs 5 "$SITE_URL/" || true
+          echo "### HTTP redirect diagnostics"
+          curl -sS -D - -o /dev/null --max-redirs 5 "http://levelxgamingarena.com/" || true
+          echo "### WWW redirect diagnostics"
+          curl -sS -D - -o /dev/null --max-redirs 5 "https://www.levelxgamingarena.com/" || true
           for path in / /about-us/ /contact-us/ /packages/ /activities/pc-games/ /activities/ps5/ /activities/premium-snooker-room/ /activities/private-table-tennis-room/; do
             code=$(curl -sS -L -o "$RUNNER_TEMP/page.html" -w '%{http_code}' --max-time 30 "$SITE_URL$path")
             echo "$path -> $code"
