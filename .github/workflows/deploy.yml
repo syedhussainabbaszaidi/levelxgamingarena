@@ -10,12 +10,9 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: write
-  actions: write
+  contents: read
 
 env:
-  SFTP_HOST: ftp.gb.stackcp.com
-  SFTP_PORT: "22"
   FTP_HOST: ftp.gb.stackcp.com
   FTP_PORT: "21"
   SITE_URL: https://www.levelxgamingarena.com
@@ -66,28 +63,6 @@ jobs:
               image.save(target, "WEBP", quality=82, method=6)
               print(f"{target}: {image.width}x{image.height}, {target.stat().st_size} bytes")
           PY
-
-      - name: Cancel superseded Laravel deployment before static upload
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          # Stop the legacy Laravel upload and its queued static predecessor so
-          # neither can race this replacement deployment.
-          for run_id in 45646880738 45643814029; do
-            gh run cancel "$run_id" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || true
-          done
-          for run_id in 45646880738 45643814029; do
-            for attempt in $(seq 1 36); do
-              status=$(gh run view "$run_id" --repo "$GITHUB_REPOSITORY" --json status --jq '.status' 2>/dev/null || echo completed)
-              if [ "$status" = "completed" ]; then break; fi
-              sleep 5
-            done
-            if [ "$status" != "completed" ]; then
-              echo "::error::Superseded deployment $run_id did not stop; refusing concurrent FTP upload."
-              exit 1
-            fi
-          done
 
       - name: Set up Node.js 22
         uses: actions/setup-node@v6
@@ -157,21 +132,20 @@ jobs:
           test -s "$RUNNER_TEMP/gta6-world.png"
           file "$RUNNER_TEMP/gta6-poster.jpg" "$RUNNER_TEMP/gta6-world.png"
 
-      - name: Check deployment credentials and endpoint
+      - name: Check secure FTPS credentials and endpoint
         run: |
           set -euo pipefail
-          test -n "${FTP_USERNAME:-}" || { echo "::error::FTP_USERNAME secret is missing."; exit 1; }
-          test -n "${FTP_PASSWORD:-}" || { echo "::error::FTP_PASSWORD secret is missing."; exit 1; }
-          getent hosts "$SFTP_HOST" >/dev/null
-          timeout 20 bash -c "exec 3<>/dev/tcp/$SFTP_HOST/$SFTP_PORT" || true
-          timeout 20 bash -c "exec 3<>/dev/tcp/$FTP_HOST/$FTP_PORT" || true
+          test -n "${FTP_USERNAME:-}" || { echo '::error::FTP_USERNAME secret is missing.'; exit 1; }
+          test -n "${FTP_PASSWORD:-}" || { echo '::error::FTP_PASSWORD secret is missing.'; exit 1; }
+          getent hosts "$FTP_HOST" >/dev/null
+          timeout 20 bash -c "exec 3<>/dev/tcp/$FTP_HOST/$FTP_PORT"
 
       - name: Install lftp
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq lftp
 
-      - name: Deploy static files to cPanel
+      - name: Deploy static files to cPanel over verified FTPS
         run: |
           set -euo pipefail
           cat > "$HOME/.lftprc" <<'LFTPRC'
@@ -182,10 +156,14 @@ jobs:
           set net:reconnect-interval-max 40
           set mirror:parallel-transfer-count 1
           set cmd:fail-exit yes
+          set ssl:verify-certificate yes
           LFTPRC
 
           cat > "$RUNNER_TEMP/deploy.lftp" <<'LFTP'
           set cmd:fail-exit yes
+          set ftp:ssl-force yes
+          set ftp:ssl-protect-data yes
+          set ssl:verify-certificate yes
           mirror -R --delete --verbose=1 \
             -X .env -X '.env.*' \
             -X database -X 'database/*' \
@@ -200,41 +178,12 @@ jobs:
           cls -la public_html/contact-us/index.html
           cls -la public_html/packages/index.html
           cls -la public_html/activities/pc-games/index.html
+          cls -la public_html/gta-6/index.html
           cls -la public_html/.htaccess
           bye
           LFTP
 
-          ok=0
-          for scope in sftp ftps ftp; do
-            case "$scope" in
-              sftp)
-                url="sftp://$SFTP_HOST:$SFTP_PORT"
-                opts='set sftp:auto-confirm yes; set sftp:connect-program "ssh -a -x -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=25"'
-                ;;
-              ftps)
-                url="ftps://$FTP_HOST:$FTP_PORT"
-                opts='set ftp:ssl-force yes; set ftp:ssl-protect-data yes; set ssl:verify-certificate no'
-                ;;
-              ftp)
-                url="ftp://$FTP_HOST:$FTP_PORT"
-                opts='set ftp:ssl-allow no'
-                ;;
-            esac
-            for attempt in 1 2; do
-              echo "::group::$scope deploy attempt $attempt/2"
-              if LFTP_PASSWORD="$FTP_PASSWORD" lftp --env-password -u "$FTP_USERNAME" "$url" -e "$opts; source $RUNNER_TEMP/deploy.lftp"; then
-                echo "::endgroup::"
-                ok=1
-                break 2
-              fi
-              echo "::endgroup::"
-              sleep $((attempt * 15))
-            done
-          done
-          if [ "$ok" -ne 1 ]; then
-            echo "::error::Static upload failed over SFTP, FTPS and FTP."
-            exit 1
-          fi
+          LFTP_PASSWORD="$FTP_PASSWORD" lftp --env-password -u "$FTP_USERNAME" "ftps://$FTP_HOST:$FTP_PORT" -e "set ftp:ssl-force yes; set ftp:ssl-protect-data yes; set ssl:verify-certificate yes; source $RUNNER_TEMP/deploy.lftp"
 
       - name: Verify live static website
         run: |
@@ -282,26 +231,3 @@ jobs:
                       raise SystemExit(f"CSS asset failed: {url} status={response.status} type={content_type} bytes={len(body)}")
                   print(f"CSS OK {response.status} {len(body)} bytes {url}")
           PY
-
-      - name: Commit optimized gaming images to main
-        if: success()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/img/site/arena.webp public/img/site/pc-setup.webp public/img/site/pc-gaming.webp public/img/site/ps5.webp public/img/site/snooker.webp public/img/site/table-tennis.webp public/img/site/pool.webp public/img/site/vip-room.webp
-          if git diff --cached --quiet; then
-            echo "Optimized image assets are already committed."
-            exit 0
-          fi
-          git commit -m "Add optimized unbranded gaming images"
-          git fetch origin main
-          git rebase --autostash origin/main
-          git push origin HEAD:main
-          primary_code=$(curl -sS -L -o "$RUNNER_TEMP/primary.html" -w '%{http_code}' --max-redirs 10 --max-time 30 "https://levelxgamingarena.com/" || true)
-          echo "https://levelxgamingarena.com/ -> ${primary_code:-request-failed}"
-          if [ "$primary_code" != "200" ]; then
-            echo "::warning::The apex alias is not resolving cleanly. The canonical www site and all required routes passed; review the apex/CDN redirect configuration separately."
-          fi
