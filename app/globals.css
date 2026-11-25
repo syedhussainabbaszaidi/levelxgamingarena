@@ -586,3 +586,140 @@ a{transition:color .25s ease,border-color .25s ease,background .25s ease,transfo
  .flagship-activity-card,.flagship-activity-card .activity-image-wrap>img,.flagship-price-card .package-card-image img,.flagship-gallery-grid .gallery-card img{transition:none!important}
  .flagship-activity-card:hover{transform:none}
 }
+
+
+/* Level X logo-led palette: carbon black, clean white and signature red */
+:root{
+ --bg:#f5f5f5;--paper:#ffffff;--surface:#ffffff;--surface2:#ededed;
+ --ink:#111111;--text:#f7f7f7;--muted:#777777;--line:#dedede;
+ --dark:#090909;--dark2:#151515;--accent:#ff1018;--accent2:#ff343b;
+ --green:#ff1018;
+}
+body{background:#f5f5f5;color:#111}
+::selection{background:#ff1018;color:#fff}
+.skip-link:focus{background:#ff1018;color:#fff}
+:focus-visible{outline:2px solid #ff1018;outline-offset:4px}
+.announcement-bar{background:#ff1018;color:#fff;border-color:#ff1018}
+.announcement-inner>a{color:#fff}
+.site-header{background:rgba(8,8,8,.97);border-bottom:1px solid #ffffff20;box-shadow:0 12px 36px #0003}
+.desktop-nav{color:#e5e5e5}
+.desktop-nav a:hover,.footer a:hover{color:#ff343b}
+.desktop-nav a:after{background:#ff1018}
+.nav-cta,.button-primary{background:#ff1018;color:#fff;box-shadow:0 10px 30px #ff10182b}
+.nav-cta:hover,.button-primary:hover{background:#e00008;color:#fff;box-shadow:0 16px 40px #ff10183d}
+.button-outline{border-color:#ffffff55;background:#ffffff08;color:#fff}
+.button-outline:hover{border-color:#ff1018;background:#ff10181a;color:#fff}
+.mobile-menu-toggle{border-color:#ffffff38;background:#ffffff0c;color:#fff}
+.mobile-nav-backdrop{background:#000d;backdrop-filter:blur(14px)}
+.mobile-nav-panel{border-color:#ffffff20;background:radial-gradient(ellipse at 100% 0%,#ff10181c,transparent 48%),#101010}
+.mobile-nav-item{color:#f7f7f7;border-color:#ffffff20}
+.mobile-nav-number,.mobile-nav-item>svg,.mobile-nav-label small,.mobile-nav-bottom>span{color:#ff343b}
+.flagship-hero{background:radial-gradient(ellipse at 82% 42%,#ff10182b 0,transparent 38%),linear-gradient(125deg,#050505,#111 72%,#080808);color:#fff}
+.flagship-hero:after{background:radial-gradient(ellipse at 8% 90%,#ff101812,transparent 40%)}
+.flagship-hero .eyebrow{color:#ffb8ba}
+.flagship-hero .live-dot{background:#ff1018;box-shadow:0 0 0 5px #ff101824}
+.flagship-hero h1 em,.flagship-hero h1 strong{color:#ff343b}
+.flagship-hero .hero-proof svg,.flagship-hero .hero-proof .live-dot{color:#ff343b}
+.hero-image-frame{background:#111;border-color:#ffffff30}
+.hero-image-shade{background:linear-gradient(180deg,#08080800 30%,#080808e8 100%),linear-gradient(90deg,#08080830,transparent 60%)}
+.hero-image-caption span,.hero-image-caption strong{color:#fff}
+.hero-image-caption span{color:#ff343b}
+.hero-floating-card{background:#111111f2;border-color:#ffffff2d}
+.hero-floating-card>svg,.hero-floating-card .floating-icon{color:#ff343b}
+.floating-icon,.floating-icon.green{background:#ff10181c;color:#ff343b}
+.hero-bottom-line{color:#aaa;border-color:#ffffff2d}
+.scroll-line{background:#ff1018}
+.quick-highlights{background:#111;color:#fff;border-color:#292929}
+.quick-highlights-grid>div{border-color:#333}
+.highlight-icon{border-color:#ff101855;background:#ff10181a;color:#ff343b}
+.quick-highlights-grid small{color:#aaa}
+.flagship-activities,.experience-details{background:#f5f5f5;color:#111}
+.section-heading h2,.section-heading-row .section-heading h2,.experience-details .section-heading h2{color:#111}
+.section-heading p,.experience-details .section-heading p{color:#666}
+.section-index{color:#ff1018}.section-index i{color:#999}
+.flagship-activity-card{border-color:#e1e1e1;background:#fff;box-shadow:0 8px 30px #0000000a}
+.flagship-activity-card:hover{border-color:#ff101866;box-shadow:0 22px 55px #00000018}
+.flagship-activity-card .activity-image-wrap{background:#e8e8e8}
+.flagship-activity-card .activity-number{background:#111e;color:#ff343b}
+.flagship-activity-card .activity-image-wrap:after{background:linear-gradient(transparent,#0009)}
+.activity-image-action{background:#111c;color:#fff}
+.flagship-activity-card:hover .activity-image-action{background:#ff1018;color:#fff}
+.flagship-activity-card .tag,.price-card-content .tag{background:#fff0f0;color:#d60008}
+.flagship-activity-card .activity-body h3{color:#111}
+.flagship-activity-card .activity-body p{color:#686868}
+.flagship-activity-card .price-line{color:#111}
+.flagship-activity-card .price-line del,.flagship-activity-card .price-line .muted{color:#888}
+.flagship-activity-card .text-link,.flagship-activity-card .enquiry-price strong{color:#df0008}
+.flagship-activity-card .text-link:hover{color:#990008}
+.games-section{background:#0a0a0a;color:#fff;border-color:#292929}
+.games-section:before{background:radial-gradient(ellipse,#ff101824,transparent 68%)}
+.games-copy .eyebrow,.games-copy h2 em,.games-copy .text-link,.game-title span{color:#ff343b}
+.games-copy p{color:#bcbcbc}
+.games-copy .text-link{border-color:#ff101866}
+.game-title-grid{border-color:#444}
+.game-title{border-color:#444}
+.game-title:hover{background:#ff101812}
+.game-title svg{color:#aaa}
+.pricing-section,.gallery-section{background:#f0f0f0;color:#111}
+.pricing-section .section-heading h2,.gallery-section .section-heading h2{color:#111}
+.flagship-price-card{border-color:#dedede;background:#fff;color:#111;box-shadow:0 8px 30px #0000000a}
+.flagship-price-card:hover{box-shadow:0 18px 45px #00000018}
+.flagship-price-card .package-card-image{background:#e5e5e5}
+.flagship-price-card .price{color:#111}
+.flagship-price-card .price small{color:#777}
+.price-card-content>p{color:#666}
+.flagship-price-card .deal{border-color:#e5e5e5;color:#666}
+.flagship-price-card .deal b{color:#111}
+.flagship-price-card .text-link{color:#df0008}
+.flagship-account-panel{background:#101010;border-color:#333;color:#fff}
+.flagship-account-panel .account-heading h2{color:#fff}
+.flagship-account-panel .account-heading p,.flagship-account-panel .account-card span,.flagship-account-panel .account-card p{color:#aaa}
+.flagship-account-panel .account-card{background:#191919;border-color:#383838}
+.flagship-account-panel .account-card strong,.flagship-account-panel .account-card b{color:#fff}
+.flagship-account-panel .account-card .text-link,.account-panel-mark{color:#ff343b}
+.account-panel-mark{border-color:#ff101855}
+.account-fine-print{color:#aaa}
+.section-link .button-outline{border-color:#aaa;background:transparent;color:#111}
+.section-link .button-outline:hover{border-color:#ff1018;background:#111;color:#fff}
+.flagship-experience{background:#111;color:#fff;border-color:#292929}
+.flagship-experience .eyebrow,.flagship-experience h2 em,.flagship-experience .experience-banner-image span{color:#ff343b}
+.flagship-experience p{color:#bcbcbc}
+.flagship-experience .experience-banner-image{border-color:#ffffff30}
+.experience-details .info-card{border-color:#e1e1e1;background:#fff}
+.experience-details .info-card:hover{border-color:#ff101866}
+.experience-details .info-card svg{color:#ff1018}
+.experience-details .info-card h3{color:#111}
+.experience-details .info-card p{color:#666}
+.flagship-gallery-grid .gallery-card{border-color:#ddd;background:#e8e8e8}
+.flagship-gallery-grid .gallery-card span{background:linear-gradient(transparent,#000d);color:#fff}
+.faq-section{background:#0a0a0a;color:#fff}
+.faq-section .eyebrow,.faq-section .faq-intro h2 em{color:#ff343b}
+.faq-section .faq-intro h2{color:#fff}
+.faq-section .faq-intro p{color:#bcbcbc}
+.faq-section .faq-item{border-color:#353535;background:#151515}
+.faq-section .faq-item summary h3{color:#fff}
+.faq-section .faq-item summary>svg{color:#ff343b}
+.faq-section .faq-item>p{color:#bcbcbc}
+.final-cta-section{background:#f5f5f5}
+.flagship-cta{background:#ff1018;color:#fff}
+.flagship-cta .eyebrow,.flagship-cta h2,.flagship-cta p{color:#fff}
+.flagship-cta .eyebrow:before{background:#fff}
+.flagship-cta .button-primary{background:#090909;color:#fff;box-shadow:none}
+.flagship-cta .button-primary:hover{background:#292929;color:#fff}
+.footer{background:#080808;color:#aaa;border-color:#292929}
+.footer-cta{border-color:#ff101855;background:linear-gradient(110deg,#1b1010,#101010 60%,#090909)}
+.footer-cta h2,.footer-grid h4{color:#fff}
+.footer-cta p,.footer-copy{color:#aaa}
+.footer-secondary-link,.footer-grid a:hover,.footer-grid a:focus{color:#ff343b}
+.footer-bottom,.footer-legal-links{border-color:#333;color:#888}
+.text-link{color:#df0008}
+.contact-icon{background:#ff10181a;color:#ff343b}
+.contact-item{border-color:#dedede;background:#fff}
+.contact-item small{color:#777}
+.contact-item strong{color:#111}
+.detail-price{border-color:#dedede;background:#fff;color:#111}
+.feature-list li{color:#333}
+.feature-list svg{color:#ff1018}
+@media(max-width:760px){
+ .quick-highlights-grid>div{border-color:#333}
+}
