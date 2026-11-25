@@ -252,3 +252,85 @@ h1,h2,h3,h4,h5,h6,.brand,.price,.stat b{font-family:var(--font-outfit)!important
 @media(prefers-reduced-motion:reduce){
   .footer-accordion>summary svg{transition:none}
 }
+
+
+/* Senior QA pass: consistent vertical rhythm, readable controls and responsive spacing */
+:root{--section-space:clamp(68px,7.2vw,104px);--content-gap:clamp(18px,2.2vw,28px)}
+main{min-width:0;overflow-x:clip}
+main section{min-width:0}
+.button,.contact-call-link,.text-link,.footer-secondary-link{line-height:1.4}
+.button{white-space:normal;text-align:center;min-height:46px;max-width:100%;padding:12px 18px;gap:9px}
+.button svg{flex:none}
+.hero-actions,.activity-hero-actions,.about-hero-actions,.contact-hero-actions,.packages-hero-actions{align-items:center;gap:14px}
+.hero-copy,.page-intro p,.activity-hero-copy>p,.about-hero-description,.contact-hero-description,.packages-hero-copy .page-intro p{line-height:1.8}
+.section-heading,.activities-directory-heading,.about-lineup-heading,.contact-details-heading,.packages-section-heading,.account-pass-heading{margin-bottom:clamp(28px,3.4vw,42px)}
+.section-heading p,.activities-directory-heading p,.about-lineup-heading>p,.contact-details-heading>p,.packages-section-heading p,.account-pass-heading p{margin-top:12px;line-height:1.8}
+.flagship-hero,.activities-landing-hero,.about-editorial-hero,.contact-editorial-hero,.packages-hero,.gallery-page-hero,.food-page-hero{padding-block:clamp(62px,7vw,100px)}
+.activities-directory,.activities-additional,.activities-final-cta,.about-manifesto,.about-lineup-section,.about-hours-section,.contact-details-section,.contact-final-strip,.packages-rate-section,.account-pass-section,.packages-booking-section,.gallery-page-content,.food-experience-section{padding-block:var(--section-space)}
+.activities-directory-grid,.activities-additional-grid,.about-lineup-grid,.contact-details-grid,.premium-package-grid,.premium-account-grid,.gallery-editorial-grid{gap:var(--content-gap)}
+.activities-directory-card>div,.activities-additional-grid article>div,.about-lineup-content,.premium-price-content{display:flex;flex-direction:column;align-items:flex-start}
+.activities-directory-card p,.activities-additional-grid article p,.about-lineup-content p,.premium-price-content>p{line-height:1.75}
+.activities-directory-card>div,.activities-additional-grid article>div,.about-lineup-content,.premium-price-content{gap:10px}
+.activities-directory-card h3,.activities-additional-grid h3,.about-lineup-content h3,.premium-price-content h3{margin:2px 0}
+.activities-directory-card>div>a,.activities-additional-grid article>div>a,.about-lineup-content>a{margin-top:8px}
+.activity-detail-hero-content{padding-block:clamp(66px,7vw,90px)}
+.activity-detail-content,.activity-features-section,.activity-next-section{scroll-margin-top:90px}
+.activity-detail-intro>p,.activity-detail-panel>p,.activity-features-heading>p,.activity-next-inner>div>p{max-width:680px}
+.activity-detail-panel .button{margin-top:20px}
+.activity-detail-disclaimer{display:block;margin-top:14px;line-height:1.6}
+.activity-feature-card p{margin:12px 0 0;line-height:1.65}
+.activity-next-card{min-width:0}
+.about-manifesto-grid{gap:clamp(24px,4vw,55px)}
+.about-manifesto-grid p{margin:0 0 14px;line-height:1.85}
+.about-lineup-content p{min-height:0}
+.about-hours-copy p{line-height:1.8}
+.contact-channel-card{min-width:0;gap:12px}
+.contact-channel-card>span:nth-child(2){min-width:0;overflow-wrap:anywhere}
+.contact-channel-card strong,.contact-channel-card b{line-height:1.45}
+.contact-plan-card>p,.contact-step p,.contact-final-strip p{line-height:1.75}
+.contact-plan-card>.button{margin-top:22px}
+.contact-payment-note{display:flex;align-items:center;gap:8px;margin-top:14px;line-height:1.5}
+.packages-hero-copy .page-intro{margin:0}
+.packages-hero-actions{margin-top:25px}
+.premium-price-content{gap:12px}
+.premium-price-content>p{margin:0;min-height:0}
+.premium-enquire{margin-top:10px}
+.premium-rate-row{gap:12px;line-height:1.5}
+.premium-rate-row b{text-align:right}
+.premium-account-card{display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+.premium-account-card p{margin:0;line-height:1.7}
+.premium-account-card>a{margin-top:auto;padding-top:8px}
+.packages-booking-actions{display:flex;flex-direction:column;align-items:flex-start;gap:18px}
+.gallery-page-heading{margin-bottom:30px}
+.gallery-page-heading p{margin-top:12px;line-height:1.75}
+.gallery-source-note{margin-top:24px;line-height:1.7}
+.mobile-nav-item>svg{display:none}
+.mobile-nav-parent>svg{display:block!important}
+.mobile-nested-columns section>a svg{display:none}
+@media(max-width:760px){
+  :root{--section-space:68px;--content-gap:15px}
+  .flagship-hero,.activities-landing-hero,.about-editorial-hero,.contact-editorial-hero,.packages-hero,.gallery-page-hero,.food-page-hero{padding-block:54px}
+  .hero-actions,.activity-hero-actions,.about-hero-actions,.contact-hero-actions,.packages-hero-actions{display:flex;flex-direction:column;align-items:stretch;gap:12px}
+  .hero-actions>.button,.activity-hero-actions>.button,.about-hero-actions>.button,.contact-hero-actions>.button,.packages-hero-actions>.button{width:100%}
+  .section-heading-row,.activities-directory-heading,.about-lineup-heading,.contact-details-heading,.packages-section-heading,.account-pass-heading{align-items:flex-start;gap:14px}
+  .activities-directory,.activities-additional,.activities-final-cta,.about-manifesto,.about-lineup-section,.about-hours-section,.contact-details-section,.contact-final-strip,.packages-rate-section,.account-pass-section,.packages-booking-section,.gallery-page-content,.food-experience-section{padding-block:64px}
+  .activities-directory-card>div,.activities-additional-grid article>div,.about-lineup-content,.premium-price-content{gap:9px}
+  .contact-channel-card{padding:16px;align-items:flex-start}
+  .contact-channel-card>svg:last-child{margin-top:4px}
+  .contact-plan-card>.button{width:100%}
+  .premium-price-content{padding:20px}
+  .premium-enquire{width:100%}
+  .packages-booking-actions{align-items:stretch}
+  .packages-booking-actions>.button,.packages-booking-actions>a{width:100%;justify-content:center}
+  .activity-detail-hero-content{padding-block:48px 76px}
+}
+@media(max-width:430px){
+  .button{padding:12px 14px;font-size:12px}
+  .contact-channel-card{gap:10px}
+  .contact-channel-card strong{font-size:12px}
+  .contact-channel-card b{font-size:10px}
+  .activity-detail-panel{padding:21px}
+}
+@media(prefers-reduced-motion:reduce){
+  .activity-detail-visual>img,.activity-card img,.gallery-card img{transition:none!important}
+}
