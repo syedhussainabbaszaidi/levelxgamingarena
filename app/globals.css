@@ -1165,3 +1165,20 @@ html{scroll-behavior:smooth;scroll-padding-top:100px}body{font-size:16px;color:#
   .mobile-nested-columns section>a strong{font-size:12px!important}
   .mobile-nested-columns section>a small{font-size:10px!important}
 }
+
+/* Premium mobile services drawer cards and animated nested panel */
+@media(max-width:760px){
+  .mobile-nested-panel{will-change:transform,opacity}
+  .mobile-nested-columns{display:flex!important;flex-direction:column!important;gap:15px!important}
+  .mobile-nested-columns section{width:100%!important}
+  .mobile-services-panel h3{display:flex;align-items:center;gap:8px}
+  .mobile-service-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+  .mobile-service-card{position:relative;display:flex!important;min-height:124px;flex-direction:column;align-items:flex-start!important;justify-content:flex-start!important;gap:7px!important;padding:13px!important;overflow:hidden;border:1px solid rgba(255,255,255,.11)!important;border-radius:12px;background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.018));transition:transform .22s ease,border-color .22s ease,background .22s ease}
+  .mobile-service-card:before{content:"";position:absolute;inset:auto -22px -35px auto;width:82px;height:82px;border-radius:50%;background:rgba(255,45,58,.10);filter:blur(4px);pointer-events:none}
+  .mobile-service-card:hover,.mobile-service-card:focus-visible{transform:translateY(-2px);border-color:rgba(255,69,77,.6)!important;background:linear-gradient(145deg,rgba(255,55,65,.13),rgba(255,255,255,.025))}
+  .mobile-service-icon{display:grid;place-items:center;width:34px;height:34px;border:1px solid rgba(255,69,77,.32);border-radius:9px;background:rgba(255,45,58,.11);color:#ff5961}
+  .mobile-service-card>strong{font-size:11px!important;line-height:1.3}
+  .mobile-service-card>small{margin-top:0!important;color:#aaa!important;font-size:9px!important;line-height:1.45}
+  .mobile-service-card .mobile-service-arrow{position:absolute;right:10px;top:11px;color:#ff5961}
+}
+@media(max-width:390px){.mobile-service-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.mobile-service-card{min-height:132px;padding:11px!important}}
