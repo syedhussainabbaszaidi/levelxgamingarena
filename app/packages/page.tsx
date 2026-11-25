@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { Metadata } from "next";
 import { ArrowRight, ArrowUpRight, Check, Clock3 } from "lucide-react";
 import { PageIntro, WhatsAppButton } from "../components";
