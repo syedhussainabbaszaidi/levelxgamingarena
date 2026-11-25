@@ -86,6 +86,7 @@ export function Footer() {
           <Link href="/activities/premium-snooker-room/">Premium snooker</Link>
           <Link href="/activities/private-table-tennis-room/">Private table tennis</Link>
           <Link href="/gallery/">Gallery</Link>
+          <Link href="/gta-6/">GTA VI guide</Link>
           </div>
         </details>
         <details className="footer-group footer-accordion">
