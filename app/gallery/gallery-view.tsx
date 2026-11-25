@@ -12,8 +12,6 @@ const images = [
   {src:"/img/activities/covers/ps5.jpg",title:"PlayStation 5",category:"Gaming Setups"},
   {src:"/img/activities/covers/snooker.jpg",title:"Premium Snooker",category:"Experiences"},
   {src:"/img/activities/covers/table-tennis.jpg",title:"Private Table Tennis",category:"Experiences"},
-  {src:"/img/gallery/racing-sim.jpg",title:"Racing Setup",category:"Experiences"},
-  {src:"/img/gallery/vr-zone.jpg",title:"Gaming Zone",category:"The Arena"},
 ];
 const filters=["All","The Arena","Gaming Setups","Experiences"];
 
