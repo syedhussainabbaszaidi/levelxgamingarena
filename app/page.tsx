@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Gamepad2, ShieldCheck, Users } from "lucide-react";
+import { ArrowRight, CheckCircle2, Gamepad2, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { activities, accountPackages, faqs, gallery, hourlyPackages, whatsappLink } from "./data";
 import { SectionHeading, WhatsAppButton } from "./components";
 import { pageMetadata } from "./seo";
