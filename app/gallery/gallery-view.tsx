@@ -5,10 +5,10 @@ import Image from "next/image";
 import { X, ChevronLeft, ChevronRight, ArrowUpRight } from "lucide-react";
 
 const images = [
-  {src:"/img/gallery/esports-arena.jpg",title:"Gaming Arena",category:"The Arena"},
-  {src:"/img/gallery/arcade.jpg",title:"Gaming Floor",category:"The Arena"},
-  {src:"/img/gallery/gaming-setup.jpg",title:"PC Gaming Setup",category:"Gaming Setups"},
-  {src:"/img/activities/covers/pc-gaming.jpg",title:"PC Gaming",category:"Gaming Setups"},
+  {src:"/img/site/arena.webp",title:"Gaming Arena",category:"The Arena"},
+  {src:"/img/site/arena.webp",title:"Gaming Floor",category:"The Arena"},
+  {src:"/img/site/pc-setup.webp",title:"PC Gaming Setup",category:"Gaming Setups"},
+  {src:"/img/site/pc-setup.webp",title:"PC Gaming",category:"Gaming Setups"},
   {src:"/img/activities/covers/ps5.jpg",title:"PlayStation 5",category:"Gaming Setups"},
   {src:"/img/activities/covers/snooker.jpg",title:"Premium Snooker",category:"Experiences"},
   {src:"/img/activities/covers/table-tennis.jpg",title:"Private Table Tennis",category:"Experiences"},
