@@ -52,7 +52,7 @@ export default function HomePage() {
         <div className="activity-grid flagship-activity-grid">
           {activities.map((activity, index) => <article className="activity-card flagship-activity-card" key={activity.slug}>
             <div className="activity-image-wrap"><Image src={activity.image} alt={activity.name + " at Level X Gaming Arena"} width={720} height={520} /><span className="activity-number">0{index + 1}</span><span className="activity-image-action"><ArrowUpRight size={19} /></span></div>
-            <div className="activity-body"><span className="tag">{activity.category}</span><h3>{activity.name === "PC Games" ? "PC Gaming" : activity.name}</h3><p>{activity.description}</p>
+            <div className="activity-body"><span className="tag">{activity.category}</span><h3>{activity.name}</h3><p>{activity.description}</p>
               <div className="price-line"><strong>Rs. {activity.offer.toLocaleString("en-PK")}</strong><del>Rs. {activity.price.toLocaleString("en-PK")}</del><span className="muted">/ {activity.unit}</span></div>
               <Link className="text-link" href={`/activities/${activity.slug}/`}>Explore activity <ArrowRight size={15} /></Link>
             </div>

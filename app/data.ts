@@ -59,7 +59,7 @@ export const additionalExperiences = [
   {
     name: "Pool Table",
     category: "Cue Sports",
-    description: "A relaxed cue-sports session for friends and groups. Contact the arena team to confirm current availability and rates.",
+    description: "A relaxed cue-sports experience for friends and groups. Contact the arena team to confirm current availability and rates.",
     image: "/img/activities/pool.svg",
   },
   {
