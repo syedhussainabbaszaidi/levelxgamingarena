@@ -297,3 +297,14 @@ h1,h2,h3,h4,.brand,.stat b,.art-caption strong,.mobile-nav-label strong{font-fam
  .flagship-account-panel .account-grid{grid-template-columns:1fr 1fr}.section-heading-row{display:block}.section-index{display:none}
 }
 @media(prefers-reduced-motion:reduce){.flagship-activity-card,.flagship-activity-card .activity-image-wrap>img,.flagship-price-card .package-card-image img,.flagship-gallery-grid .gallery-card img{transition:none!important}.flagship-activity-card:hover{transform:none}}
+
+/* Accessible native FAQ accordion */
+.faq-section .faq-item{display:block}
+.faq-section .faq-item summary{display:grid;grid-template-columns:42px minmax(0,1fr) 20px;align-items:center;gap:15px;cursor:pointer;list-style:none}
+.faq-section .faq-item summary::-webkit-details-marker{display:none}
+.faq-section .faq-item summary h3{font-size:14px}
+.faq-section .faq-item summary>svg{color:#ff7894;transition:transform .22s ease}
+.faq-section .faq-item[open] summary>svg{transform:rotate(180deg)}
+.faq-section .faq-item>p{margin:12px 35px 0 57px;color:#a3aab7;font-size:12px;line-height:1.8}
+@media(max-width:760px){.faq-section .faq-item summary{grid-template-columns:30px minmax(0,1fr) 18px;gap:10px}.faq-section .faq-item>p{margin:10px 0 0 40px}}
+@media(prefers-reduced-motion:reduce){.faq-section .faq-item summary>svg{transition:none}}
