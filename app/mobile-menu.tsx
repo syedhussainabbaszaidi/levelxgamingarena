@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowUpRight, ChevronRight, Menu, MessageCircle, X } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, ChevronRight, Menu, MessageCircle, X, Gamepad2, Monitor, Trophy, Table2, CircleDot, Crown } from "lucide-react";
 import { whatsappLink } from "./data";
 import gsap from "gsap";
 
@@ -15,18 +15,15 @@ const links = [
   { href: "/contact-us/", label: "Contact", note: "Plan your visit" },
 ];
 
-const packageLinks = [
-  { href: "/packages/#hourly-rates", label: "Hourly rates", note: "Published session rates" },
-  { href: "/packages/#account-passes", label: "Prepaid passes", note: "Play-time bundles" },
-  { href: "/packages/", label: "All packages", note: "Compare every option" },
-];
 const serviceLinks = [
-  { href: "/activities/pc-games/", label: "PC Gaming" },
-  { href: "/activities/ps5/", label: "PlayStation 5" },
-  { href: "/activities/premium-snooker-room/", label: "Premium Snooker" },
-  { href: "/activities/private-table-tennis-room/", label: "Private Table Tennis" },
-  { href: "/activities/", label: "All activities" },
-];
+  { href: "/activities/pc-games/", label: "PC Gaming", note: "Competitive gaming stations", Icon: Monitor },
+  { href: "/activities/ps5/", label: "PlayStation 5", note: "Console sessions", Icon: Gamepad2 },
+  { href: "/activities/premium-snooker-room/", label: "Premium Snooker", note: "Private snooker room", Icon: Trophy },
+  { href: "/activities/private-table-tennis-room/", label: "Table Tennis", note: "Private table tennis room", Icon: Table2 },
+  { href: "/activities/", label: "Pool Table", note: "Explore cue sports", Icon: CircleDot },
+  { href: "/activities/", label: "VIP Private Rooms", note: "Private gaming spaces", Icon: Crown },
+  { href: "/activities/", label: "All activities", note: "See every experience", Icon: ArrowUpRight },
+] as const;
 
 export function MobileMenu() {
   const [open, setOpen] = useState(false);
@@ -76,18 +73,18 @@ export function MobileMenu() {
             </div>
             {nestedOpen ? (
               <div className="mobile-nested-panel">
-                <div className="mobile-nested-heading"><span>LEVEL X / EXPLORE</span><h2>Packages & services</h2><p>Choose a session or explore the games available at the arena.</p></div>
-                <div className="mobile-nested-columns">
-                  <section><h3>Packages</h3>{packageLinks.map((item) => <Link href={item.href} key={item.href} onClick={close}><strong>{item.label}</strong><small>{item.note}</small></Link>)}</section>
-                  <section><h3>Services</h3>{serviceLinks.map((item) => <Link href={item.href} key={item.href} onClick={close}>{item.label}</Link>)}</section>
+                <div className="mobile-nested-heading"><span>LEVEL X / EXPLORE</span><h2>Choose your game.</h2><p>Pick a gaming experience and explore its details, rates and availability.</p></div>
+                <div className="mobile-service-grid">
+                  {serviceLinks.map(({ href, label, note, Icon }) => <Link className="mobile-service-card" href={href} key={label} onClick={close}><span className="mobile-service-icon"><Icon size={20} /></span><span className="mobile-service-copy"><strong>{label}</strong><small>{note}</small></span><ArrowUpRight className="mobile-service-arrow" size={15} /></Link>)}
                 </div>
               </div>
             ) : (
               <>
                 <nav className="mobile-nav" aria-label="Mobile navigation">
                   {links.slice(0,2).map((item,index)=><Link className="mobile-nav-item" href={item.href} onClick={close} key={item.href}><span className="mobile-nav-number">0{index+1}</span><span className="mobile-nav-label"><strong>{item.label}</strong><small>{item.note}</small></span></Link>)}
-                  <button className="mobile-nav-item mobile-nav-parent" type="button" aria-expanded={nestedOpen} onClick={()=>setNestedOpen(true)}><span className="mobile-nav-number">03</span><span className="mobile-nav-label"><strong>Packages & services</strong><small>Rates, passes and gaming options</small></span><ChevronRight size={19}/></button>
-                  {links.slice(2).map((item,index)=><Link className="mobile-nav-item" href={item.href} onClick={close} key={item.href}><span className="mobile-nav-number">0{index+4}</span><span className="mobile-nav-label"><strong>{item.label}</strong><small>{item.note}</small></span></Link>)}
+                  <Link className="mobile-nav-item" href="/packages/" onClick={close}><span className="mobile-nav-number">03</span><span className="mobile-nav-label"><strong>Packages</strong><small>Rates and prepaid passes</small></span></Link>
+                  <button className="mobile-nav-item mobile-nav-parent" type="button" aria-expanded={nestedOpen} onClick={()=>setNestedOpen(true)}><span className="mobile-nav-number">04</span><span className="mobile-nav-label"><strong>Services</strong><small>Explore all gaming options</small></span><ChevronRight size={19}/></button>
+                  {links.slice(2).map((item,index)=><Link className="mobile-nav-item" href={item.href} onClick={close} key={item.href}><span className="mobile-nav-number">0{index+5}</span><span className="mobile-nav-label"><strong>{item.label}</strong><small>{item.note}</small></span></Link>)}
                 </nav>
                 <div className="mobile-nav-bottom">
                   <a className="button button-primary" href={whatsappLink("Hi Level X, I would like to book a gaming session. Please share availability.")} target="_blank" rel="noopener noreferrer" onClick={close}><MessageCircle size={17}/> Book a session <ArrowUpRight size={15}/></a>
