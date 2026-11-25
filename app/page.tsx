@@ -32,7 +32,7 @@ export default function HomePage() {
             <div className="hero-proof"><span><CheckCircle2 size={15} /> Open 24/7</span><span><CheckCircle2 size={15} /> Six activities</span><span><MessageCircle size={15} /> Direct WhatsApp booking</span></div>
           </div>
           <div className="hero-art">
-            <div className="hero-image-frame"><Image src="/img/gallery/esports-arena.jpg" alt="Gaming stations inside Level X Gaming Arena" width={1100} height={820} priority /><div className="hero-image-shade" /><div className="hero-image-caption"><span>LEVEL X / 001</span><strong>Find your game.</strong></div></div>
+            <div className="hero-image-frame"><Image src="/img/site/arena.webp" alt="Gaming stations inside Level X Gaming Arena" width={1100} height={820} priority /><div className="hero-image-shade" /><div className="hero-image-caption"><span>LEVEL X / 001</span><strong>Find your game.</strong></div></div>
             <div className="hero-floating-card"><span className="live-dot" /><div><b>Always game-ready</b><small>Open every hour, every day</small></div><Clock3 size={20} /></div>
             <span className="hero-vertical-label">GAME · COMPETE · CONNECT</span>
           </div>
@@ -96,7 +96,7 @@ export default function HomePage() {
 
       <section className="experience-banner flagship-experience"><div className="container experience-banner-inner">
         <div className="experience-banner-copy"><span className="eyebrow">Bring your crew. Pick your game.</span><h2>Make it a night<br /><em>to remember.</em></h2><p>Bring your crew, choose your experience and let our team help organise your next visit.</p><WhatsAppButton message="Hi Level X, I am planning a visit. Please share activity availability and current offers." label="Plan your visit" /></div>
-        <div className="experience-banner-image"><Image src="/img/gallery/gaming-setup.jpg" alt="Gaming setup at Level X Gaming Arena" width={1000} height={720} /><span>YOUR NEXT GAME AWAITS</span></div>
+        <div className="experience-banner-image"><Image src="/img/site/pc-setup.webp" alt="Gaming setup at Level X Gaming Arena" width={1000} height={720} /><span>YOUR NEXT GAME AWAITS</span></div>
       </div></section>
 
       <section className="section experience-details"><div className="container">
@@ -114,7 +114,7 @@ export default function HomePage() {
 
       <section className="food-preview-section">
         <div className="container food-preview-grid">
-          <div className="food-preview-art"><Image src="/img/gallery/arcade.jpg" alt="The Level X gaming lounge" width={900} height={650}/><span>TAKE A BREAK / STAY IN THE GAME</span></div>
+          <div className="food-preview-art"><Image src="/img/site/arena.webp" alt="The Level X gaming lounge" width={900} height={650}/><span>TAKE A BREAK / STAY IN THE GAME</span></div>
           <div className="food-preview-copy"><span className="eyebrow">MORE THAN GAME TIME</span><h2>Good games.<br/><em>Good company.</em></h2><p>Make room for a refreshment between sessions. Ask the Level X team about the current food, drinks and combo selection before your visit.</p><Link className="button button-outline" href="/food-drinks/">Explore food & drinks <ArrowRight size={16}/></Link><small>Menu items, availability and prices are confirmed directly by the arena.</small></div>
         </div>
       </section>
