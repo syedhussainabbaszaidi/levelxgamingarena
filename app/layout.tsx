@@ -1,42 +1,21 @@
 import type { Metadata } from "next";
+import { Outfit } from "next/font/google";
 import "./globals.css";
 import { Header, Footer } from "./components";
 import { SiteMotion } from "./site-motion";
 import { DEFAULT_DESCRIPTION, SITE_NAME, SITE_URL } from "./seo";
 
+const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit", display: "swap", weight: ["300", "400", "500", "600", "700", "800", "900"] });
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: {
-    default: "Level X Gaming Arena | PC Gaming, PS5 & Snooker in Karachi",
-    template: "%s | Level X Gaming Arena",
-  },
+  title: { default: "Level X Gaming Arena | PC Gaming, PS5 & Snooker in Karachi", template: "%s | Level X Gaming Arena" },
   description: DEFAULT_DESCRIPTION,
-  keywords: [
-    "gaming arena Karachi",
-    "PC gaming Karachi",
-    "PS5 gaming Karachi",
-    "snooker club Karachi",
-    "table tennis Karachi",
-    "gaming zone near me",
-    "Level X Gaming Arena",
-  ],
+  keywords: ["gaming arena Karachi", "PC gaming Karachi", "PS5 gaming Karachi", "snooker club Karachi", "table tennis Karachi", "gaming zone near me", "Level X Gaming Arena"],
   alternates: { canonical: "/" },
   icons: { icon: "/img/favicon.png" },
-  openGraph: {
-    type: "website",
-    locale: "en_PK",
-    url: SITE_URL,
-    siteName: SITE_NAME,
-    title: "Level X Gaming Arena | Game On. Level Up.",
-    description: DEFAULT_DESCRIPTION,
-    images: [{ url: "/img/gallery/esports-arena.jpg", alt: "Level X Gaming Arena gaming floor" }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Level X Gaming Arena | Game On. Level Up.",
-    description: DEFAULT_DESCRIPTION,
-    images: ["/img/gallery/esports-arena.jpg"],
-  },
+  openGraph: { type: "website", locale: "en_PK", url: SITE_URL, siteName: SITE_NAME, title: "Level X Gaming Arena | Game On. Level Up.", description: DEFAULT_DESCRIPTION, images: [{ url: "/img/gallery/esports-arena.jpg", alt: "Level X Gaming Arena gaming floor" }] },
+  twitter: { card: "summary_large_image", title: "Level X Gaming Arena | Game On. Level Up.", description: DEFAULT_DESCRIPTION, images: ["/img/gallery/esports-arena.jpg"] },
 };
 
 const businessSchema = {
@@ -55,13 +34,9 @@ const businessSchema = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en-PK">
-      <body>
+      <body className={outfit.variable}>
         <a className="skip-link" href="#main-content">Skip to content</a>
-        <SiteMotion>
-          <Header />
-          <main id="main-content">{children}</main>
-          <Footer />
-        </SiteMotion>
+        <SiteMotion><Header /><main id="main-content">{children}</main><Footer /></SiteMotion>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(businessSchema) }} />
       </body>
     </html>
