@@ -32,6 +32,8 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
   const activity = activities.find((item) => item.slug === slug);
   if (!activity) notFound();
 
+  const unitLabel = activity.unit === "minute" ? "per minute" : "per hour";
+
   return (
     <>
       <section className="page-hero">
@@ -48,8 +50,8 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
             <p>{activity.description}</p>
             <div className="detail-price">
               <span className="muted">Opening offer</span>
-              <div><strong>Rs. {activity.offer.toLocaleString("en-PK")}</strong><span className="muted"> / hour</span></div>
-              <del className="muted">Regular: Rs. {activity.price.toLocaleString("en-PK")}</del>
+              <div><strong>Rs. {activity.offer.toLocaleString("en-PK")}</strong><span className="muted"> / {unitLabel}</span></div>
+              <del className="muted">Regular: Rs. {activity.price.toLocaleString("en-PK")} / {unitLabel}</del>
             </div>
             <ul className="feature-list">
               {activity.features.map((feature) => <li key={feature}><CheckCircle2 size={17} />{feature}</li>)}
