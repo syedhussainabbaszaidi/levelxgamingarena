@@ -24,6 +24,17 @@ export function Header() {
                 <Link href="/packages/#account-passes"><strong>Prepaid passes</strong><small>Play-time bundles</small></Link>
               </div>
             </div>
+            <div className="nav-dropdown nav-dropdown-services">
+              <Link href="/activities/" aria-haspopup="true">Services <ChevronDown size={13} /></Link>
+              <div className="nav-dropdown-panel">
+                <span className="nav-dropdown-kicker">CHOOSE YOUR EXPERIENCE</span>
+                <Link href="/activities/pc-games/"><strong>PC Gaming</strong><small>Competitive gaming stations</small></Link>
+                <Link href="/activities/ps5/"><strong>PlayStation 5</strong><small>Console sessions</small></Link>
+                <Link href="/activities/premium-snooker-room/"><strong>Premium Snooker</strong><small>Private snooker room</small></Link>
+                <Link href="/activities/private-table-tennis-room/"><strong>Table Tennis</strong><small>Private table tennis room</small></Link>
+                <Link href="/activities/"><strong>All activities</strong><small>Explore every experience</small></Link>
+              </div>
+            </div>
             <Link href="/gallery/">Gallery</Link>
             <Link href="/food-drinks/">Food & Drinks</Link>
             <Link href="/about-us/">About</Link>
