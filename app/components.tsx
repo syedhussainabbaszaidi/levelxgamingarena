@@ -69,6 +69,8 @@ export function Footer() {
           <Link href="/activities/ps5/">PlayStation 5</Link>
           <Link href="/activities/premium-snooker-room/">Premium snooker</Link>
           <Link href="/activities/private-table-tennis-room/">Private table tennis</Link>
+          <a href={whatsappLink("Hi Level X, please share current details and rates for the Pool Table.")} target="_blank" rel="noopener noreferrer">Pool table enquiry</a>
+          <a href={whatsappLink("Hi Level X, please share current details and rates for VIP Private Rooms.")} target="_blank" rel="noopener noreferrer">VIP private rooms</a>
         </div>
         <div>
           <h4>Plan your visit</h4>
