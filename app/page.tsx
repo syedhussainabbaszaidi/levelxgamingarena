@@ -96,7 +96,7 @@ export default function HomePage() {
 
       <section className="experience-banner flagship-experience"><div className="container experience-banner-inner">
         <div className="experience-banner-copy"><span className="eyebrow">Bring your crew. Pick your game.</span><h2>Make it a night<br /><em>to remember.</em></h2><p>Bring your crew, choose your experience and let our team help organise your next visit.</p><WhatsAppButton message="Hi Level X, I am planning a visit. Please share activity availability and current offers." label="Plan your visit" /></div>
-        <div className="experience-banner-image"><Image src="/img/site/pc-setup.webp" alt="Gaming setup at Level X Gaming Arena" width={1000} height={720} /><span>YOUR NEXT GAME AWAITS</span></div>
+        <div className="experience-banner-image"><Image src="/img/site/pc-gaming.webp" alt="Gaming setup at Level X Gaming Arena" width={1000} height={720} /><span>YOUR NEXT GAME AWAITS</span></div>
       </div></section>
 
       <section className="section experience-details"><div className="container">
