@@ -60,7 +60,7 @@ export function SiteMotion({ children }: { children: ReactNode }) {
       }
 
       const grids = gsap.utils.toArray<HTMLElement>(
-        ".activity-grid, .package-grid, .account-grid, .feature-grid, .gallery-grid",
+        ".activity-grid, .package-grid, .account-grid, .feature-grid, .gallery-grid, .game-title-grid, .quick-highlights-grid",
       );
       grids.forEach((grid) => {
         gsap.from(grid.children, {
@@ -70,7 +70,7 @@ export function SiteMotion({ children }: { children: ReactNode }) {
       });
 
       const revealItems = gsap.utils.toArray<HTMLElement>(
-        ".section-heading, .stat, .faq-item, .legal-card, .contact-item, .activity-detail > img, .activity-detail > div, .cta-band, .arena-promo-inner, .experience-banner-copy, .experience-banner-image",
+        ".section-heading, .stat, .faq-item, .legal-card, .contact-item, .activity-detail > img, .activity-detail > div, .cta-band, .arena-promo-inner, .experience-banner-copy, .experience-banner-image, .games-copy, .hero-floating-card",
       );
       revealItems.forEach((item) => {
         gsap.from(item, {
