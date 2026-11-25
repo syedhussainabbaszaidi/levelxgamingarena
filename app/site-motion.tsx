@@ -75,6 +75,11 @@ export function SiteMotion({ children }: { children: ReactNode }) {
           stagger: 0.08,
           ease: "power3.out",
         });
+        const foodOrbit = pageHero.querySelector(".food-orbit-ring-outer");
+        const foodOrbitInner = pageHero.querySelector(".food-orbit-ring-inner");
+        if (foodOrbit) gsap.to(foodOrbit, { rotation: 360, duration: 34, ease: "none", repeat: -1 });
+        if (foodOrbitInner) gsap.to(foodOrbitInner, { rotation: -360, duration: 26, ease: "none", repeat: -1 });
+
         const activityHeroImage = pageHero.querySelector(".activity-detail-hero-image img");
         if (activityHeroImage) {
           gsap.fromTo(activityHeroImage, { scale: 1.12 }, { scale: 1, duration: 1.8, ease: "power3.out" });
