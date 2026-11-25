@@ -406,9 +406,9 @@ a{transition:color .25s ease,border-color .25s ease,background .25s ease,transfo
 .flagship-activity-card .price-line strong{font-family:var(--font);font-size:25px;font-weight:600;letter-spacing:-.055em}
 .flagship-activity-card .price-line del{color:#92998e;font-size:12px}
 .flagship-activity-card .price-line .muted{color:#858d82;font-size:11px}
-.flagship-activity-card .text-link{margin-top:auto;color:#617a37;font-size:12px}
+.flagship-activity-card .text-link{margin-top:auto;color:#ff343b;font-size:12px}
 .flagship-activity-card .text-link:hover{color:#273b1e}
-.flagship-activity-card .enquiry-price strong{color:#617a37;font-size:16px}
+.flagship-activity-card .enquiry-price strong{color:#ff343b;font-size:16px}
 .games-section{position:relative;overflow:hidden;padding:100px 0;background:#111a16;color:#f4f6ef;border-block:1px solid #ffffff14}
 .games-section:before{position:absolute;top:-45%;left:-15%;width:50vw;height:100%;content:"";background:radial-gradient(ellipse,#ff343b1c,transparent 68%)}
 .games-layout{position:relative;display:grid;grid-template-columns:.9fr 1.1fr;gap:80px;align-items:center}
@@ -438,7 +438,7 @@ a{transition:color .25s ease,border-color .25s ease,background .25s ease,transfo
 .price-card-content>p{min-height:82px;color:#727b72;font-size:12px;line-height:1.8}
 .flagship-price-card .deal{padding:10px 0;border-color:#e1e4dc;color:#70796f;font-size:11px}
 .flagship-price-card .deal b{color:#263126;font-weight:600}
-.flagship-price-card .text-link{display:inline-flex;margin-top:17px;color:#617a37}
+.flagship-price-card .text-link{display:inline-flex;margin-top:17px;color:#ff343b}
 .flagship-account-panel{margin-top:50px;padding:clamp(22px,3vw,38px);border:1px solid #ffffff25;border-radius:7px;background:#111a16;color:#f5f7ef}
 .flagship-account-panel .account-heading h2{color:#f5f7ef;font-size:clamp(32px,4vw,48px);font-weight:500;letter-spacing:-.07em}
 .flagship-account-panel .account-heading p{color:#aebbad}
@@ -451,7 +451,7 @@ a{transition:color .25s ease,border-color .25s ease,background .25s ease,transfo
 .flagship-account-panel .account-card .text-link{color:var(--accent)}
 .account-fine-print{color:#9eac9e;font-size:10px}
 .section-link .button-outline{border-color:#aab4a6;background:transparent;color:#29352b}
-.section-link .button-outline:hover{border-color:#607b3a;background:#111a16;color:#fff}
+.section-link .button-outline:hover{border-color:#ff343b;background:#111a16;color:#fff}
 .flagship-experience{padding:105px 0;background:#17241e;color:#f4f6ef;border-block:1px solid #ffffff18}
 .flagship-experience .experience-banner-inner{grid-template-columns:.88fr 1.12fr;gap:75px}
 .flagship-experience .eyebrow{color:var(--accent)}
@@ -492,7 +492,7 @@ a{transition:color .25s ease,border-color .25s ease,background .25s ease,transfo
 .flagship-cta{overflow:hidden;padding:clamp(55px,7vw,88px) 28px;border:0;border-radius:7px;background:var(--accent);color:#172017}
 .flagship-cta:before{background:linear-gradient(115deg,transparent 30%,#ffffff2c 50%,transparent 70%)}
 .flagship-cta .eyebrow{color:#40552b}
-.flagship-cta .eyebrow:before{background:#526d31}
+.flagship-cta .eyebrow:before{background:#ff343b}
 .flagship-cta h2{margin:16px 0;font-size:clamp(42px,6vw,72px);font-weight:500;line-height:1;letter-spacing:-.075em;color:#172017}
 .flagship-cta p{max-width:600px;color:#40513a;font-size:14px;line-height:1.8}
 .flagship-cta .button-primary{background:#111a16;color:#f4f6ef;box-shadow:none}
@@ -507,7 +507,7 @@ a{transition:color .25s ease,border-color .25s ease,background .25s ease,transfo
 .footer-copy{color:#aeb9af}
 .footer-bottom{border-color:#ffffff20;color:#829087}
 .footer-legal-links{border-color:#ffffff20}
-.text-link{color:#617a37}
+.text-link{color:#ff343b}
 :focus-visible{outline:2px solid #9fbd4e;outline-offset:4px}
 .skip-link:focus{background:var(--accent);color:#172017}
 @media(max-width:1050px){
