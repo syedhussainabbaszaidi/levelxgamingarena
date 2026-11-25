@@ -29,7 +29,7 @@ export default function HomePage() {
               <WhatsAppButton message="Hi Level X, I would like to book a gaming session. Please share availability and current rates." label="Book your session" />
               <a className="button button-outline" href="#activities">Explore the arena <ArrowRight size={16} /></a>
             </div>
-            <div className="hero-proof"><span><CheckCircle2 size={15} /> Open 24/7</span><span><CheckCircle2 size={15} /> Six experiences</span><span><MessageCircle size={15} /> Direct WhatsApp booking</span></div>
+            <div className="hero-proof"><span><CheckCircle2 size={15} /> Open 24/7</span><span><CheckCircle2 size={15} /> Six activities</span><span><MessageCircle size={15} /> Direct WhatsApp booking</span></div>
           </div>
           <div className="hero-art">
             <div className="hero-image-frame"><Image src="/img/gallery/esports-arena.jpg" alt="Gaming stations inside Level X Gaming Arena" width={1100} height={820} priority /><div className="hero-image-shade" /><div className="hero-image-caption"><span>LEVEL X / 001</span><strong>Find your game.</strong></div></div>
@@ -48,7 +48,7 @@ export default function HomePage() {
       </div></section>
 
       <section className="section flagship-activities" id="activities"><div className="container">
-        <div className="section-heading-row"><SectionHeading eyebrow="Choose your experience" title="Six ways to play." copy="Whether you are here for a competitive session or a relaxed game with friends, find your space at Level X." /><span className="section-index">02 <i>/ 06</i></span></div>
+        <div className="section-heading-row"><SectionHeading eyebrow="Choose your game" title="Six ways to play." copy="Whether you are here for a competitive session or a relaxed game with friends, find your game at Level X." /><span className="section-index">02 <i>/ 06</i></span></div>
         <div className="activity-grid flagship-activity-grid">
           {activities.map((activity, index) => <article className="activity-card flagship-activity-card" key={activity.slug}>
             <div className="activity-image-wrap"><Image src={activity.image} alt={activity.name + " at Level X Gaming Arena"} width={720} height={520} /><span className="activity-number">0{index + 1}</span><span className="activity-image-action"><ArrowUpRight size={19} /></span></div>
@@ -94,29 +94,29 @@ export default function HomePage() {
       </div></section>
 
       <section className="experience-banner flagship-experience"><div className="container experience-banner-inner">
-        <div className="experience-banner-copy"><span className="eyebrow">Your people. Your game.</span><h2>Make it a night<br /><em>to remember.</em></h2><p>Bring your crew, choose your experience and let our team help organise your next visit.</p><WhatsAppButton message="Hi Level X, I am planning a visit. Please share activity availability and current offers." label="Plan your visit" /></div>
-        <div className="experience-banner-image"><Image src="/img/gallery/gaming-setup.jpg" alt="Gaming setup at Level X Gaming Arena" width={1000} height={720} /><span>YOUR NEXT SESSION AWAITS</span></div>
+        <div className="experience-banner-copy"><span className="eyebrow">Bring your crew. Pick your game.</span><h2>Make it a night<br /><em>to remember.</em></h2><p>Bring your crew, choose your experience and let our team help organise your next visit.</p><WhatsAppButton message="Hi Level X, I am planning a visit. Please share activity availability and current offers." label="Plan your visit" /></div>
+        <div className="experience-banner-image"><Image src="/img/gallery/gaming-setup.jpg" alt="Gaming setup at Level X Gaming Arena" width={1000} height={720} /><span>YOUR NEXT GAME AWAITS</span></div>
       </div></section>
 
       <section className="section experience-details"><div className="container">
-        <SectionHeading eyebrow="More than a gaming session" title="Built around the experience." copy="A welcoming place to play, compete and spend time together, with different experiences to suit your kind of game." />
+        <SectionHeading eyebrow="Inside the gaming zone" title="Made for players." copy="A welcoming place to play, compete and spend time together, with different games and activities to suit your mood." />
         <div className="feature-grid">
           <article className="info-card"><Gamepad2 size={25} /><h3>PC & console play</h3><p>Choose from dedicated PC gaming and PlayStation 5 sessions.</p></article>
           <article className="info-card"><ShieldCheck size={25} /><h3>Clear published rates</h3><p>Review standard prices and selected offers before you enquire.</p></article>
           <article className="info-card"><Users size={25} /><h3>Bring your crew</h3><p>Enjoy a session with friends or make it a friendly competition.</p></article>
           <article className="info-card"><Clock3 size={25} /><h3>Open 24/7</h3><p>Plan your visit any time, day or night.</p></article>
-          <article className="info-card"><Trophy size={25} /><h3>More ways to play</h3><p>Switch between gaming, snooker, table tennis and pool enquiries.</p></article>
+          <article className="info-card"><Trophy size={25} /><h3>More ways to play</h3><p>Choose PC gaming, PS5, snooker, table tennis or ask about pool.</p></article>
           <article className="info-card"><Headphones size={25} /><h3>Easy enquiries</h3><p>Talk directly with the arena team through WhatsApp.</p></article>
         </div>
       </div></section>
 
       <section className="section alt gallery-section" id="gallery"><div className="container">
-        <div className="section-heading-row"><SectionHeading eyebrow="Inside Level X" title="A look around the arena." copy="Explore the gaming atmosphere and spaces featured in the Level X image library." /><span className="section-index">04 <i>/ GALLERY</i></span></div>
+        <div className="section-heading-row"><SectionHeading eyebrow="Inside Level X" title="A look around the arena." copy="Take a look at the gaming setups and spaces at Level X." /><span className="section-index">04 <i>/ GALLERY</i></span></div>
         <div className="gallery-grid flagship-gallery-grid">{gallery.map((item, index) => <div className={`gallery-card gallery-card-${index + 1}`} key={item.src}><Image src={item.src} alt={item.title + " at Level X Gaming Arena"} width={700} height={480} /><span>{item.title}</span></div>)}</div>
       </div></section>
 
       <section className="section faq-section"><div className="container faq-layout">
-        <div className="faq-intro"><span className="eyebrow">Before you visit</span><h2>Good to know.<br /><em>Ready to play.</em></h2><p>Quick answers about booking, payment, opening hours and the experiences available at Level X.</p><WhatsAppButton message="Hi Level X, I have a question before visiting. Could you please help?" label="Ask our team" /></div>
+        <div className="faq-intro"><span className="eyebrow">Before you visit</span><h2>Good to know.<br /><em>Ready to play.</em></h2><p>Quick answers about booking, payment, opening hours and the activities available at Level X.</p><WhatsAppButton message="Hi Level X, I have a question before visiting. Could you please help?" label="Ask our team" /></div>
         <div className="faq-list">{faqs.map((item, index) => <details className="faq-item" key={item.q}><summary><span className="faq-index">0{index + 1}</span><h3>{item.q}</h3><ChevronDown size={18} /></summary><p>{item.a}</p></details>)}</div>
       </div></section>
 
