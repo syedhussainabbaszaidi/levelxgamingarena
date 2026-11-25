@@ -9,7 +9,7 @@ export function Header() {
     <>
       <div className="announcement-bar">
         <div className="container announcement-inner">
-          <span><Sparkles size={14} /> Your gaming destination in Karachi</span>
+          <span><Sparkles size={14} /> Karachi gaming zone · PC, PS5 & table games</span>
           <span className="announcement-hours"><Clock3 size={14} /> Open 24 hours · 7 days a week</span>
           <a href={whatsappLink("Hi Level X, please share today's offers and availability.")} target="_blank" rel="noopener noreferrer">Ask about today&apos;s offers <ArrowUpRight size={13} /></a>
         </div>
@@ -21,7 +21,7 @@ export function Header() {
           </Link>
           <nav className="desktop-nav" aria-label="Main navigation">
             <Link href="/">Home</Link>
-            <Link href="/#activities">Experiences</Link>
+            <Link href="/#activities">Activities</Link>
             <Link href="/packages/">Packages</Link>
             <Link href="/#gallery">Gallery</Link>
             <Link href="/about-us/">About</Link>
@@ -44,13 +44,13 @@ export function Footer() {
     <footer className="footer">
       <div className="container footer-cta">
         <div>
-          <span className="eyebrow">Your next match starts here</span>
-          <h2>Ready to play at Level X?</h2>
-          <p>Pick your game, bring your people and let us help plan your session.</p>
+          <span className="eyebrow">THE LEVEL X GAMING ZONE</span>
+          <h2>Your next game starts at Level X.</h2>
+          <p>PC gaming, PS5, snooker and table games — choose what you want to play and message our team to check availability.</p>
         </div>
         <div className="footer-cta-actions">
           <a className="button button-light" href={whatsappLink("Hi Level X, I would like to plan a visit. Please share availability.")} target="_blank" rel="noopener noreferrer"><MessageCircle size={17} /> Chat on WhatsApp <ArrowUpRight size={15} /></a>
-          <Link className="footer-secondary-link" href="/packages/">Explore packages <ArrowRight size={15} /></Link>
+          <Link className="footer-secondary-link" href="/packages/">View packages <ArrowRight size={15} /></Link>
         </div>
         <div className="footer-cta-glow" aria-hidden="true" />
       </div>
@@ -59,12 +59,12 @@ export function Footer() {
           <Link href="/" className="brand" aria-label="Level X Gaming Arena home">
             <Image src="/img/logo.png" alt="Level X Gaming Arena logo" width={156} height={58} />
           </Link>
-          <p className="footer-copy">A place for great games, friendly competition and memorable sessions. Discover PC gaming, PS5, snooker and private table tennis — all in one arena.</p>
+          <p className="footer-copy">Level X Gaming Arena in Karachi brings PC gaming, PlayStation 5, premium snooker, pool and private table tennis together. Open 24/7 for players, friends and groups.</p>
           <div className="footer-social-note"><span className="live-dot" /> Open 24 hours · Every day</div>
         </div>
         <div>
           <h4>Explore</h4>
-          <Link href="/#activities">All experiences</Link>
+          <Link href="/#activities">All activities</Link>
           <Link href="/activities/pc-games/">PC gaming</Link>
           <Link href="/activities/ps5/">PlayStation 5</Link>
           <Link href="/activities/premium-snooker-room/">Premium snooker</Link>
@@ -97,7 +97,7 @@ export function Footer() {
       </div>
       <div className="container footer-bottom">
         <span>© {new Date().getFullYear()} Level X Gaming Arena. All rights reserved.</span>
-        <span>Made for players. Built for the game.</span>
+        <span>PC · PS5 · SNOOKER · TABLE GAMES</span>
       </div>
     </footer>
   );
