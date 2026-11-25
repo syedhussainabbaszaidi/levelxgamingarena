@@ -86,6 +86,10 @@ export default function HomePage() {
           <div className="package-grid">
             {hourlyPackages.map((item) => (
               <article className="price-card" key={item.name}>
+                <div className="package-card-image">
+                  <Image src={item.image} alt={item.name + " gaming package at Level X Gaming Arena"} width={560} height={320} />
+                  <span className="package-image-label">HOURLY PACKAGE</span>
+                </div>
                 <h3>{item.name}</h3>
                 <div className="price">Rs. {item.offer.toLocaleString("en-PK")}<small> / {item.unit}</small></div>
                 <p>{item.note}</p>
