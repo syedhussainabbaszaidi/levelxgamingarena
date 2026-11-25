@@ -52,14 +52,15 @@ export default function HomePage() {
         <div className="activity-grid flagship-activity-grid">
           {activities.map((activity, index) => <article className="activity-card flagship-activity-card" key={activity.slug}>
             <div className="activity-image-wrap"><Image src={activity.image} alt={activity.name + " at Level X Gaming Arena"} width={720} height={520} /><span className="activity-number">0{index + 1}</span><span className="activity-image-action"><ArrowUpRight size={19} /></span></div>
-            <div className="activity-body"><span className="tag">{activity.category}</span><h3>{activity.name}</h3><p>{activity.description}</p>
-              <div className="price-line"><strong>PKR {activity.offer.toLocaleString("en-PK")}</strong><del>PKR {activity.price.toLocaleString("en-PK")}</del><span className="muted">/ {activity.unit}</span></div>
+            <div className="activity-body"><span className="tag">{activity.category} · Available</span><h3>{activity.name}</h3><p>{activity.description}</p>
+              <div className="activity-capacity"><span>{activity.capacity}</span><span>{activity.unit === "minute" ? "Per-minute billing" : "Hourly session"}</span></div>
+              <div className="price-line"><small className="price-current-label">Current price</small><strong>PKR {activity.offer.toLocaleString("en-PK")}</strong><del>PKR {activity.price.toLocaleString("en-PK")}</del><span className="muted">/ {activity.unit === "minute" ? "min" : "hr"}</span></div>
               <Link className="text-link" href={`/activities/${activity.slug}/`}>{`Explore ${activity.name}`} <ArrowRight size={15} /></Link>
             </div>
           </article>)}
           {additionalExperiences.map((item, index) => <article className="activity-card flagship-activity-card enquiry-card" key={item.name}>
             <div className="activity-image-wrap"><Image src={item.image} alt={item.name + " facility at Level X Gaming Arena"} width={720} height={520} /><span className="activity-number">0{activities.length + index + 1}</span><span className="activity-image-action"><ArrowUpRight size={19} /></span></div>
-            <div className="activity-body"><span className="tag">{item.category}</span><h3>{item.name}</h3><p>{item.description}</p>
+            <div className="activity-body"><span className="tag">{item.category} · Limited availability</span><h3>{item.name}</h3><p>{item.description}</p>
               <div className="price-line enquiry-price"><strong>Enquire for rates</strong><span className="muted">Availability on request</span></div>
               <a className="text-link" href={whatsappLink(`Hi Level X, please share current details, availability and rates for ${item.name}.`)} target="_blank" rel="noopener noreferrer">Ask about this experience <ArrowUpRight size={15} /></a>
             </div>
