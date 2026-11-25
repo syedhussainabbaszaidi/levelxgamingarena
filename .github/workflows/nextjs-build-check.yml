@@ -1,0 +1,29 @@
+name: Validate static Next.js build
+on:
+  push:
+    branches: [nextjs-static-migration]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Build and validate static export
+        run: |
+          set -euo pipefail
+          npm run build
+          test -s out/index.html
+          test -s out/about-us/index.html
+          test -s out/contact-us/index.html
+          test -s out/packages/index.html
+          test -s out/robots.txt
+          test -s out/sitemap.xml
+          if find out -type f -name '*.php' | grep -q .; then exit 1; fi
+          echo "Static Next.js export is ready."

@@ -17,3 +17,9 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# Next.js static export
+/.next/
+/out/
+.env
+.env.*

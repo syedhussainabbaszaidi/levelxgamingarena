@@ -1,41 +1,35 @@
+# Static Next.js export - no PHP application or dynamic backend.
+Options -Indexes
+DirectoryIndex index.html
+ErrorDocument 404 /404.html
+
 <IfModule mod_rewrite.c>
-    <IfModule mod_negotiation.c>
-        Options -MultiViews -Indexes
-    </IfModule>
-
-    RewriteEngine On
-
-    # --- Flat cPanel layout: the whole Laravel app lives in public_html ---
-    # Never serve application source, dependencies, config or metadata over HTTP.
-    RewriteRule ^(app|bootstrap|config|database|lang|routes|tests|vendor|resources)(/|$) - [F,L]
-    RewriteRule ^(\.env.*|\.git.*|artisan|composer\.(json|lock)|package(-lock)?\.json|phpunit\.xml|vite\.config\.js|tailwind\.config\.js|postcss\.config\.js|server\.php)$ - [F,L]
-    # Runtime storage: expose storage/app/public through /storage/<path> and
-    # keep logs, caches, sessions and views unreachable.
-    RewriteCond %{REQUEST_URI} !^/storage/app/public/
-    RewriteRule ^storage/(.*)$ storage/app/public/$1 [L]
-
-    # Handle Authorization Header
-    RewriteCond %{HTTP:Authorization} .
-    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-
-    # Handle X-XSRF-Token Header
-    RewriteCond %{HTTP:x-xsrf-token} .
-    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
-
-    # Redirect Trailing Slashes If Not A Folder...
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_URI} (.+)/$
-    RewriteRule ^ %1 [L,R=301]
-
-    # Send Requests To Front Controller...
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^ index.php [L]
+  RewriteEngine On
+  RewriteCond %{HTTPS} !=on
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+  RewriteRule (^|/)\. - [F,L]
+  RewriteRule ^(app|bootstrap|config|database|routes|vendor|resources|tests|storage|node_modules)(/|$) - [F,L]
+  RewriteRule \.(php[0-9]?|phtml|phar)$ - [F,L,NC]
 </IfModule>
 
-# Belt-and-braces block for secrets, logs and metadata (Apache 2.4 / LiteSpeed).
 <IfModule mod_authz_core.c>
-    <FilesMatch "(^\.|\.(env|log|sqlite|md|ya?ml|lock|dist|example)$|^(artisan|composer\.(json|lock)|package(-lock)?\.json|phpunit\.xml)$)">
-        Require all denied
-    </FilesMatch>
+  <FilesMatch "(^\.|\.(env|log|sqlite|sql|bak|lock|dist|example)$)">
+    Require all denied
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+</IfModule>
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
 </IfModule>

@@ -1,55 +1,9 @@
-# Build and deploy this Laravel app to 20i / StackCP shared hosting.
-#
-# DEPLOY LAYOUT (flat): the complete Laravel application — app/, bootstrap/,
-# config/, database/, resources/, routes/, storage/, vendor/, .env, artisan —
-# is pushed into the existing public_html/ directory. There is no nested
-# project folder under public_html and no separate app directory outside it.
-# index.php at the repository root is the front controller for that layout
-# (paths are relative to __DIR__), and public/.htaccess blocks HTTP access to
-# app source, vendor, config, storage internals, .env and other metadata.
-#
-# WHY THE TRANSPORT FALLS BACK:
-#   20i locks FTP/SSH access per package ("unlock FTP by time or by IP"), and
-#   GitHub's hosted runners get a random egress IP on every run. Depending on
-#   the lock state, SFTP answers "Login incorrect", FTPS answers 530 "FTP
-#   locking", while plain FTP on port 21 still authenticates. The deploy
-#   therefore tries SFTP -> FTPS -> plain FTP on the same credentials and uses
-#   the first transport the host accepts, instead of failing the run.
-#
-# WHY THE DEPLOY IS SEQUENTIAL AND RETRIED:
-#   20i throttles/refuses new SFTP logins when the same account opens several
-#   sessions in a burst (lftp's --parallel). That showed up as
-#   "Login failed: Login incorrect" part-way through an upload. This workflow
-#   keeps ONE session per attempt, transfers sequentially, and retries the whole
-#   session with backoff instead of hammering the host.
-#
-# ONE-TIME SETUP
-#   1. GitHub repo -> Settings -> Secrets and variables -> Actions:
-#        FTP_USERNAME  (20i FTP username, e.g. levelxgamingarena.com)
-#        FTP_PASSWORD
-#   2. Create public_html/.env once (StackCP File Manager). It is never uploaded
-#      or deleted by this workflow, so it survives every deployment.
-#   3. Provision the production database once. When the server .env uses
-#      SQLite, run this workflow manually with "provision_sqlite_db" enabled:
-#      it builds public_html/database/database.sqlite from the project's own
-#      migrations + seeders and uploads it only if no database exists yet.
-#      On MySQL, run `php artisan migrate --force` against the cPanel database
-#      yourself and leave the input disabled.
-#
-# Storage, logs, caches and .env are excluded from the sync so server-side
-# files (uploads, logs, sessions) are never deleted by a deployment.
-
-name: Build and deploy to cPanel
+name: Build and deploy static Next.js site
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      provision_sqlite_db:
-        description: 'Create public_html/database/database.sqlite from migrations + seeders if it does not exist yet (first-time setup only)'
-        type: boolean
-        default: false
 
 concurrency:
   group: deploy-production
@@ -59,20 +13,17 @@ permissions:
   contents: read
 
 env:
-  PUBLIC_DIR: public_html
   SFTP_HOST: ftp.gb.stackcp.com
-  SFTP_PORT: '22'
+  SFTP_PORT: "22"
   FTP_HOST: ftp.gb.stackcp.com
-  FTP_PORT: '21'
+  FTP_PORT: "21"
   SITE_URL: https://levelxgamingarena.com
 
 jobs:
   deploy:
-    name: Deploy
-    # Pinned (not ubuntu-latest) so a runner image migration cannot change the
-    # toolchain under us. ubuntu-24.04 is the current GA image.
+    name: Build and deploy static site
     runs-on: ubuntu-24.04
-    timeout-minutes: 220
+    timeout-minutes: 45
     env:
       FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
       FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
@@ -81,264 +32,90 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Set up PHP 8.2
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          extensions: mbstring, xml, ctype, curl, dom, fileinfo, openssl, pdo, pdo_mysql, pdo_sqlite, sqlite3, tokenizer, zip, gd, bcmath, intl
-          coverage: none
-          tools: composer:v2
-
-      - name: Install Composer dependencies
-        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-progress
-
       - name: Set up Node.js 22
         uses: actions/setup-node@v6
         with:
-          node-version: '22'
-          cache: npm
+          node-version: "22"
 
-      - name: Build assets
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Build static Next.js export
         run: |
-          npm ci
+          set -euo pipefail
           npm run build
-          test -f public/build/manifest.json
+          test -s out/index.html
+          test -s out/about-us/index.html
+          test -s out/contact-us/index.html
+          test -s out/packages/index.html
+          test -s out/activities/pc-games/index.html
+          test -s out/activities/ps5/index.html
+          test -s out/activities/premium-snooker-room/index.html
+          test -s out/activities/private-table-tennis-room/index.html
+          test -s out/.htaccess
+          if find out -type f -name '*.php' | grep -q .; then
+            echo "::error::PHP files found in static export."
+            exit 1
+          fi
+          if find out -type f \( -name '.env' -o -name '.env.*' \) | grep -q .; then
+            echo "::error::Environment files found in static export."
+            exit 1
+          fi
+          echo "Static export verified: $(find out -type f | wc -l) files."
 
-      # One staging tree that mirrors public_html exactly.
-      - name: Stage files
+      - name: Check deployment credentials and endpoint
         run: |
           set -euo pipefail
-          rm -rf .stage
-          mkdir -p .stage/site
+          test -n "${FTP_USERNAME:-}" || { echo "::error::FTP_USERNAME secret is missing."; exit 1; }
+          test -n "${FTP_PASSWORD:-}" || { echo "::error::FTP_PASSWORD secret is missing."; exit 1; }
+          getent hosts "$SFTP_HOST" >/dev/null
+          timeout 20 bash -c "exec 3<>/dev/tcp/$SFTP_HOST/$SFTP_PORT" || true
+          timeout 20 bash -c "exec 3<>/dev/tcp/$FTP_HOST/$FTP_PORT" || true
 
-          # 1. Web assets first: build/, img/, robots.txt, .htaccess, ...
-          rsync -a --exclude='storage' --exclude='hot' public/ .stage/site/
-          echo "${GITHUB_SHA}" > .stage/site/version.txt
-
-          # 2. Application + dependencies on top. The root index.php (flat
-          #    layout) replaces public/index.php in the staged tree.
-          rsync -a \
-            --exclude='.git/' --exclude='.github/' --exclude='.stage/' \
-            --exclude='node_modules/' --exclude='tests/' --exclude='public/' \
-            --exclude='.env' --exclude='.env.*' \
-            --exclude='storage/logs/*' --exclude='storage/framework/cache/*' \
-            --exclude='storage/framework/sessions/*' --exclude='storage/framework/views/*' \
-            --exclude='bootstrap/cache/*.php' --exclude='database/database.sqlite' \
-            ./ .stage/site/
-
-          # Directories Laravel needs to exist and write to at runtime.
-          mkdir -p \
-            .stage/site/storage/app/public \
-            .stage/site/storage/app/private \
-            .stage/site/storage/framework/cache/data \
-            .stage/site/storage/framework/sessions \
-            .stage/site/storage/framework/views \
-            .stage/site/storage/logs \
-            .stage/site/bootstrap/cache
-
-          # 3. Guards: flat-layout front controller, dependencies, web assets
-          #    and the hardening rules must all be present in the staged tree.
-          test -f .stage/site/vendor/autoload.php
-          grep -q "__DIR__.'/vendor/autoload.php'" .stage/site/index.php
-          grep -q "__DIR__.'/bootstrap/app.php'" .stage/site/index.php
-          if grep -q "__DIR__.'/../vendor" .stage/site/index.php; then
-            echo "::error::Staged index.php still uses the nested layout paths."
-            exit 1
-          fi
-
-          # Everything below is served straight from public_html on cPanel, so a
-          # missing public/ asset means a broken website even if PHP works.
-          for f in .htaccess robots.txt favicon.ico build/manifest.json \
-                   img/logo.png img/favicon.png img/hero/gaming-zone.svg \
-                   img/activities/snooker.svg img/gallery/arcade.jpg \
-                   app/Http/Controllers/PageController.php resources/views/welcome.blade.php \
-                   bootstrap/app.php routes/web.php artisan; do
-            if [ ! -f ".stage/site/$f" ]; then
-              echo "::error::.stage/site/$f is missing - public/ assets or application sources were not staged."
-              exit 1
-            fi
-          done
-          ls .stage/site/build/assets/*.css .stage/site/build/assets/*.js >/dev/null
-
-          grep -q 'RewriteRule ^(app|bootstrap|config|database' .stage/site/.htaccess
-
-          # .htaccess must stay one directive per line. A merged
-          # `RewriteCond ... RewriteRule ...` line is a syntax error that makes
-          # Apache/LiteSpeed answer HTTP 500 for EVERY request in public_html,
-          # static files included (this is what broke the previous deploy).
-          if grep -nE '^[[:space:]]*RewriteCond[[:space:]].*RewriteRule' .stage/site/.htaccess; then
-            echo "::error::.htaccess has two directives merged on one line; every request would return 500."
-            exit 1
-          fi
-          if ! grep -qE '^[[:space:]]*RewriteRule \^ index\.php \[L\]$' .stage/site/.htaccess; then
-            echo "::error::.htaccess is missing its front-controller rule."
-            exit 1
-          fi
-
-          # Secrets are never staged, never uploaded.
-          if [ -e .stage/site/.env ]; then
-            echo "::error::.stage/site/.env exists; .env must never be deployed."
-            exit 1
-          fi
-
-      # The server .env selects SQLite, and database/*.sqlite is excluded from
-      # the mirror so live data is never overwritten - which also means a fresh
-      # public_html has no schema at all and every request dies with
-      # "no such table: sessions". This builds that file once from the project's
-      # own migrations + seeders; it only runs when explicitly requested.
-      - name: Build production SQLite database (provisioning only)
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.provision_sqlite_db }}
+      - name: Install lftp
         run: |
-          set -euo pipefail
-          db=".stage/site/database/database.sqlite"
-          : > "$db"
-          export DB_CONNECTION=sqlite
-          export DB_DATABASE="$PWD/$db"
-          export APP_KEY="base64:$(head -c 32 /dev/urandom | base64 -w0)"
-          php artisan migrate --seed --force
-          php -r '$p = new PDO("sqlite:".getenv("DB_DATABASE")); echo "schema objects: ", count($p->query("select name from sqlite_master")->fetchAll()), PHP_EOL;'
-          ls -l "$db"
-
-      - name: Check upload endpoint and credentials
-        run: |
-          set -euo pipefail
-          if [ -z "${FTP_USERNAME:-}" ] || [ -z "${FTP_PASSWORD:-}" ]; then
-            echo "::error::FTP_USERNAME / FTP_PASSWORD secrets are not configured (Settings -> Secrets and variables -> Actions)."
-            exit 1
-          fi
-          getent hosts "$SFTP_HOST" >/dev/null || {
-            echo "::error::Cannot resolve $SFTP_HOST from the runner."
-            exit 1
-          }
-          reachable=0
-          for hp in "$SFTP_HOST:$SFTP_PORT" "$FTP_HOST:$FTP_PORT"; do
-            if timeout 20 bash -c "exec 3<>/dev/tcp/${hp%:*}/${hp#*:}" 2>/dev/null; then
-              echo "Endpoint $hp is reachable."
-              reachable=1
-            else
-              echo "::warning::$hp is unreachable from this runner."
-            fi
-          done
-          if [ "$reachable" -ne 1 ]; then
-            echo "::error::Neither SFTP nor FTP endpoint is reachable (firewall or wrong host/port)."
-            exit 1
-          fi
-
-      - name: Deploy to cPanel (SFTP, FTPS or FTP)
-        run: |
-          set -euo pipefail
           sudo apt-get update -qq
           sudo apt-get install -y -qq lftp
 
-          # Connection settings must exist before lftp connects. Transport
-          # specific options are passed per attempt on the lftp command line.
+      - name: Deploy static files to cPanel
+        run: |
+          set -euo pipefail
           cat > "$HOME/.lftprc" <<'LFTPRC'
           set net:timeout 60
           set net:max-retries 3
-          set net:persist-retries 5
+          set net:persist-retries 3
           set net:reconnect-interval-base 10
-          set net:reconnect-interval-max 60
+          set net:reconnect-interval-max 40
           set mirror:parallel-transfer-count 1
           set cmd:fail-exit yes
           LFTPRC
 
-          cat > "$RUNNER_TEMP/deploy.lftp" <<LFTP
-          set cmd:fail-exit no
-          # The old layout linked public_html/storage to ../levelxgamingarena.
-          # The flat layout keeps storage inside public_html, so drop the link.
-          rm -f $PUBLIC_DIR/storage
+          cat > "$RUNNER_TEMP/deploy.lftp" <<'LFTP'
           set cmd:fail-exit yes
-
-          mkdir -p $PUBLIC_DIR/storage/app/public
-          mkdir -p $PUBLIC_DIR/storage/app/private
-          mkdir -p $PUBLIC_DIR/storage/framework/cache/data
-          mkdir -p $PUBLIC_DIR/storage/framework/sessions
-          mkdir -p $PUBLIC_DIR/storage/framework/views
-          mkdir -p $PUBLIC_DIR/storage/logs
-          mkdir -p $PUBLIC_DIR/bootstrap/cache
-
-          # Whole application into the web root. storage/, .env and caches are
-          # excluded so server-side files survive the --delete.
-          mirror -R --delete --verbose=1 \\
-            -X storage -X 'storage/*' \\
-            -X .env -X '.env.*' \\
-            -X 'database/*.sqlite' \\
-            -X php.ini -X .user.ini -X .htpasswd -X .ftpquota -X error_log \\
-            -X cgi-bin -X 'cgi-bin/*' \\
-            -X .well-known -X '.well-known/*' \\
-            .stage/site/ $PUBLIC_DIR/
-
-          # Storage skeleton + committed images. No --delete: uploads/logs kept.
-          mirror -R --verbose=1 \\
-            -X 'logs/*' \\
-            -X 'framework/cache/*' \\
-            -X 'framework/sessions/*' \\
-            -X 'framework/views/*' \\
-            -X 'framework/testing/*' \\
-            .stage/site/storage/ $PUBLIC_DIR/storage/
-
-          # --- Server-side structure proof, in the SAME session as the upload ---
-          # 20i rate-limits extra logins, so verification must not need a second
-          # connection. cmd:fail-exit is on: any missing required path below
-          # aborts this session and fails the deploy.
-          echo "###STRUCTURE public_html root"
-          cls -la $PUBLIC_DIR/
-          echo "###STRUCTURE build"
-          cls -la $PUBLIC_DIR/build/
-          echo "###STRUCTURE build/assets"
-          cls -la $PUBLIC_DIR/build/assets/
-          echo "###STRUCTURE img"
-          cls -la $PUBLIC_DIR/img/
-          echo "###STRUCTURE img/gallery"
-          cls -la $PUBLIC_DIR/img/gallery/
-          echo "###STRUCTURE storage"
-          cls -la $PUBLIC_DIR/storage/
-
-          # public/ assets are served from the web root (flat layout).
-          echo "###REQUIRED index.php"
-          cls -la $PUBLIC_DIR/index.php
-          echo "###REQUIRED .htaccess"
-          cls -la $PUBLIC_DIR/.htaccess
-          echo "###REQUIRED version.txt"
-          cat $PUBLIC_DIR/version.txt
-          echo "###REQUIRED build/manifest.json + compiled CSS/JS"
-          cls -la $PUBLIC_DIR/build/manifest.json
-          echo "###REQUIRED img/logo.png"
-          cls -la $PUBLIC_DIR/img/logo.png
-          echo "###REQUIRED favicon.ico"
-          cls -la $PUBLIC_DIR/favicon.ico
-          echo "###REQUIRED robots.txt"
-          cls -la $PUBLIC_DIR/robots.txt
-          echo "###REQUIRED vendor/autoload.php"
-          cls -la $PUBLIC_DIR/vendor/autoload.php
-          echo "###REQUIRED bootstrap/app.php"
-          cls -la $PUBLIC_DIR/bootstrap/app.php
-          echo "###REQUIRED routes/web.php"
-          cls -la $PUBLIC_DIR/routes/web.php
-          echo "###REQUIRED artisan"
-          cls -la $PUBLIC_DIR/artisan
-          echo "###REQUIRED .env - server-side secret; create it in StackCP File Manager if this fails"
-          cls -la $PUBLIC_DIR/.env
-
-          # Informational only: the old nested layout must not come back.
-          set cmd:fail-exit no
-          echo "###INFO stale nested public/ directory"
-          cls -la $PUBLIC_DIR/public
-          set cmd:fail-exit yes
-
+          mirror -R --delete --verbose=1 \
+            -X .env -X '.env.*' \
+            -X database -X 'database/*' \
+            -X storage -X 'storage/*' \
+            -X .ftpquota -X error_log -X php.ini -X .user.ini \
+            out/ public_html/
+          echo "### DEPLOYED STATIC FILES"
+          cls -la public_html/
+          echo "### VERIFY STATIC ROUTES"
+          cls -la public_html/index.html
+          cls -la public_html/about-us/index.html
+          cls -la public_html/contact-us/index.html
+          cls -la public_html/packages/index.html
+          cls -la public_html/activities/pc-games/index.html
+          cls -la public_html/.htaccess
           bye
           LFTP
 
-          # 20i intermittently rejects an otherwise valid login - SFTP answers
-          # "Login incorrect" and FTPS answers 530 "FTP locking" - while plain
-          # FTP on port 21 still authenticates. So each run walks the transports
-          # from encrypted to plain instead of failing the whole deployment.
           ok=0
           for scope in sftp ftps ftp; do
             case "$scope" in
               sftp)
                 url="sftp://$SFTP_HOST:$SFTP_PORT"
-                opts='set sftp:auto-confirm yes; set sftp:connect-program "ssh -a -x -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=25 -o ServerAliveInterval=20 -o ServerAliveCountMax=6"; set sftp:max-packets-in-flight 16'
+                opts='set sftp:auto-confirm yes; set sftp:connect-program "ssh -a -x -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=25"'
                 ;;
               ftps)
                 url="ftps://$FTP_HOST:$FTP_PORT"
@@ -349,126 +126,32 @@ jobs:
                 opts='set ftp:ssl-allow no'
                 ;;
             esac
-
             for attempt in 1 2; do
               echo "::group::$scope deploy attempt $attempt/2"
-              if LFTP_PASSWORD="$FTP_PASSWORD" lftp --env-password -u "$FTP_USERNAME" \
-                   "$url" -e "$opts; source $RUNNER_TEMP/deploy.lftp"; then
+              if LFTP_PASSWORD="$FTP_PASSWORD" lftp --env-password -u "$FTP_USERNAME" "$url" -e "$opts; source $RUNNER_TEMP/deploy.lftp"; then
                 echo "::endgroup::"
                 ok=1
-                echo "::notice::Deployment completed over $scope ($url)."
                 break 2
               fi
               echo "::endgroup::"
-              echo "::warning::$scope attempt $attempt failed; retrying after backoff."
-              sleep $((attempt * 20))
+              sleep $((attempt * 15))
             done
           done
           if [ "$ok" -ne 1 ]; then
-            echo "::error::Upload failed over SFTP, FTPS and FTP. Unlock FTP/SSH access in My20i/StackCP for this package and confirm FTP_USERNAME/FTP_PASSWORD are the package credentials."
+            echo "::error::Static upload failed over SFTP, FTPS and FTP."
             exit 1
           fi
 
-      # Upload the provisioned database only when the server has none. The probe
-      # is a separate read-only download so an existing production database can
-      # never be silently replaced; any transport error aborts instead.
-      - name: Upload provisioned SQLite database
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.provision_sqlite_db }}
+      - name: Verify live static website
         run: |
           set -euo pipefail
-          db=".stage/site/database/database.sqlite"
-          test -s "$db"
-          cat > "$HOME/.lftprc" <<'LFTPRC'
-          set net:timeout 60
-          set net:max-retries 3
-          set sftp:auto-confirm yes
-          set sftp:connect-program "ssh -a -x -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=25"
-          LFTPRC
-
-          probe="$RUNNER_TEMP/remote-db-probe"
-          rm -f "$probe"
-          set +e
-          LFTP_PASSWORD="$FTP_PASSWORD" lftp --env-password -u "$FTP_USERNAME" \
-            "sftp://$SFTP_HOST:$SFTP_PORT" \
-            -e "get $PUBLIC_DIR/database/database.sqlite -o $probe; bye" \
-            > "$RUNNER_TEMP/db-probe.log" 2>&1
-          rc=$?
-          set -e
-          cat "$RUNNER_TEMP/db-probe.log"
-
-          if [ "$rc" -eq 0 ] && [ -s "$probe" ]; then
-            echo "::notice::$PUBLIC_DIR/database/database.sqlite already exists ($(wc -c < "$probe") bytes) - leaving live data untouched."
-            exit 0
-          fi
-          if ! grep -qE 'No such file|not found' "$RUNNER_TEMP/db-probe.log"; then
-            echo "::error::Could not tell whether a production database exists (SFTP probe failed), so nothing was uploaded. Re-run to retry."
-            exit 1
-          fi
-
-          echo "No production database yet; uploading the provisioned one."
-          LFTP_PASSWORD="$FTP_PASSWORD" lftp --env-password -u "$FTP_USERNAME" \
-            "sftp://$SFTP_HOST:$SFTP_PORT" \
-            -e "cd $PUBLIC_DIR/database; put $db; cls -la database.sqlite; bye" \
-            | tee "$RUNNER_TEMP/db-upload.log"
-          grep -q 'database.sqlite' "$RUNNER_TEMP/db-upload.log" || {
-            echo "::error::The provisioned database was not found on the server after upload."
-            exit 1
-          }
-          echo "Provisioned database uploaded."
-
-      - name: Verify deployment
-        run: |
-          set -euo pipefail
-          ok=0
-          for i in $(seq 1 12); do
-            if curl -fsS --max-time 20 -H 'Cache-Control: no-cache' \
-              "$SITE_URL/version.txt?t=${GITHUB_RUN_ID}-${i}" | grep -qx "$GITHUB_SHA"; then
-              ok=1
-              break
-            fi
-            sleep 5
-          done
-          if [ "$ok" -ne 1 ]; then
-            echo "::error::Deployment verification failed: $SITE_URL/version.txt does not serve $GITHUB_SHA."
-            exit 1
-          fi
-          echo "Deployed commit $GITHUB_SHA is live (version.txt matches)."
-
-          # public/ assets must actually be served from the web root. A 404 here
-          # means the public folder was not deployed even if index.php was.
-          for asset in build/manifest.json img/logo.png img/favicon.png favicon.ico robots.txt; do
-            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 -H 'Cache-Control: no-cache' "$SITE_URL/$asset")
-            echo "$asset -> $code"
-            if [ "$code" != "200" ]; then
-              echo "::error::$SITE_URL/$asset returned $code; public/ assets are missing from $PUBLIC_DIR."
-              exit 1
-            fi
-          done
-
-          # A real routed page proves the front controller, Blade views and the
-          # database connection all work, not just static files.
-          page_status=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 -H 'Cache-Control: no-cache' "$SITE_URL/about-us")
-          echo "/about-us HTTP status: $page_status"
-          if [ "$page_status" != "200" ]; then
-            echo "::error::A routed page returned $page_status after deployment; the Laravel application is not booting."
-            exit 1
-          fi
-
-          # Sensitive paths must not be downloadable.
-          for path in .env .git/config composer.json artisan storage/logs/laravel.log vendor/autoload.php config/app.php; do
-            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$SITE_URL/$path")
+          for path in / /about-us/ /contact-us/ /packages/ /activities/pc-games/ /activities/ps5/ /activities/premium-snooker-room/ /activities/private-table-tennis-room/; do
+            code=$(curl -sS -L -o "$RUNNER_TEMP/page.html" -w '%{http_code}' --max-time 30 "$SITE_URL$path")
             echo "$path -> $code"
-            if [ "$code" = "200" ]; then
-              echo "::error::$SITE_URL/$path is publicly accessible."
+            if [ "$code" != "200" ]; then
+              echo "::error::$SITE_URL$path returned $code"
               exit 1
             fi
+            grep -qi 'Level X' "$RUNNER_TEMP/page.html" || { echo "::error::Expected site content missing at $path"; exit 1; }
           done
-
-          status=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 \
-            -H 'Cache-Control: no-cache' "$SITE_URL/")
-          echo "Homepage HTTP status: $status"
-          if [ "$status" != "200" ]; then
-            echo "::error::Homepage returned $status after a successful upload."
-            echo "::error::The code is deployed; the application itself is failing. Check $PUBLIC_DIR/.env (APP_KEY, DB_*), migrations and storage permissions."
-            exit 1
-          fi
+          echo "All required static pages returned HTTP 200."
