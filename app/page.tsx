@@ -118,6 +118,21 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section className="experience-banner">
+        <div className="container experience-banner-inner">
+          <div className="experience-banner-copy">
+            <span className="eyebrow">Make time for play</span>
+            <h2>Good games.<br /><em>Great company.</em></h2>
+            <p>Come solo, bring a friend or gather your crew. Choose your experience and let our team help plan your next visit.</p>
+            <WhatsAppButton message="Hi Level X, I am planning a visit. Please share activity availability and current offers." label="Plan your visit" />
+          </div>
+          <div className="experience-banner-image">
+            <Image src="/img/gallery/gaming-setup.jpg" alt="Gaming PC setup ready for a session at Level X Gaming Arena" width={900} height={650} />
+            <span>YOUR NEXT SESSION AWAITS</span>
+          </div>
+        </div>
+      </section>
+
       <section className="section">
         <div className="container">
           <SectionHeading eyebrow="The Level X experience" title="A better place to play" copy="A premium gaming environment built around great equipment, straightforward pricing and a welcoming team." />
