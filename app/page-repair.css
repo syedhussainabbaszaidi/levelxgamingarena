@@ -334,3 +334,39 @@ main section{min-width:0}
 @media(prefers-reduced-motion:reduce){
   .activity-detail-visual>img,.activity-card img,.gallery-card img{transition:none!important}
 }
+
+
+/* Mobile navigation service drawer: icon-led two-column experience cards */
+.mobile-service-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:26px}
+.mobile-service-card{position:relative;display:flex;align-items:center;gap:11px;min-width:0;min-height:92px;padding:14px 12px;border:1px solid rgba(255,255,255,.13);border-radius:13px;background:linear-gradient(145deg,#1a1b20,#101114);color:#fff;transition:border-color .2s,background .2s}
+.mobile-service-card:active{background:#202126}
+.mobile-service-icon{display:grid;place-items:center;flex:none;width:39px;height:39px;border:1px solid #ff343b55;border-radius:10px;background:#ff343b14;color:#ff5b62}
+.mobile-service-copy{display:grid;gap:5px;min-width:0}
+.mobile-service-copy strong{font-size:11px;line-height:1.3}
+.mobile-service-copy small{color:#9da1aa;font-size:9px;line-height:1.4}
+.mobile-service-arrow{flex:none;margin-left:auto;color:#ff5b62}
+.mobile-nested-heading{margin-bottom:4px}
+@media(max-width:760px){
+ .flagship-hero .hero-actions{margin-bottom:28px}
+ .flagship-hero .hero-proof{margin-top:24px;gap:12px 16px}
+ .quick-highlights{padding:12px 0;background:linear-gradient(145deg,#11151b,#0b0d12)}
+ .quick-highlights-grid{gap:10px}
+ .quick-highlights-grid>div{position:relative;min-height:100px;display:grid;grid-template-columns:44px 1fr;grid-template-rows:auto auto;align-content:center;column-gap:12px;padding:16px 13px;border:1px solid #ffffff17!important;border-radius:12px;background:linear-gradient(145deg,#1b2029,#11151c);box-shadow:0 10px 25px #0003}
+ .quick-highlights-grid .highlight-icon{grid-row:1/3;width:42px;height:42px;display:grid;place-items:center;border:1px solid #ff343b55;border-radius:11px;background:#ff343b17;color:#ff5b62}
+ .quick-highlights-grid b{align-self:end;font-size:14px;line-height:1.25;color:#fff}
+ .quick-highlights-grid small{align-self:start;margin-top:4px;font-size:10px;color:#b1b7c1;line-height:1.35}
+ .mobile-service-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .mobile-service-card{min-height:94px;padding:12px 10px;gap:9px}
+ .mobile-service-icon{width:34px;height:34px}
+ .mobile-service-copy strong{font-size:10px}
+ .mobile-service-copy small{font-size:8px}
+ .mobile-service-arrow{width:13px}
+ .button,.button:hover,.button:active{transform:none!important;transition:none!important;animation:none!important}
+ .button-primary:hover{filter:none}
+}
+@media(max-width:390px){
+ .mobile-service-grid{gap:8px}
+ .mobile-service-card{min-height:88px;padding:10px 8px}
+ .mobile-service-copy strong{font-size:9px}
+ .mobile-service-icon{width:31px;height:31px}
+}
