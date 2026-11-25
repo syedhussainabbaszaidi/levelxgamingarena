@@ -83,7 +83,7 @@ export default function HomePage() {
             {item.monday && <div className="deal"><span>Monday Madness</span><b>{item.name === "Premium Snooker" ? "PKR 8 / minute" : `PKR ${item.monday.toLocaleString("en-PK")}`}</b></div>}
             {("midday" in item) && <div className="deal"><span>PC Mid Day · 9 AM–5 PM</span><b>PKR {item.midday} / hour</b></div>}
             {item.name === "PS5" && <div className="deal"><span>Extra controller</span><b>PKR 300 / hour</b></div>}
-            <a className="text-link" href={whatsappLink(`Hi Level X, please confirm the current ${item.name} rates and availability.`)} target="_blank" rel="noopener noreferrer">{`Confirm ${item.name} rate`} <ArrowUpRight size={14} /></a>
+            <a className="rate-confirm-link" href={whatsappLink(`Hi Level X, please confirm the current ${item.name} rates and availability.`)} target="_blank" rel="noopener noreferrer"><span>{`Confirm ${item.name} rate`}</span><ArrowUpRight size={16} /></a>
           </div>
         </article>)}</div>
         <div className="account-package-panel flagship-account-panel">
