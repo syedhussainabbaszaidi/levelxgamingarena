@@ -5,13 +5,13 @@ export const emailAddress = "info@levelxgamingarena.com";
 export const activities = [
   {
     slug: "pc-games",
-    name: "PC Games",
+    name: "PC Gaming",
     category: "PC Gaming",
     price: 250,
     offer: 200,
     unit: "hour",
     image: "/img/activities/covers/pc-gaming.jpg",
-    description: "Play on high-performance gaming PCs with popular competitive titles including CS2, PUBG, Valorant, DOTA and more. Ask about Monday Madness and the daily Mid Day package.",
+    description: "Play on high-performance gaming PCs with popular competitive titles including CS2, PUBG, VALORANT, DOTA and more. Ask about Monday Madness and the daily Mid Day package.",
     capacity: "1 player per station",
     features: ["High-performance gaming PCs", "CS2, PUBG, Valorant, DOTA and more", "Monday Madness: Rs. 140/hour (minimum 3 hours)", "Mid Day package: Rs. 150/hour, 9 AM–5 PM (minimum 3 hours)"],
   },
@@ -86,11 +86,11 @@ export const accountPackages = [
 ] as const;
 
 export const gallery = [
-  { src: "/img/gallery/esports-arena.jpg", title: "Esports Arena" },
-  { src: "/img/gallery/arcade.jpg", title: "Arcade Classics" },
-  { src: "/img/gallery/racing-sim.jpg", title: "Racing Simulator" },
-  { src: "/img/gallery/gaming-setup.jpg", title: "Gaming Setups" },
-  { src: "/img/gallery/vr-zone.jpg", title: "VR Zone" },
+  { src: "/img/gallery/esports-arena.jpg", title: "Gaming Arena" },
+  { src: "/img/gallery/arcade.jpg", title: "Gaming Floor" },
+  { src: "/img/gallery/racing-sim.jpg", title: "Racing Setup" },
+  { src: "/img/gallery/gaming-setup.jpg", title: "PC Gaming Setup" },
+  { src: "/img/gallery/vr-zone.jpg", title: "Gaming Zone" },
 ] as const;
 
 export const faqs = [
