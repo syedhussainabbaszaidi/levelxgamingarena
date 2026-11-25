@@ -314,11 +314,11 @@ h1,h2,h3,h4,.brand,.stat b,.art-caption strong,.mobile-nav-label strong{font-fam
  --bg:#f4f3ee;--paper:#fbfaf6;--surface:#fffefa;--surface2:#eaece5;
  --ink:#171b18;--text:#171b18;--muted:#777e77;--line:#dfe1d9;
  --dark:#111a16;--dark2:#17241e;--accent:#d1f36a;--accent2:#a8c64e;
- --font:var(--font-outfit),sans-serif;--ease:cubic-bezier(.22,.75,.2,1);
+ --font:'Outfit',sans-serif;--ease:cubic-bezier(.22,.75,.2,1);
  --green:#5d784d;
 }
 html{scroll-behavior:smooth;scroll-padding-top:100px}
-body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{--font:var(--font-outfit,'Outfit'),sans-serif;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 body,button,input,textarea,select{font-family:var(--font)}
 h1,h2,h3,h4,h5,h6,.brand,.price,.account-card strong,.stat b{font-family:var(--font);color:inherit}
 h1,h2,h3,h4{letter-spacing:-.055em}
