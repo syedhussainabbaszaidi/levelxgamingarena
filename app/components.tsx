@@ -88,6 +88,13 @@ export function Footer() {
           <span className="footer-location"><MapPin size={15} /> Karachi, Pakistan</span>
         </div>
       </div>
+      <div className="container footer-legal-links">
+        <Link href="/terms-and-conditions/">Terms & conditions</Link>
+        <Link href="/privacy-policy/">Privacy policy</Link>
+        <Link href="/cookie-policy/">Cookie policy</Link>
+        <Link href="/disclaimer/">Disclaimer</Link>
+        <Link href="/photo-credits/">Photo credits</Link>
+      </div>
       <div className="container footer-bottom">
         <span>© {new Date().getFullYear()} Level X Gaming Arena. All rights reserved.</span>
         <span>PC · PS5 · SNOOKER · TABLE GAMES</span>

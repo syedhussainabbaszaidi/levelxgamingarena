@@ -1,46 +1,44 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { ArrowRight, ArrowUpRight, Check, Clock3, Gamepad2, Sparkles } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { PageIntro, WhatsAppButton } from "../components";
 import { accountPackages, hourlyPackages, whatsappLink } from "../data";
 import { pageMetadata } from "../seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Gaming Packages & Hourly Rates in Karachi",
-  description: "Explore PC gaming, PS5, premium snooker and table tennis rates, special offers and prepaid play-time bundles at Level X Gaming Arena Karachi.",
+  title: "Gaming Packages, Hourly Rates & Offers",
+  description: "Compare PC gaming, PS5, premium snooker and table tennis hourly rates, Monday Madness offers and prepaid gaming packages at Level X Karachi.",
   path: "/packages/",
   keywords: ["gaming packages Karachi", "PC gaming rates Karachi", "PS5 hourly price Karachi", "snooker rates Karachi", "table tennis price Karachi"],
 });
 
 export default function Packages() {
-  return <>
-    <section className="packages-hero"><div className="container packages-hero-grid">
-      <div className="packages-hero-copy"><span className="eyebrow"><Sparkles size={14}/> LEVEL X / PRICING MENU</span>
-        <PageIntro eyebrow="Gaming packages & rates" title="Pick your game. Own your time." copy="Clear hourly rates, limited-time arena offers and prepaid play-time bundles. Find the right way to play, then message our team to confirm your session."/>
-        <div className="packages-hero-actions"><a className="button button-primary" href="#hourly-rates">Explore rates <ArrowRight size={16}/></a><a className="button button-outline" href="#account-passes">Prepaid packages <ArrowUpRight size={15}/></a></div>
-        <div className="packages-hero-points"><span><Clock3 size={16}/> Open 24/7</span><span><Check size={16}/> Pay at the arena</span></div>
-      </div>
-      <div className="packages-hero-art"><Image src="/img/gallery/esports-arena.jpg" alt="Gaming stations at Level X Gaming Arena" width={1000} height={760} priority/><div className="packages-art-overlay"><span>THE LEVEL X RATE CARD</span><strong>More play.<br/>More ways to win.</strong></div><div className="packages-art-stamp"><Gamepad2 size={22}/><b>GAME ON</b><small>KARACHI · 24/7</small></div></div>
-    </div></section>
-    <section className="packages-rate-section" id="hourly-rates"><div className="container">
-      <div className="packages-section-heading"><div><span className="eyebrow">01 / HOURLY & SESSION RATES</span><h2>Choose your <em>arena.</em></h2><p>Current published rates and offers for the games you love.</p></div><span className="packages-heading-note">ALL PRICES IN PKR</span></div>
-      <div className="premium-package-grid">{hourlyPackages.map((item,index)=><article className="premium-price-card" key={item.name}>
-        <div className="premium-price-image"><Image src={item.image} alt={item.name+" at Level X Gaming Arena"} width={650} height={420}/><span>0{index+1} / LEVEL X</span></div>
-        <div className="premium-price-content"><span className="premium-price-category">{item.name}</span><h3>{item.name==="Private Table Tennis"?"Private Table Tennis Room":item.name}</h3>
-          <div className="premium-price-main"><strong>Rs. {item.offer.toLocaleString("en-PK")}</strong><span>/ {item.unit}</span></div><p>{item.note}</p>
-          <div className="premium-rate-row"><span>Regular rate</span><b>Rs. {item.regular.toLocaleString("en-PK")}{item.unit==="minute"?" / min":" / hour"}</b></div>
-          {item.monday&&<div className="premium-rate-row premium-rate-special"><span>Monday Madness</span><b>Rs. {item.monday.toLocaleString("en-PK")}{item.unit==="minute"?" / min":" / hour"}</b></div>}
-          {("midday" in item)&&<div className="premium-rate-row"><span>Mid Day · 9 AM–5 PM</span><b>Rs. {item.midday} / hour</b></div>}
-          {item.name==="PS5"&&<div className="premium-rate-row"><span>Extra controller</span><b>Rs. 300 / hour</b></div>}
-          <a className="button button-outline premium-enquire" href={whatsappLink(`Hi Level X, please confirm the current ${item.name} rate and availability.`)} target="_blank" rel="noopener noreferrer">Enquire on WhatsApp <ArrowUpRight size={16}/></a>
-        </div></article>)}</div>
-      <div className="packages-rate-note"><Clock3 size={17}/><p>Promotional rates may have specific time windows or minimum session durations. Please confirm the applicable offer and availability with our team before visiting.</p></div>
-    </div></section>
-    <section className="account-pass-section" id="account-passes"><div className="container">
-      <div className="account-pass-heading"><div><span className="eyebrow">02 / PREPAID PLAY TIME</span><h2>Stay in the game <em>for longer.</em></h2><p>Top up your account with a prepaid bundle. All packages are activated at the arena counter.</p></div><span className="account-pass-mark">LX<br/>PASS</span></div>
-      <div className="premium-account-grid">{accountPackages.map((item,index)=><article className={index===accountPackages.length-1?"premium-account-card premium-account-featured":"premium-account-card"} key={item.name}><span className="premium-account-index">0{index+1} / {item.hours}</span><span className="premium-account-name">{item.name}</span><strong>Rs. {item.price.toLocaleString("en-PK")}</strong><p>{item.description}</p><a href={whatsappLink(`Hi Level X, I am interested in the ${item.name} prepaid package. Please share the details.`)} target="_blank" rel="noopener noreferrer">Ask about this package <ArrowUpRight size={15}/></a></article>)}</div>
-      <p className="account-pass-footnote">Account opening: Rs. 1,000 one-time. No online payment is collected through this website.</p>
-    </div></section>
-    <section className="packages-booking-section"><div className="container packages-booking-panel"><div><span className="eyebrow">03 / READY WHEN YOU ARE</span><h2>Your next session<br/><em>starts here.</em></h2><p>Tell us which game you want to play, your preferred time and group size. Our team will help confirm availability and the final rate.</p></div><div className="packages-booking-actions"><WhatsAppButton message="Hi Level X, please help me choose a package and confirm availability for my visit." label="Talk to our team"/><a className="packages-back-link" href="/contact-us/">Contact & location <ArrowRight size={15}/></a></div></div></section>
-  </>;
+  return (
+    <>
+      <section className="page-hero"><div className="container"><PageIntro eyebrow="Packages & pricing" title="Play more. Choose your package." copy="Browse our published activity rates, time-based promotions and prepaid account bundles. Contact our team to confirm availability and the applicable offer." /></div></section>
+      <section className="content-section">
+        <div className="container">
+          <div className="package-grid">
+            {hourlyPackages.map((item) => (
+              <article className="price-card" key={item.name}>
+                <Image src={item.image} alt={`${item.name} gaming package at Level X Gaming Arena`} width={500} height={300} className="package-image" />
+                <h2>{item.name}</h2>
+                <div className="price">Rs. {item.offer.toLocaleString("en-PK")}<small> / {item.unit}</small></div>
+                <p>{item.note}</p>
+                <div className="deal"><span>Regular rate</span><b>Rs. {item.regular.toLocaleString("en-PK")}</b></div>
+                {item.monday && <div className="deal"><span>Monday Madness</span><b>Rs. {item.monday.toLocaleString("en-PK")}</b></div>}
+                {("midday" in item) && <div className="deal"><span>Mid Day PC</span><b>Rs. {item.midday}</b></div>}
+                <a className="text-link" href={whatsappLink(`Hi Level X, please confirm the current ${item.name} price and availability.`)} target="_blank" rel="noopener noreferrer">Enquire on WhatsApp <ArrowUpRight size={14} /></a>
+              </article>
+            ))}
+          </div>
+          <div className="section-heading account-heading"><span className="eyebrow">Prepaid play time</span><h2>Account packages</h2><p>Prepaid bundles for regular players. Packages are activated at the counter; no online payment is collected.</p></div>
+          <div className="account-grid">
+            {accountPackages.map((item) => <article className="account-card" key={item.name}><span>{item.hours}</span><strong>Rs. {item.price.toLocaleString("en-PK")}</strong><b>{item.name}</b><p className="muted">{item.description}</p><a className="text-link" href={whatsappLink(`Hi Level X, I am interested in the ${item.name} package.`)} target="_blank" rel="noopener noreferrer">Ask about package <ArrowUpRight size={14} /></a></article>)}
+          </div>
+          <div className="cta-band packages-cta"><h2>Need help choosing?</h2><p>Message us with your preferred game and we will guide you to the right option.</p><WhatsAppButton message="Hi Level X, please help me choose a gaming package." /></div>
+        </div>
+      </section>
+    </>
+  );
 }

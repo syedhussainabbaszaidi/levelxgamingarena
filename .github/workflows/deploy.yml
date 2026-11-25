@@ -76,6 +76,11 @@ jobs:
           test -s out/activities/ps5/index.html
           test -s out/activities/premium-snooker-room/index.html
           test -s out/activities/private-table-tennis-room/index.html
+          test -s out/privacy-policy/index.html
+          test -s out/cookie-policy/index.html
+          test -s out/terms-and-conditions/index.html
+          test -s out/disclaimer/index.html
+          test -s out/photo-credits/index.html
           test -s out/robots.txt
           test -s out/sitemap.xml
           test -s out/.htaccess

@@ -8,7 +8,7 @@ import { pageMetadata } from "./seo";
 
 export const metadata: Metadata = pageMetadata({
   title: "Gaming Arena, PC Gaming, PS5, Snooker & Table Tennis in Karachi",
-  description: "Play PC games, PlayStation 5, premium snooker, private table tennis and pool at Level X Gaming Arena in Karachi. Check rates and book on WhatsApp.",
+  description: "Experience PC gaming, PS5, premium snooker, private table tennis, pool and VIP rooms at Level X Gaming Arena in Karachi. Explore rates and book on WhatsApp.",
   path: "/",
   keywords: ["gaming arena Karachi", "PC gaming Karachi", "PS5 gaming Karachi", "snooker club Karachi", "table tennis Karachi", "pool table Karachi", "VIP gaming rooms Karachi"],
 });
@@ -43,7 +43,7 @@ export default function HomePage() {
       <section className="quick-highlights"><div className="container quick-highlights-grid">
         <div><span className="highlight-icon"><Clock3 size={19} /></span><b>24/7</b><small>Open all day</small></div>
         <div><span className="highlight-icon"><Gamepad2 size={19} /></span><b>PC + PS5</b><small>Console & PC gaming</small></div>
-        <div><span className="highlight-icon"><Users size={19} /></span><b>Private spaces</b><small>Private rooms & table games</small></div>
+        <div><span className="highlight-icon"><Users size={19} /></span><b>Private spaces</b><small>Room-based experiences</small></div>
         <div><span className="highlight-icon"><MessageCircle size={19} /></span><b>Easy booking</b><small>Talk to our team</small></div>
       </div></section>
 
@@ -52,7 +52,7 @@ export default function HomePage() {
         <div className="activity-grid flagship-activity-grid">
           {activities.map((activity, index) => <article className="activity-card flagship-activity-card" key={activity.slug}>
             <div className="activity-image-wrap"><Image src={activity.image} alt={activity.name + " at Level X Gaming Arena"} width={720} height={520} /><span className="activity-number">0{index + 1}</span><span className="activity-image-action"><ArrowUpRight size={19} /></span></div>
-            <div className="activity-body"><span className="tag">{activity.category}</span><h3>{activity.name}</h3><p>{activity.description}</p>
+            <div className="activity-body"><span className="tag">{activity.category}</span><h3>{activity.name === "PC Games" ? "PC Gaming" : activity.name}</h3><p>{activity.description}</p>
               <div className="price-line"><strong>Rs. {activity.offer.toLocaleString("en-PK")}</strong><del>Rs. {activity.price.toLocaleString("en-PK")}</del><span className="muted">/ {activity.unit}</span></div>
               <Link className="text-link" href={`/activities/${activity.slug}/`}>Explore activity <ArrowRight size={15} /></Link>
             </div>
@@ -61,14 +61,14 @@ export default function HomePage() {
             <div className="activity-image-wrap"><Image src={item.image} alt={item.name + " facility at Level X Gaming Arena"} width={720} height={520} /><span className="activity-number">0{activities.length + index + 1}</span><span className="activity-image-action"><ArrowUpRight size={19} /></span></div>
             <div className="activity-body"><span className="tag">{item.category}</span><h3>{item.name}</h3><p>{item.description}</p>
               <div className="price-line enquiry-price"><strong>Enquire for rates</strong><span className="muted">Availability on request</span></div>
-              <a className="text-link" href={whatsappLink(`Hi Level X, please share current details, availability and rates for ${item.name}.`)} target="_blank" rel="noopener noreferrer">Ask about this activity <ArrowUpRight size={15} /></a>
+              <a className="text-link" href={whatsappLink(`Hi Level X, please share current details, availability and rates for ${item.name}.`)} target="_blank" rel="noopener noreferrer">Ask about this experience <ArrowUpRight size={15} /></a>
             </div>
           </article>)}
         </div>
       </div></section>
 
       <section className="games-section"><div className="container games-layout">
-        <div className="games-copy"><span className="eyebrow">PC GAMING / THE LINE-UP</span><h2>Queue up.<br /><em>Lock in.</em></h2><p>Get into the action with popular competitive titles listed for the PC gaming line-up at Level X.</p><Link className="text-link" href="/activities/pc-games/">Explore PC gaming <ArrowRight size={15} /></Link></div>
+        <div className="games-copy"><span className="eyebrow">PC GAMING / THE LINE-UP</span><h2>Queue up.<br /><em>Lock in.</em></h2><p>Get into the action with popular competitive titles listed for the PC gaming experience at Level X.</p><Link className="text-link" href="/activities/pc-games/">Explore PC gaming <ArrowRight size={15} /></Link></div>
         <div className="game-title-grid">{featuredGames.map((game, index) => <div className="game-title" key={game}><span>0{index + 1}</span><b>{game}</b><ArrowUpRight size={17} /></div>)}</div>
       </div></section>
 
@@ -94,7 +94,7 @@ export default function HomePage() {
       </div></section>
 
       <section className="experience-banner flagship-experience"><div className="container experience-banner-inner">
-        <div className="experience-banner-copy"><span className="eyebrow">Bring your crew. Pick your game.</span><h2>Make it a night<br /><em>to remember.</em></h2><p>Bring your crew, choose your game and let our team help organise your next visit.</p><WhatsAppButton message="Hi Level X, I am planning a visit. Please share activity availability and current offers." label="Plan your visit" /></div>
+        <div className="experience-banner-copy"><span className="eyebrow">Bring your crew. Pick your game.</span><h2>Make it a night<br /><em>to remember.</em></h2><p>Bring your crew, choose your experience and let our team help organise your next visit.</p><WhatsAppButton message="Hi Level X, I am planning a visit. Please share activity availability and current offers." label="Plan your visit" /></div>
         <div className="experience-banner-image"><Image src="/img/gallery/gaming-setup.jpg" alt="Gaming setup at Level X Gaming Arena" width={1000} height={720} /><span>YOUR NEXT GAME AWAITS</span></div>
       </div></section>
 

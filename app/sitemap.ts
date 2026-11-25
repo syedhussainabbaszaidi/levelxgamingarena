@@ -5,7 +5,7 @@ import { SITE_URL } from "./seo";
 export const dynamic = "force-static";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const routes = ["", "about-us", "contact-us", "packages"];
+  const routes = ["", "about-us", "contact-us", "packages", "privacy-policy", "cookie-policy", "terms-and-conditions", "disclaimer", "photo-credits"];
   const lastModified = new Date();
   return [
     ...routes.map((route) => ({
