@@ -91,7 +91,7 @@ export function Footer() {
           <a href={whatsappLink("Hi Level X, I have an enquiry.")} target="_blank" rel="noopener noreferrer"><span className="footer-icon"><MessageCircle size={16} /></span><span><small>WhatsApp</small><strong>Chat with us</strong></span></a>
           <a href="tel:+923422631057"><span className="footer-icon"><Phone size={16} /></span><span><small>Call us</small><strong>{phoneDisplay}</strong></span></a>
           <a href={`mailto:${emailAddress}`}><span className="footer-icon"><Mail size={16} /></span><span><small>Email</small><strong>{emailAddress}</strong></span></a>
-          <span className="footer-location"><MapPin size={15} /> Karachi, Pakistan</span>
+          <a className="footer-location" href="https://www.google.com/maps/search/?api=1&query=Federal+B+Area%2C+Block+12%2C+Karachi%2C+Pakistan" target="_blank" rel="noopener noreferrer"><MapPin size={15} /> Federal B Area, Block 12, Karachi · Directions</a>
         </div>
       </div>
       <div className="container footer-bottom">
