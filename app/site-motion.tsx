@@ -70,7 +70,7 @@ export function SiteMotion({ children }: { children: ReactNode }) {
       });
 
       const revealItems = gsap.utils.toArray<HTMLElement>(
-        ".section-heading, .stat, .faq-item, .legal-card, .contact-item, .activity-detail > img, .activity-detail > div, .cta-band, .arena-promo-inner, .experience-banner-copy, .experience-banner-image, .games-copy, .hero-floating-card",
+        ".section-heading, .stat, .faq-item, .legal-card, .contact-item, .contact-method-card, .contact-location-card, .booking-step, .activity-detail > img, .activity-detail > div, .cta-band, .arena-promo-inner, .experience-banner-copy, .experience-banner-image, .games-copy, .hero-floating-card, .about-intro-copy, .about-extra-line, .about-availability-inner > div",
       );
       revealItems.forEach((item) => {
         gsap.from(item, {
@@ -87,7 +87,7 @@ export function SiteMotion({ children }: { children: ReactNode }) {
           scrollTrigger: { trigger: footerCta, start: "top 94%", once: true },
         });
       }
-      const footerColumns = footer?.querySelectorAll(".footer-grid > div");
+      const footerColumns = footer?.querySelectorAll(".footer-grid > div, .footer-legal-links a");
       if (footerColumns?.length) {
         gsap.from(footerColumns, {
           y: 20, autoAlpha: 0, duration: 0.55, stagger: 0.09,
