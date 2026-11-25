@@ -40,6 +40,14 @@ export default function HomePage() {
         </div>
       </section>
 
+      <div className="arena-promo-strip">
+        <div className="container arena-promo-inner">
+          <span className="promo-icon"><Sparkles size={17} /></span>
+          <div><strong>Your next game night starts here.</strong><span>Explore four experiences, clear rates and easy WhatsApp booking.</span></div>
+          <Link href="/packages/">Explore packages <ArrowRight size={15} /></Link>
+        </div>
+      </div>
+
       <div className="stats-strip">
         <div className="container stats-grid">
           <div className="stat"><b>24/7 Arena</b><span>Open every day, around the clock</span></div>
