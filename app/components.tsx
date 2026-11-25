@@ -16,14 +16,6 @@ export function Header() {
           <nav className="desktop-nav" aria-label="Main navigation">
             <Link href="/">Home</Link>
             <Link href="/activities/">Activities</Link>
-            <div className="nav-dropdown">
-              <Link href="/packages/" aria-haspopup="true">Packages <ChevronDown size={13} /></Link>
-              <div className="nav-dropdown-panel">
-                <span className="nav-dropdown-kicker">PLAY MORE / PAY SMART</span>
-                <Link href="/packages/#hourly-rates"><strong>Hourly rates</strong><small>Compare current session pricing</small></Link>
-                <Link href="/packages/#account-passes"><strong>Prepaid passes</strong><small>Play-time bundles</small></Link>
-              </div>
-            </div>
             <div className="nav-dropdown nav-dropdown-services">
               <Link href="/activities/" aria-haspopup="true">Services <ChevronDown size={13} /></Link>
               <div className="nav-dropdown-panel">
@@ -33,6 +25,14 @@ export function Header() {
                 <Link href="/activities/premium-snooker-room/"><strong>Premium Snooker</strong><small>Private snooker room</small></Link>
                 <Link href="/activities/private-table-tennis-room/"><strong>Table Tennis</strong><small>Private table tennis room</small></Link>
                 <Link href="/activities/"><strong>All activities</strong><small>Explore every experience</small></Link>
+              </div>
+            </div>
+            <div className="nav-dropdown">
+              <Link href="/packages/" aria-haspopup="true">Packages <ChevronDown size={13} /></Link>
+              <div className="nav-dropdown-panel">
+                <span className="nav-dropdown-kicker">PLAY MORE / PAY SMART</span>
+                <Link href="/packages/#hourly-rates"><strong>Hourly rates</strong><small>Compare current session pricing</small></Link>
+                <Link href="/packages/#account-passes"><strong>Prepaid passes</strong><small>Play-time bundles</small></Link>
               </div>
             </div>
             <Link href="/gallery/">Gallery</Link>

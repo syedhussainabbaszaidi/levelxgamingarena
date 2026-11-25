@@ -105,17 +105,17 @@ export function MobileMenu() {
               <div className="mobile-nested-panel" ref={nestedPanel}>
                 <div className="mobile-nested-heading"><span>LEVEL X / EXPLORE</span><h2>Choose your game.</h2><p>Pick a gaming experience and explore its details, rates and availability.</p></div>
                 <div className="mobile-nested-columns">
-                  <section className="mobile-packages-panel">
-                    <h3>Packages</h3>
-                    <Link href="/packages/#hourly-rates" onClick={close}><span><strong>Hourly rates</strong><small>Compare current session pricing</small></span><ArrowUpRight size={15}/></Link>
-                    <Link href="/packages/#account-passes" onClick={close}><span><strong>Prepaid passes</strong><small>Play-time bundles</small></span><ArrowUpRight size={15}/></Link>
-                    <Link href="/packages/" onClick={close}><span><strong>All packages</strong><small>View every available rate</small></span><ArrowUpRight size={15}/></Link>
-                  </section>
                   <section className="mobile-services-panel">
                     <h3><Sparkles size={15}/> Services</h3>
                     <div className="mobile-service-grid">
                       {serviceLinks.map(({ href, label, note, Icon }) => <Link className="mobile-service-card" href={href} key={label} onClick={close}><span className="mobile-service-icon"><Icon size={19}/></span><strong>{label}</strong><small>{note}</small><ArrowUpRight className="mobile-service-arrow" size={14}/></Link>)}
                     </div>
+                  </section>
+                  <section className="mobile-packages-panel">
+                    <h3>Packages</h3>
+                    <Link href="/packages/#hourly-rates" onClick={close}><span><strong>Hourly rates</strong><small>Compare current session pricing</small></span><ArrowUpRight size={15}/></Link>
+                    <Link href="/packages/#account-passes" onClick={close}><span><strong>Prepaid passes</strong><small>Play-time bundles</small></span><ArrowUpRight size={15}/></Link>
+                    <Link href="/packages/" onClick={close}><span><strong>All packages</strong><small>View every available rate</small></span><ArrowUpRight size={15}/></Link>
                   </section>
                 </div>
               </div>

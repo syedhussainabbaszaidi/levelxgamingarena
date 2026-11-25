@@ -3,6 +3,7 @@ import "./globals.css";
 import "./page-repair.css";
 import { Header, Footer, LogoLoader } from "./components";
 import { SiteMotion } from "./site-motion";
+import { AIChat } from "./ai-chat";
 import { DEFAULT_DESCRIPTION, SITE_NAME, SITE_URL } from "./seo";
 
 export const metadata: Metadata = {
@@ -40,6 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <a className="skip-link" href="#main-content">Skip to content</a>
         <SiteMotion><LogoLoader /><Header /><main id="main-content">{children}</main><Footer /></SiteMotion>
+        <AIChat />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(businessSchema) }} />
       </body>
     </html>
