@@ -103,7 +103,7 @@
 
                 <h1 class="animate-fade-up mt-6 font-display text-4xl font-black uppercase leading-[1.04] tracking-tight text-white sm:text-5xl lg:text-6xl"
                     style="animation-delay: .15s;">
-                    Level up your
+                    Elevate your
                     <span class="block bg-gradient-to-r from-neon-400 via-neon-500 to-neon-600 bg-clip-text text-transparent glow-text">
                         game night
                     </span>
