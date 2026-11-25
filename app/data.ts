@@ -10,7 +10,7 @@ export const activities = [
     price: 250,
     offer: 200,
     unit: "hour",
-    image: "/img/site/pc-gaming.webp",
+    image: "/img/site/pc-setup.webp",
     description: "Play on high-performance gaming PCs with popular competitive titles including CS2, PUBG, VALORANT, DOTA and more. Ask about Monday Madness and the daily Mid Day package.",
     capacity: "1 player per station",
     features: ["High-performance gaming PCs", "CS2, PUBG, Valorant, DOTA and more", "Monday Madness: PKR 140/hour (minimum 3 hours)", "Mid Day package: PKR 150/hour, 9 AM–5 PM (minimum 3 hours)"],
@@ -71,7 +71,7 @@ export const additionalExperiences = [
 ] as const;
 
 export const hourlyPackages = [
-  { name: "PC Gaming", regular: 250, offer: 200, monday: 140, midday: 150, unit: "per hour", image: "/img/site/pc-gaming.webp", note: "Mid Day: 9 AM–5 PM (minimum 3 hours). Monday Madness: 12 PM–midnight (minimum 3 hours)." },
+  { name: "PC Gaming", regular: 250, offer: 200, monday: 140, midday: 150, unit: "per hour", image: "/img/site/pc-setup.webp", note: "Mid Day: 9 AM–5 PM (minimum 3 hours). Monday Madness: 12 PM–midnight (minimum 3 hours)." },
   { name: "PS5", regular: 1000, offer: 650, monday: 600, unit: "per hour", image: "/img/site/ps5.webp", note: "Two controllers included. Extra controller: PKR 300/hour. Monday Madness: 12 PM–midnight." },
   { name: "Premium Snooker", regular: 900, offer: 720, monday: 480, unit: "per hour equivalent", image: "/img/site/snooker.webp", note: "Standard play is billed per minute: PKR 15 regular / PKR 12 opening offer. Monday Madness is PKR 8 per minute." },
   { name: "Private Table Tennis", regular: 800, offer: 600, monday: 500, unit: "per hour", image: "/img/site/table-tennis.webp", note: "Private room booking. Monday Madness: 12 PM–midnight." },
@@ -86,7 +86,7 @@ export const accountPackages = [
 ] as const;
 
 export const gallery = [
-  { src: "/img/site/pc-gaming.webp", title: "PC Gaming" },
+  { src: "/img/site/pc-setup.webp", title: "PC Gaming" },
   { src: "/img/site/ps5.webp", title: "PlayStation 5" },
   { src: "/img/site/snooker.webp", title: "Premium Snooker Room" },
   { src: "/img/site/table-tennis.webp", title: "Private Table Tennis Room" },
