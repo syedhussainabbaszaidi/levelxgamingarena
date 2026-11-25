@@ -158,16 +158,7 @@ export function SiteMotion({ children }: { children: ReactNode }) {
         });
       }
 
-      gsap.utils.toArray<HTMLElement>(".button").forEach((button) => {
-        const enter = () => gsap.to(button, { y: -3, duration: 0.2, overwrite: true });
-        const leave = () => gsap.to(button, { y: 0, duration: 0.22, overwrite: true });
-        button.addEventListener("pointerenter", enter);
-        button.addEventListener("pointerleave", leave);
-        cleanups.push(() => {
-          button.removeEventListener("pointerenter", enter);
-          button.removeEventListener("pointerleave", leave);
-        });
-      });
+      // Buttons remain steady; no pointer-driven lift or bounce animation.
     }, root);
 
     const refresh = window.requestAnimationFrame(() => ScrollTrigger.refresh());
