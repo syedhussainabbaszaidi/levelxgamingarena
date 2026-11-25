@@ -4,24 +4,10 @@ import { ArrowRight, ArrowUpRight, ChevronDown, Clock3, Mail, MapPin, MessageCir
 import { emailAddress, phoneDisplay, whatsappLink } from "./data";
 import { MobileMenu } from "./mobile-menu";
 
-const serviceLinks = [
-  { href: "/activities/pc-games/", label: "PC Gaming", note: "Competitive PC sessions" },
-  { href: "/activities/ps5/", label: "PlayStation 5", note: "Console gaming" },
-  { href: "/activities/premium-snooker-room/", label: "Premium Snooker", note: "Private snooker room" },
-  { href: "/activities/private-table-tennis-room/", label: "Table Tennis", note: "Private room sessions" },
-  { href: "/activities/", label: "All activities", note: "Explore the arena" },
-];
-
 export function Header() {
   return (
     <>
-      <div className="announcement-bar">
-        <div className="container announcement-inner">
-          <span><Sparkles size={14} /> Karachi gaming zone · PC, PS5 & table games</span>
-          <span className="announcement-hours"><Clock3 size={14} /> Open 24 hours · 7 days a week</span>
-          <a href={whatsappLink("Hi Level X, please share today's offers and availability.")} target="_blank" rel="noopener noreferrer">Ask about today&apos;s offers <ArrowUpRight size={13} /></a>
-        </div>
-      </div>
+      <div className="announcement-bar"><div className="container announcement-inner"><span><Sparkles size={14} /> Karachi · Open 24 hours, every day</span></div></div>
       <header className="site-header">
         <div className="container nav-wrap">
           <Link href="/" className="brand" aria-label="Level X Gaming Arena home">
@@ -36,13 +22,6 @@ export function Header() {
                 <span className="nav-dropdown-kicker">PLAY MORE / PAY SMART</span>
                 <Link href="/packages/#hourly-rates"><strong>Hourly rates</strong><small>Compare current session pricing</small></Link>
                 <Link href="/packages/#account-passes"><strong>Prepaid passes</strong><small>Play-time bundles</small></Link>
-              </div>
-            </div>
-            <div className="nav-dropdown">
-              <Link href="/activities/" aria-haspopup="true">Services <ChevronDown size={13} /></Link>
-              <div className="nav-dropdown-panel nav-dropdown-services">
-                <span className="nav-dropdown-kicker">FIND YOUR GAME</span>
-                {serviceLinks.map((item) => <Link href={item.href} key={item.href}><strong>{item.label}</strong><small>{item.note}</small></Link>)}
               </div>
             </div>
             <Link href="/gallery/">Gallery</Link>
@@ -105,7 +84,6 @@ export function Footer() {
           <Link href="/food-drinks/">Food & drinks</Link>
           <Link href="/about-us/">About Level X</Link>
           <Link href="/contact-us/">Contact & booking</Link>
-          <a href={whatsappLink("Hi Level X, please share your location and directions.")} target="_blank" rel="noopener noreferrer">Get directions <ArrowUpRight size={13} /></a>
           </div>
         </details>
         <div className="footer-contact-column">
