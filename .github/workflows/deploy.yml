@@ -148,6 +148,15 @@ jobs:
           PY
           echo "Static export verified: $(find out -type f | wc -l) files."
 
+      - name: Verify official Rockstar artwork used by GTA VI guide
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 --retry-delay 2 --max-time 45 -A "LevelX-GTA6-Asset-Check/1.0" 'https://www.rockstargames.com/VI/_next/static/media/poster_full.0az_iud2g3y4j.jpg?akim=1&imdensity=1&imwidth=3840' -o "$RUNNER_TEMP/gta6-poster.jpg"
+          curl -fL --retry 3 --retry-delay 2 --max-time 45 -A "LevelX-GTA6-Asset-Check/1.0" 'https://www.rockstargames.com/VI/_next/static/media/shard0.0_vm6ya9-h67x.png?akim=1&imdensity=1&imwidth=3840' -o "$RUNNER_TEMP/gta6-world.png"
+          test -s "$RUNNER_TEMP/gta6-poster.jpg"
+          test -s "$RUNNER_TEMP/gta6-world.png"
+          file "$RUNNER_TEMP/gta6-poster.jpg" "$RUNNER_TEMP/gta6-world.png"
+
       - name: Check deployment credentials and endpoint
         run: |
           set -euo pipefail
