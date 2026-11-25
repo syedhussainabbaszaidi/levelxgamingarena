@@ -7,7 +7,7 @@ import { whatsappLink } from "./data";
 import gsap from "gsap";
 
 const links = [
-  { href: "/#activities", label: "Experiences", note: "PC, PS5 & table games" },
+  { href: "/#activities", label: "Activities", note: "PC, PS5 & table games" },
   { href: "/packages/", label: "Packages", note: "Hourly rates & passes" },
   { href: "/#gallery", label: "The arena", note: "Inside Level X" },
   { href: "/about-us/", label: "About us", note: "Our story" },
