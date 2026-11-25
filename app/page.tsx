@@ -77,9 +77,9 @@ export default function HomePage() {
         <div className="package-grid flagship-package-grid">{hourlyPackages.map((item, index) => <article className="price-card flagship-price-card" key={item.name}>
           <div className="package-card-image"><Image src={item.image} alt={item.name + " at Level X"} width={620} height={360} /><span className="package-image-label">0{index + 1} / PUBLISHED RATE</span></div>
           <div className="price-card-content"><span className="tag">{item.name}</span><h3>{item.name === "Private Table Tennis" ? "Private Table Tennis Room" : item.name}</h3>
-            <div className="price">Rs. {item.offer.toLocaleString("en-PK")}<small> / {item.unit}</small></div><p>{item.note}</p>
-            <div className="deal"><span>Regular rate</span><b>Rs. {item.regular.toLocaleString("en-PK")}</b></div>
-            {item.monday && <div className="deal"><span>Monday Madness</span><b>Rs. {item.monday.toLocaleString("en-PK")}{item.name === "Premium Snooker" ? " / hour equivalent" : ""}</b></div>}
+            <div className="price">{item.name === "Premium Snooker" ? <>Rs. 12<small> / minute</small></> : <>Rs. {item.offer.toLocaleString("en-PK")}<small> / {item.unit}</small></>}</div><p>{item.note}</p>
+            <div className="deal"><span>Regular rate</span><b>{item.name === "Premium Snooker" ? "Rs. 15 / minute" : `Rs. ${item.regular.toLocaleString("en-PK")}`}</b></div>
+            {item.monday && <div className="deal"><span>Monday Madness</span><b>{item.name === "Premium Snooker" ? "Rs. 8 / minute" : `Rs. ${item.monday.toLocaleString("en-PK")}`}</b></div>}
             {("midday" in item) && <div className="deal"><span>PC Mid Day · 9 AM–5 PM</span><b>Rs. {item.midday} / hour</b></div>}
             {item.name === "PS5" && <div className="deal"><span>Extra controller</span><b>Rs. 300 / hour</b></div>}
             <a className="text-link" href={whatsappLink(`Hi Level X, please confirm the current ${item.name} rates and availability.`)} target="_blank" rel="noopener noreferrer">Confirm this rate <ArrowUpRight size={14} /></a>
