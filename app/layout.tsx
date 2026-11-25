@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./page-repair.css";
 import { Header, Footer } from "./components";
 import { SiteMotion } from "./site-motion";
 import { DEFAULT_DESCRIPTION, SITE_NAME, SITE_URL } from "./seo";
@@ -31,6 +32,11 @@ const businessSchema = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en-PK">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+      </head>
       <body>
         <a className="skip-link" href="#main-content">Skip to content</a>
         <SiteMotion><Header /><main id="main-content">{children}</main><Footer /></SiteMotion>
