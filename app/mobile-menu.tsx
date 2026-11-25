@@ -74,8 +74,17 @@ export function MobileMenu() {
             {nestedOpen ? (
               <div className="mobile-nested-panel">
                 <div className="mobile-nested-heading"><span>LEVEL X / EXPLORE</span><h2>Choose your game.</h2><p>Pick a gaming experience and explore its details, rates and availability.</p></div>
-                <div className="mobile-service-grid">
-                  {serviceLinks.map(({ href, label, note, Icon }) => <Link className="mobile-service-card" href={href} key={label} onClick={close}><span className="mobile-service-icon"><Icon size={20} /></span><span className="mobile-service-copy"><strong>{label}</strong><small>{note}</small></span><ArrowUpRight className="mobile-service-arrow" size={15} /></Link>)}
+                <div className="mobile-nested-columns">
+                  <section>
+                    <h3>Packages</h3>
+                    <Link href="/packages/#hourly-rates" onClick={close}><span><strong>Hourly rates</strong><small>Compare current session pricing</small></span><ArrowUpRight size={15}/></Link>
+                    <Link href="/packages/#account-passes" onClick={close}><span><strong>Prepaid passes</strong><small>Play-time bundles</small></span><ArrowUpRight size={15}/></Link>
+                    <Link href="/packages/" onClick={close}><span><strong>All packages</strong><small>View every available rate</small></span><ArrowUpRight size={15}/></Link>
+                  </section>
+                  <section>
+                    <h3>Services</h3>
+                    {serviceLinks.map(({ href, label, note, Icon }) => <Link href={href} key={label} onClick={close}><span><strong>{label}</strong><small>{note}</small></span><ArrowUpRight size={15}/></Link>)}
+                  </section>
                 </div>
               </div>
             ) : (
