@@ -7,7 +7,7 @@ import { SectionHeading, WhatsAppButton } from "./components";
 import { pageMetadata } from "./seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Gaming Arena, PC Gaming, PS5, Snooker & Table Tennis in Karachi",
+  title: "Gaming Arena in Karachi – PC, PS5 & Snooker | Level X",
   description: "Experience PC gaming, PS5, premium snooker, private table tennis, pool and VIP rooms at Level X Gaming Arena in Karachi. Explore rates and book on WhatsApp.",
   path: "/",
   keywords: ["gaming arena Karachi", "PC gaming Karachi", "PS5 gaming Karachi", "snooker club Karachi", "table tennis Karachi", "pool table Karachi", "VIP gaming rooms Karachi"],
@@ -53,8 +53,8 @@ export default function HomePage() {
           {activities.map((activity, index) => <article className="activity-card flagship-activity-card" key={activity.slug}>
             <div className="activity-image-wrap"><Image src={activity.image} alt={activity.name + " at Level X Gaming Arena"} width={720} height={520} /><span className="activity-number">0{index + 1}</span><span className="activity-image-action"><ArrowUpRight size={19} /></span></div>
             <div className="activity-body"><span className="tag">{activity.category}</span><h3>{activity.name}</h3><p>{activity.description}</p>
-              <div className="price-line"><strong>Rs. {activity.offer.toLocaleString("en-PK")}</strong><del>Rs. {activity.price.toLocaleString("en-PK")}</del><span className="muted">/ {activity.unit}</span></div>
-              <Link className="text-link" href={`/activities/${activity.slug}/`}>Explore activity <ArrowRight size={15} /></Link>
+              <div className="price-line"><strong>PKR {activity.offer.toLocaleString("en-PK")}</strong><del>PKR {activity.price.toLocaleString("en-PK")}</del><span className="muted">/ {activity.unit}</span></div>
+              <Link className="text-link" href={`/activities/${activity.slug}/`}>{`Explore ${activity.name}`} <ArrowRight size={15} /></Link>
             </div>
           </article>)}
           {additionalExperiences.map((item, index) => <article className="activity-card flagship-activity-card enquiry-card" key={item.name}>
@@ -77,18 +77,18 @@ export default function HomePage() {
         <div className="package-grid flagship-package-grid">{hourlyPackages.map((item, index) => <article className="price-card flagship-price-card" key={item.name}>
           <div className="package-card-image"><Image src={item.image} alt={item.name + " at Level X"} width={620} height={360} /><span className="package-image-label">0{index + 1} / PUBLISHED RATE</span></div>
           <div className="price-card-content"><span className="tag">{item.name}</span><h3>{item.name === "Private Table Tennis" ? "Private Table Tennis Room" : item.name}</h3>
-            <div className="price">{item.name === "Premium Snooker" ? <>Rs. 12<small> / minute</small></> : <>Rs. {item.offer.toLocaleString("en-PK")}<small> / {item.unit}</small></>}</div><p>{item.note}</p>
-            <div className="deal"><span>Regular rate</span><b>{item.name === "Premium Snooker" ? "Rs. 15 / minute" : `Rs. ${item.regular.toLocaleString("en-PK")}`}</b></div>
-            {item.monday && <div className="deal"><span>Monday Madness</span><b>{item.name === "Premium Snooker" ? "Rs. 8 / minute" : `Rs. ${item.monday.toLocaleString("en-PK")}`}</b></div>}
-            {("midday" in item) && <div className="deal"><span>PC Mid Day · 9 AM–5 PM</span><b>Rs. {item.midday} / hour</b></div>}
-            {item.name === "PS5" && <div className="deal"><span>Extra controller</span><b>Rs. 300 / hour</b></div>}
-            <a className="text-link" href={whatsappLink(`Hi Level X, please confirm the current ${item.name} rates and availability.`)} target="_blank" rel="noopener noreferrer">Confirm this rate <ArrowUpRight size={14} /></a>
+            <div className="price">{item.name === "Premium Snooker" ? <>PKR 12<small> / minute</small></> : <>PKR {item.offer.toLocaleString("en-PK")}<small> / {item.unit}</small></>}</div><p>{item.note}</p>
+            <div className="deal"><span>Regular rate</span><b>{item.name === "Premium Snooker" ? "PKR 15 / minute" : `PKR ${item.regular.toLocaleString("en-PK")}`}</b></div>
+            {item.monday && <div className="deal"><span>Monday Madness</span><b>{item.name === "Premium Snooker" ? "PKR 8 / minute" : `PKR ${item.monday.toLocaleString("en-PK")}`}</b></div>}
+            {("midday" in item) && <div className="deal"><span>PC Mid Day · 9 AM–5 PM</span><b>PKR {item.midday} / hour</b></div>}
+            {item.name === "PS5" && <div className="deal"><span>Extra controller</span><b>PKR 300 / hour</b></div>}
+            <a className="text-link" href={whatsappLink(`Hi Level X, please confirm the current ${item.name} rates and availability.`)} target="_blank" rel="noopener noreferrer">{`Confirm ${item.name} rate`} <ArrowUpRight size={14} /></a>
           </div>
         </article>)}</div>
         <div className="account-package-panel flagship-account-panel">
           <div className="account-panel-heading"><div className="section-heading account-heading"><span className="eyebrow">For regular players</span><h2>Top up your play time.</h2><p>Prepaid hour bundles for players who visit regularly. Accounts are activated at the arena counter.</p></div><span className="account-panel-mark">LX / PASS</span></div>
-          <div className="account-grid">{accountPackages.map((item, index) => <article className="account-card" key={item.name}><span>0{index + 1} / {item.hours}</span><strong>Rs. {item.price.toLocaleString("en-PK")}</strong><b>{item.name}</b><p className="muted">{item.description}</p><a className="text-link" href={whatsappLink(`Hi Level X, I am interested in the ${item.name} account package.`)} target="_blank" rel="noopener noreferrer">Enquire <ArrowUpRight size={14} /></a></article>)}</div>
-          <p className="account-fine-print">Account opening: Rs. 1,000 one-time. No online payment is collected through this website.</p>
+          <div className="account-grid">{accountPackages.map((item, index) => <article className="account-card" key={item.name}><span>0{index + 1} / {item.hours}</span><strong>PKR {item.price.toLocaleString("en-PK")}</strong><b>{item.name}</b><p className="muted">{item.description}</p><a className="text-link" href={whatsappLink(`Hi Level X, I am interested in the ${item.name} account package.`)} target="_blank" rel="noopener noreferrer">Enquire <ArrowUpRight size={14} /></a></article>)}</div>
+          <p className="account-fine-print">Account opening: PKR 1,000 one-time. No online payment is collected through this website.</p>
         </div>
         <div className="section-link"><Link className="button button-outline" href="/packages/">View all packages <ArrowRight size={16} /></Link></div>
       </div></section>
