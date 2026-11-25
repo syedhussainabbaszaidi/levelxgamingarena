@@ -110,6 +110,14 @@ export default function HomePage() {
         </div>
       </div></section>
 
+
+      <section className="food-preview-section">
+        <div className="container food-preview-grid">
+          <div className="food-preview-art"><Image src="/img/gallery/arcade.jpg" alt="The Level X gaming lounge" width={900} height={650}/><span>TAKE A BREAK / STAY IN THE GAME</span></div>
+          <div className="food-preview-copy"><span className="eyebrow">MORE THAN GAME TIME</span><h2>Good games.<br/><em>Good company.</em></h2><p>Make room for a refreshment between sessions. Ask the Level X team about the current food, drinks and combo selection before your visit.</p><Link className="button button-outline" href="/food-drinks/">Explore food & drinks <ArrowRight size={16}/></Link><small>Menu items, availability and prices are confirmed directly by the arena.</small></div>
+        </div>
+      </section>
+
       <section className="section alt gallery-section" id="gallery"><div className="container">
         <div className="section-heading-row"><SectionHeading eyebrow="Inside Level X" title="A look around the arena." copy="Take a look at the gaming setups and spaces at Level X." /><span className="section-index">04 <i>/ GALLERY</i></span></div>
         <div className="gallery-grid flagship-gallery-grid">{gallery.map((item, index) => <div className={`gallery-card gallery-card-${index + 1}`} key={item.src}><Image src={item.src} alt={item.title + " at Level X Gaming Arena"} width={700} height={480} /><span>{item.title}</span></div>)}</div>

@@ -1,8 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Clock3, Mail, MapPin, MessageCircle, Phone, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ChevronDown, Clock3, Mail, MapPin, MessageCircle, Phone, Sparkles } from "lucide-react";
 import { emailAddress, phoneDisplay, whatsappLink } from "./data";
 import { MobileMenu } from "./mobile-menu";
+
+const serviceLinks = [
+  { href: "/activities/pc-games/", label: "PC Gaming", note: "Competitive PC sessions" },
+  { href: "/activities/ps5/", label: "PlayStation 5", note: "Console gaming" },
+  { href: "/activities/premium-snooker-room/", label: "Premium Snooker", note: "Private snooker room" },
+  { href: "/activities/private-table-tennis-room/", label: "Table Tennis", note: "Private room sessions" },
+  { href: "/activities/", label: "All activities", note: "Explore the arena" },
+];
 
 export function Header() {
   return (
@@ -21,9 +29,24 @@ export function Header() {
           </Link>
           <nav className="desktop-nav" aria-label="Main navigation">
             <Link href="/">Home</Link>
-            <Link href="/#activities">Activities</Link>
-            <Link href="/packages/">Packages</Link>
-            <Link href="/#gallery">Gallery</Link>
+            <Link href="/activities/">Activities</Link>
+            <div className="nav-dropdown">
+              <Link href="/packages/" aria-haspopup="true">Packages <ChevronDown size={13} /></Link>
+              <div className="nav-dropdown-panel">
+                <span className="nav-dropdown-kicker">PLAY MORE / PAY SMART</span>
+                <Link href="/packages/#hourly-rates"><strong>Hourly rates</strong><small>Compare current session pricing</small></Link>
+                <Link href="/packages/#account-passes"><strong>Prepaid passes</strong><small>Play-time bundles</small></Link>
+              </div>
+            </div>
+            <div className="nav-dropdown">
+              <Link href="/activities/" aria-haspopup="true">Services <ChevronDown size={13} /></Link>
+              <div className="nav-dropdown-panel nav-dropdown-services">
+                <span className="nav-dropdown-kicker">FIND YOUR GAME</span>
+                {serviceLinks.map((item) => <Link href={item.href} key={item.href}><strong>{item.label}</strong><small>{item.note}</small></Link>)}
+              </div>
+            </div>
+            <Link href="/gallery/">Gallery</Link>
+            <Link href="/food-drinks/">Food & Drinks</Link>
             <Link href="/about-us/">About</Link>
             <Link href="/contact-us/">Contact</Link>
           </nav>
@@ -64,24 +87,27 @@ export function Footer() {
           <p className="footer-copy">Level X Gaming Arena in Karachi brings PC gaming, PlayStation 5, premium snooker, pool and private table tennis together. Open 24/7 for players, friends and groups.</p>
           <div className="footer-social-note"><span className="live-dot" /> Open 24 hours · Every day</div>
         </div>
-        <div>
-          <h4>Explore</h4>
-          <Link href="/#activities">All activities</Link>
+        <details className="footer-group footer-accordion" open>
+          <summary><h4>Explore</h4><ChevronDown size={15}/></summary>
+          <div className="footer-accordion-links">
+          <Link href="/activities/">All activities</Link>
           <Link href="/activities/pc-games/">PC gaming</Link>
           <Link href="/activities/ps5/">PlayStation 5</Link>
           <Link href="/activities/premium-snooker-room/">Premium snooker</Link>
           <Link href="/activities/private-table-tennis-room/">Private table tennis</Link>
-          <a href={whatsappLink("Hi Level X, please share current details and rates for the Pool Table.")} target="_blank" rel="noopener noreferrer">Pool table enquiry</a>
-          <a href={whatsappLink("Hi Level X, please share current details and rates for VIP Private Rooms.")} target="_blank" rel="noopener noreferrer">VIP private rooms</a>
-        </div>
-        <div>
-          <h4>Plan your visit</h4>
+          <Link href="/gallery/">Gallery</Link>
+          </div>
+        </details>
+        <details className="footer-group footer-accordion" open>
+          <summary><h4>Plan your visit</h4><ChevronDown size={15}/></summary>
+          <div className="footer-accordion-links">
           <Link href="/packages/">Packages & pricing</Link>
-          <Link href="/#gallery">Gallery</Link>
+          <Link href="/food-drinks/">Food & drinks</Link>
           <Link href="/about-us/">About Level X</Link>
           <Link href="/contact-us/">Contact & booking</Link>
           <a href={whatsappLink("Hi Level X, please share your location and directions.")} target="_blank" rel="noopener noreferrer">Get directions <ArrowUpRight size={13} /></a>
-        </div>
+          </div>
+        </details>
         <div className="footer-contact-column">
           <h4>Talk to our team</h4>
           <a href={whatsappLink("Hi Level X, I have an enquiry.")} target="_blank" rel="noopener noreferrer"><span className="footer-icon"><MessageCircle size={16} /></span><span><small>WhatsApp</small><strong>Chat with us</strong></span></a>

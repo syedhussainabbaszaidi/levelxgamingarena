@@ -1,0 +1,26 @@
+import type { Metadata } from "next";
+import Image from "next/image";
+import { ArrowUpRight, Coffee, Sandwich, CupSoda, Clock3 } from "lucide-react";
+import { PageIntro, WhatsAppButton } from "../components";
+import { whatsappLink } from "../data";
+import { pageMetadata } from "../seo";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Food & Drinks at Level X Gaming Arena",
+  description: "Ask the Level X Gaming Arena team in Karachi about current food, refreshments and combo availability during your gaming visit.",
+  path: "/food-drinks/",
+  keywords: ["gaming cafe food Karachi", "food and drinks Level X", "gaming arena refreshments Karachi"],
+});
+
+const menuGroups=[
+  {icon:Sandwich,title:"Burgers",copy:"Ask the team about the current burger selection and availability."},
+  {icon:Coffee,title:"Snacks",copy:"Check which quick bites and snacks are available during your visit."},
+  {icon:CupSoda,title:"Drinks",copy:"Ask about current cold drinks and refreshments."},
+  {icon:Clock3,title:"Combos",copy:"Ask whether any food-and-drink combos or special offers are running."},
+];
+
+export default function FoodDrinksPage(){return <>
+  <section className="food-page-hero"><div className="container food-page-hero-grid"><div><span className="eyebrow">LEVEL X / REFUEL BETWEEN ROUNDS</span><PageIntro eyebrow="Food & drinks" title="Keep the good times going." copy="Take a break between matches, catch up with your crew and ask the arena team what is on the menu today."/><div className="food-hero-note"><span className="live-dot"/>Menu and availability confirmed directly by the arena</div><WhatsAppButton message="Hi Level X, could you please share today's food and drinks menu, current prices and combo availability?" label="Ask for today's menu"/></div><div className="food-page-hero-image"><Image src="/img/gallery/arcade.jpg" alt="The Level X gaming lounge" width={1000} height={760} priority/><span>PLAY / PAUSE / REFUEL</span></div></div></section>
+  <section className="food-menu-section"><div className="container"><div className="food-menu-heading"><span className="eyebrow">01 / THE REFRESHMENT BREAK</span><h2>Something for <em>the in-between.</em></h2><p>Food categories below are enquiry prompts, not a confirmed or priced menu. Message the team for today's exact selection and rates.</p></div><div className="food-category-grid">{menuGroups.map(({icon:Icon,title,copy},index)=><article key={title}><span className="food-category-number">0{index+1}</span><span className="food-category-icon"><Icon size={25}/></span><small>MENU DETAILS ON REQUEST</small><h3>{title}</h3><p>{copy}</p><a href={whatsappLink(`Hi Level X, please share the current ${title.toLowerCase()} options and prices.`)} target="_blank" rel="noopener noreferrer">Ask about {title.toLowerCase()} <ArrowUpRight size={15}/></a></article>)}</div></div></section>
+  <section className="food-experience-section"><div className="container food-experience-grid"><div className="food-experience-image"><Image src="/img/gallery/esports-arena.jpg" alt="Level X Gaming Arena gaming floor" width={900} height={700}/></div><div><span className="eyebrow">02 / MAKE A SESSION OF IT</span><h2>Game together.<br/><em>Take a breather.</em></h2><p>Plan your gaming time and ask about refreshments before you arrive. Our team can confirm the available menu, current prices and any running combos.</p><WhatsAppButton message="Hi Level X, I am planning a visit. Please share gaming availability and today's food and drinks options." label="Plan your visit"/></div></div></section>
+</>;}
