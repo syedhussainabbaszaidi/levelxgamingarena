@@ -7,7 +7,7 @@ on:
 
 concurrency:
   group: deploy-static-production
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -183,7 +183,7 @@ jobs:
           bye
           LFTP
 
-          LFTP_PASSWORD="$FTP_PASSWORD" lftp --env-password -u "$FTP_USERNAME" "ftp://$FTP_HOST:$FTP_PORT" -e "set ftp:ssl-force yes; set ftp:ssl-protect-data yes; set ssl:verify-certificate yes; source $RUNNER_TEMP/deploy.lftp"
+          timeout --signal=TERM --kill-after=30s 15m env LFTP_PASSWORD="$FTP_PASSWORD" lftp --env-password -u "$FTP_USERNAME" "ftp://$FTP_HOST:$FTP_PORT" -e "set ftp:ssl-force yes; set ftp:ssl-protect-data yes; set ssl:verify-certificate yes; source $RUNNER_TEMP/deploy.lftp"
 
       - name: Verify live static website
         run: |
