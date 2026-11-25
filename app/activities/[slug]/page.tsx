@@ -49,9 +49,9 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
             <h2>{activity.name}</h2>
             <p>{activity.description}</p>
             <div className="detail-price">
-              <span className="muted">Opening offer</span>
-              <div><strong>Rs. {activity.offer.toLocaleString("en-PK")}</strong><span className="muted"> / {unitLabel}</span></div>
-              <del className="muted">Regular: Rs. {activity.price.toLocaleString("en-PK")} / {unitLabel}</del>
+              <span className="muted">Current price</span>
+              <div><strong>PKR {activity.offer.toLocaleString("en-PK")}</strong><span className="muted"> / {unitLabel}</span></div>
+              <del className="muted">Regular: PKR {activity.price.toLocaleString("en-PK")} / {unitLabel}</del>
             </div>
             <ul className="feature-list">
               {activity.features.map((feature) => <li key={feature}><CheckCircle2 size={17} />{feature}</li>)}
