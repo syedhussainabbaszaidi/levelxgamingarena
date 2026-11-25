@@ -88,7 +88,7 @@ export function Footer() {
           <Link href="/gallery/">Gallery</Link>
           </div>
         </details>
-        <details className="footer-group footer-accordion" open>
+        <details className="footer-group footer-accordion">
           <summary><h4>Plan your visit</h4><ChevronDown size={15}/></summary>
           <div className="footer-accordion-links">
           <Link href="/packages/">Packages & pricing</Link>
