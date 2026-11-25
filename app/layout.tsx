@@ -12,8 +12,8 @@ export const metadata: Metadata = {
   keywords: ["gaming arena Karachi", "PC gaming Karachi", "PS5 gaming Karachi", "snooker club Karachi", "table tennis Karachi", "gaming zone near me", "Level X Gaming Arena"],
   alternates: { canonical: "/" },
   icons: { icon: "/img/favicon.png" },
-  openGraph: { type: "website", locale: "en_PK", url: SITE_URL, siteName: SITE_NAME, title: "Level X Gaming Arena | Game On. Level Up.", description: DEFAULT_DESCRIPTION, images: [{ url: "/img/gallery/esports-arena.jpg", alt: "Level X Gaming Arena gaming floor" }] },
-  twitter: { card: "summary_large_image", title: "Level X Gaming Arena | Game On. Level Up.", description: DEFAULT_DESCRIPTION, images: ["/img/gallery/esports-arena.jpg"] },
+  openGraph: { type: "website", locale: "en_PK", url: SITE_URL, siteName: SITE_NAME, title: "Level X Gaming Arena | Game On. Level Up.", description: DEFAULT_DESCRIPTION, images: [{ url: "/img/site/arena.webp", alt: "Level X Gaming Arena gaming floor" }] },
+  twitter: { card: "summary_large_image", title: "Level X Gaming Arena | Game On. Level Up.", description: DEFAULT_DESCRIPTION, images: ["/img/site/arena.webp"] },
 };
 
 const businessSchema = {
