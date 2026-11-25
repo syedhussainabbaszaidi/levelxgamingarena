@@ -79,15 +79,15 @@ export function MobileMenu() {
                 <div className="mobile-nested-heading"><span>LEVEL X / EXPLORE</span><h2>Packages & services</h2><p>Choose a session or explore the games available at the arena.</p></div>
                 <div className="mobile-nested-columns">
                   <section><h3>Packages</h3>{packageLinks.map((item) => <Link href={item.href} key={item.href} onClick={close}><strong>{item.label}</strong><small>{item.note}</small></Link>)}</section>
-                  <section><h3>Services</h3>{serviceLinks.map((item) => <Link href={item.href} key={item.href} onClick={close}>{item.label}<ChevronRight size={14}/></Link>)}</section>
+                  <section><h3>Services</h3>{serviceLinks.map((item) => <Link href={item.href} key={item.href} onClick={close}>{item.label}</Link>)}</section>
                 </div>
               </div>
             ) : (
               <>
                 <nav className="mobile-nav" aria-label="Mobile navigation">
-                  {links.slice(0,2).map((item,index)=><Link className="mobile-nav-item" href={item.href} onClick={close} key={item.href}><span className="mobile-nav-number">0{index+1}</span><span className="mobile-nav-label"><strong>{item.label}</strong><small>{item.note}</small></span><ArrowUpRight size={18}/></Link>)}
+                  {links.slice(0,2).map((item,index)=><Link className="mobile-nav-item" href={item.href} onClick={close} key={item.href}><span className="mobile-nav-number">0{index+1}</span><span className="mobile-nav-label"><strong>{item.label}</strong><small>{item.note}</small></span></Link>)}
                   <button className="mobile-nav-item mobile-nav-parent" type="button" aria-expanded={nestedOpen} onClick={()=>setNestedOpen(true)}><span className="mobile-nav-number">03</span><span className="mobile-nav-label"><strong>Packages & services</strong><small>Rates, passes and gaming options</small></span><ChevronRight size={19}/></button>
-                  {links.slice(2).map((item,index)=><Link className="mobile-nav-item" href={item.href} onClick={close} key={item.href}><span className="mobile-nav-number">0{index+4}</span><span className="mobile-nav-label"><strong>{item.label}</strong><small>{item.note}</small></span><ArrowUpRight size={18}/></Link>)}
+                  {links.slice(2).map((item,index)=><Link className="mobile-nav-item" href={item.href} onClick={close} key={item.href}><span className="mobile-nav-number">0{index+4}</span><span className="mobile-nav-label"><strong>{item.label}</strong><small>{item.note}</small></span></Link>)}
                 </nav>
                 <div className="mobile-nav-bottom">
                   <a className="button button-primary" href={whatsappLink("Hi Level X, I would like to book a gaming session. Please share availability.")} target="_blank" rel="noopener noreferrer" onClick={close}><MessageCircle size={17}/> Book a session <ArrowUpRight size={15}/></a>
