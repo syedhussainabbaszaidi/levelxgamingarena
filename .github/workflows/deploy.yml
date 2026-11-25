@@ -36,14 +36,14 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p public/img/site
-          curl -fL --retry 3 --retry-delay 2 'https://images.pexels.com/photos/9072394/pexels-photo-9072394.jpeg?auto=compress&cs=tinysrgb&w=2400' -o "$RUNNER_TEMP/arena.jpg"
-          curl -fL --retry 3 --retry-delay 2 'https://images.pexels.com/photos/13071304/pexels-photo-13071304.jpeg?auto=compress&cs=tinysrgb&w=2400' -o "$RUNNER_TEMP/pc-setup.jpg"
-          curl -fL --retry 3 --retry-delay 2 'https://egw.news/uploads/news/1/17/1772067221455_1772067221455.webp' -o "$RUNNER_TEMP/pc-gaming.webp"
-          curl -fL --retry 3 --retry-delay 2 'https://cdn.hstatic.net/products/200000038580/lgps5_fb7b473f596b4ffdb03b2ac360ea1df6.jpg' -o "$RUNNER_TEMP/ps5.jpg"
-          curl -fL --retry 3 --retry-delay 2 'https://insure24-live.s3.amazonaws.com/images/uploads/snooker-club-insurance_VKSDMK3.jpg' -o "$RUNNER_TEMP/snooker.jpg"
-          curl -fL --retry 3 --retry-delay 2 'https://prtimes.jp/i/87397/1/ogp/d87397-1-9de9cfac4618fac36c94-1.jpg' -o "$RUNNER_TEMP/table-tennis.jpg"
-          curl -fL --retry 3 --retry-delay 2 'https://images.trvl-media.com/lodging/38000000/37270000/37268100/37268026/e57e45a7.jpg?impolicy=resizecrop&ra=fill&rh=575&rw=575' -o "$RUNNER_TEMP/pool.jpg"
-          curl -fL --retry 3 --retry-delay 2 'https://uts-workshop-ui.vercel.app/assets/img/private.jpg' -o "$RUNNER_TEMP/vip-room.jpg"
+          curl -fL --retry 3 --retry-delay 2 'https://images.pexels.com/photos/9072394/pexels-photo-9072394.jpeg?auto=compress&cs=tinysrgb&w=2400' -o "$RUNNER_TEMP/arena.jpg" || { echo '::warning::Arena photo source unavailable; using bundled gaming-arena fallback.'; cp public/img/gallery/esports-arena.jpg "$RUNNER_TEMP/arena.jpg"; }
+          curl -fL --retry 3 --retry-delay 2 'https://images.pexels.com/photos/13071304/pexels-photo-13071304.jpeg?auto=compress&cs=tinysrgb&w=2400' -o "$RUNNER_TEMP/pc-setup.jpg" || { echo '::warning::PC setup photo source unavailable; using bundled gaming-setup fallback.'; cp public/img/gallery/gaming-setup.jpg "$RUNNER_TEMP/pc-setup.jpg"; }
+          curl -fL --retry 3 --retry-delay 2 'https://egw.news/uploads/news/1/17/1772067221455_1772067221455.webp' -o "$RUNNER_TEMP/pc-gaming.webp" || { echo '::warning::PC gaming photo source unavailable; using bundled PC gaming fallback.'; cp public/img/activities/covers/pc-gaming.jpg "$RUNNER_TEMP/pc-gaming.webp"; }
+          curl -fL --retry 3 --retry-delay 2 'https://cdn.hstatic.net/products/200000038580/lgps5_fb7b473f596b4ffdb03b2ac360ea1df6.jpg' -o "$RUNNER_TEMP/ps5.jpg" || { echo '::warning::PS5 photo source unavailable; using bundled console image fallback.'; cp public/img/activities/covers/ps5.jpg "$RUNNER_TEMP/ps5.jpg"; }
+          curl -fL --retry 3 --retry-delay 2 'https://insure24-live.s3.amazonaws.com/images/uploads/snooker-club-insurance_VKSDMK3.jpg' -o "$RUNNER_TEMP/snooker.jpg" || { echo '::warning::Snooker photo source unavailable; using bundled snooker image fallback.'; cp public/img/activities/covers/snooker.jpg "$RUNNER_TEMP/snooker.jpg"; }
+          curl -fL --retry 3 --retry-delay 2 'https://prtimes.jp/i/87397/1/ogp/d87397-1-9de9cfac4618fac36c94-1.jpg' -o "$RUNNER_TEMP/table-tennis.jpg" || { echo '::warning::Table tennis photo source unavailable; using bundled table-tennis fallback.'; cp public/img/activities/covers/table-tennis.jpg "$RUNNER_TEMP/table-tennis.jpg"; }
+          curl -fL --retry 3 --retry-delay 2 'https://images.trvl-media.com/lodging/38000000/37270000/37268100/37268026/e57e45a7.jpg?impolicy=resizecrop&ra=fill&rh=575&rw=575' -o "$RUNNER_TEMP/pool.jpg" || { echo '::warning::Pool photo source unavailable; using bundled cue-sports fallback.'; cp public/img/activities/covers/snooker.jpg "$RUNNER_TEMP/pool.jpg"; }
+          curl -fL --retry 3 --retry-delay 2 'https://uts-workshop-ui.vercel.app/assets/img/private.jpg' -o "$RUNNER_TEMP/vip-room.jpg" || { echo '::warning::Private-room photo source unavailable; using bundled gaming-room fallback.'; cp public/img/gallery/gaming-setup.jpg "$RUNNER_TEMP/vip-room.jpg"; }
           python -m pip install --quiet --break-system-packages Pillow
           python - <<'PY'
           import os
