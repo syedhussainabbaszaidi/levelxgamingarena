@@ -11,6 +11,7 @@ const links = [
   { href: "/activities/", label: "Activities", note: "Every way to play" },
   { href: "/packages/", label: "Packages", note: "Rates and prepaid passes" },
   { href: "/gallery/", label: "Gallery", note: "Inside Level X" },
+  { href: "/gta-6/", label: "GTA VI", note: "Explore the GTA VI guide" },
   { href: "/food-drinks/", label: "Food & drinks", note: "Ask about today's menu" },
 ];
 
