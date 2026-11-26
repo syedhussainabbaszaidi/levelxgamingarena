@@ -7,7 +7,6 @@ import { MobileMenu } from "./mobile-menu";
 export function Header() {
   return (
     <>
-      <div className="announcement-bar"><div className="container announcement-inner"><span><Sparkles size={14} /> Karachi · Open 24 hours, every day</span></div></div>
       <header className="site-header">
         <div className="container nav-wrap">
           <Link href="/" className="brand" aria-label="Level X Gaming Arena home">
