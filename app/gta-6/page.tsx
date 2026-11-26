@@ -50,7 +50,6 @@ export default function GTA6Page() {
         </div>
         <div className="gta-hero-shade" />
         <div className="container gta-hero-content">
-          <span className="eyebrow"><span className="gta-live-dot" /> ROCKSTAR GAMES / NOW AVAILABLE</span>
           <p className="gta-kicker">WELCOME TO LEONIDA</p>
           <h1>GRAND THEFT<br /><em>AUTO VI</em></h1>
           <p className="gta-hero-copy">The wait is over. Step into a modern-day Vice City and the wider state of Leonida in Rockstar Games' latest open-world crime saga.</p>
