@@ -101,7 +101,7 @@ export function MobileMenu() {
             </div>
             {nestedOpen ? (
               <div className="mobile-nested-panel" ref={nestedPanel}>
-                <div className="mobile-nested-heading"><span>LEVEL X / EXPLORE</span><h2>Choose your game.</h2><p>Pick a gaming experience and explore its details, rates and availability.</p></div>
+                
                 <div className="mobile-nested-columns">
                   <section className="mobile-services-panel">
                     <h3><Sparkles size={15}/> Services</h3>
@@ -119,7 +119,7 @@ export function MobileMenu() {
                   {links.slice(2).map((item,index)=><Link className="mobile-nav-item" href={item.href} onClick={close} key={item.href}><span className="mobile-nav-number">0{index+5}</span><span className="mobile-nav-label"><strong>{item.label}</strong><small>{item.note}</small></span></Link>)}
                 </nav>
                 <div className="mobile-nav-bottom">
-                  <a className="button button-primary" href={whatsappLink("Hi Level X, I would like to book a gaming session. Please share availability.")} target="_blank" rel="noopener noreferrer" onClick={close}><MessageCircle size={17}/> Book a session <ArrowUpRight size={15}/></a>
+                  <a className="button button-primary" href={whatsappLink("Hi Level X, I would like to book a gaming session. Please share availability.")} target="_blank" rel="noopener noreferrer" onClick={close}><MessageCircle size={17}/> <ArrowUpRight size={15}/></a>
                   <span>Open 24 hours · Karachi</span>
                 </div>
               </>
