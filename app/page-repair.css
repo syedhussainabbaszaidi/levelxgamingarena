@@ -1599,3 +1599,124 @@ main section{min-width:0}
   .mobile-nav-panel{padding-inline:17px!important}
   .mobile-service-card{min-height:148px!important}
 }
+
+
+/* Site-wide hero/banner clearance: keep every page intro comfortably below the floating header */
+.flagship-hero,
+.activities-editorial-hero,
+.about-editorial-hero,
+.contact-editorial-hero,
+.packages-hero,
+.food-page-hero,
+.gallery-page-intro,
+.gallery-page-hero,
+.activities-landing-hero,
+.page-hero.gta-hero{
+  padding-top:clamp(136px,12vw,166px)!important;
+}
+.activity-detail-hero-content{
+  padding-top:clamp(138px,12vw,166px)!important;
+}
+.flagship-hero .hero-kicker,
+.activities-editorial-copy>.eyebrow,
+.about-editorial-copy>.eyebrow,
+.contact-editorial-copy>.eyebrow,
+.packages-hero-copy>.eyebrow,
+.food-page-hero-grid>div:first-child>.eyebrow,
+.gallery-page-intro .eyebrow,
+.gallery-page-hero .eyebrow,
+.activity-hero-copy>.eyebrow,
+.gta-hero-content>.eyebrow{
+  margin-bottom:clamp(18px,2vw,26px)!important;
+}
+.flagship-hero .hero-kicker{margin-top:0!important}
+.flagship-hero .hero-copy,
+.activities-hero-description,
+.about-hero-description,
+.contact-hero-description,
+.food-page-hero-grid .page-intro p,
+.packages-hero-copy .page-intro p,
+.gallery-page-intro p,
+.gallery-page-hero .page-intro p,
+.activity-hero-copy>p,
+.gta-hero-copy{
+  display:block!important;
+  max-width: min(100%, 620px)!important;
+  margin-top:clamp(20px,2.2vw,28px)!important;
+  margin-bottom:0!important;
+  padding-bottom:3px!important;
+  line-height:1.9!important;
+  overflow:visible!important;
+  overflow-wrap:break-word!important;
+}
+.flagship-hero .hero-actions,
+.activities-hero-actions,
+.about-hero-actions,
+.contact-hero-actions,
+.packages-hero-actions{
+  margin-top:clamp(26px,3vw,36px)!important;
+}
+@media(max-width:760px){
+  .flagship-hero,
+  .activities-editorial-hero,
+  .about-editorial-hero,
+  .contact-editorial-hero,
+  .packages-hero,
+  .food-page-hero,
+  .gallery-page-intro,
+  .gallery-page-hero,
+  .activities-landing-hero,
+  .page-hero.gta-hero{
+    padding-top:112px!important;
+    padding-bottom:58px!important;
+  }
+  .activity-detail-hero-content{
+    padding-top:116px!important;
+    padding-bottom:82px!important;
+  }
+  .flagship-hero .hero-kicker,
+  .activities-editorial-copy>.eyebrow,
+  .about-editorial-copy>.eyebrow,
+  .contact-editorial-copy>.eyebrow,
+  .packages-hero-copy>.eyebrow,
+  .food-page-hero-grid>div:first-child>.eyebrow,
+  .gallery-page-intro .eyebrow,
+  .gallery-page-hero .eyebrow,
+  .activity-hero-copy>.eyebrow,
+  .gta-hero-content>.eyebrow{
+    margin-bottom:18px!important;
+  }
+  .flagship-hero .hero-copy,
+  .activities-hero-description,
+  .about-hero-description,
+  .contact-hero-description,
+  .food-page-hero-grid .page-intro p,
+  .packages-hero-copy .page-intro p,
+  .gallery-page-intro p,
+  .gallery-page-hero .page-intro p,
+  .activity-hero-copy>p,
+  .gta-hero-copy{
+    margin-top:19px!important;
+    padding-bottom:5px!important;
+    font-size:14px!important;
+    line-height:1.85!important;
+  }
+  .flagship-hero .hero-actions,
+  .activities-hero-actions,
+  .about-hero-actions,
+  .contact-hero-actions,
+  .packages-hero-actions{margin-top:25px!important}
+}
+@media(max-width:420px){
+  .flagship-hero,
+  .activities-editorial-hero,
+  .about-editorial-hero,
+  .contact-editorial-hero,
+  .packages-hero,
+  .food-page-hero,
+  .gallery-page-intro,
+  .gallery-page-hero,
+  .activities-landing-hero,
+  .page-hero.gta-hero{padding-top:104px!important}
+  .activity-detail-hero-content{padding-top:108px!important}
+}
