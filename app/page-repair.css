@@ -1145,7 +1145,7 @@ main section{min-width:0}
 
 /* Packages page: keep cards in normal document flow while scrolling.
    Their previous per-card reveal and grid stagger transforms competed. */
-.packages-rate-section,.account-pass-section,.packages-booking-section{position:relative;overflow:clip}
+.packages-rate-section,.account-pass-section,.packages-booking-section{position:relative}
 .premium-package-grid,.premium-account-grid{transform:none!important}
 .premium-price-card,.premium-account-card{opacity:1;visibility:visible}
 .premium-price-card:hover{transform:translateY(-5px)!important}
