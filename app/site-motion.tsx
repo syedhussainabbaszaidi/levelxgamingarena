@@ -139,7 +139,6 @@ export function SiteMotion({ children }: { children: ReactNode }) {
         ".package-grid",
         ".account-grid",
         ".feature-grid",
-        ".gallery-grid",
         ".game-title-grid",
         ".quick-highlights-grid",
         ".about-lineup-grid",
