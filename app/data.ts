@@ -71,7 +71,7 @@ export const additionalExperiences = [
 ] as const;
 
 export const hourlyPackages = [
-  { name: "PC Gaming", regular: 200, offer: 200, unit: "per hour", image: "/img/site/pc-gaming.webp", note: "AMD Ryzen 5 5600, GeForce RTX 2060 Super and 260 Hz gaming display. X-Madness: PKR 100/hour, Monday–Thursday, 9 AM–5 PM." },
+  { name: "PC Gaming", regular: 200, offer: 200, unit: "per hour", image: "/img/site/pc-gaming.webp", note: "AMD Ryzen 5 5600, GeForce RTX 2060 Super and 260 Hz gaming display." },
   { name: "PS5", regular: 700, offer: 700, unit: "per hour", image: "/img/site/ps5.webp", note: "Two controllers included." },
   { name: "Premium Snooker", regular: 12, offer: 12, unit: "per minute", image: "/img/site/snooker.webp", note: "Billed by the minute." },
   { name: "Private Table Tennis", regular: 600, offer: 600, unit: "per hour", image: "/img/site/table-tennis.webp", note: "Private room booking. Bats and balls included." },
