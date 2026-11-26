@@ -10,8 +10,8 @@ const launchNews = "https://www.rockstargames.com/newswire/article/39akk424a9oo5
 const extendedLook = "https://www.rockstargames.com/newswire/article/9k2kaa1o3297k9/grand-theft-auto-vi-an-extended-look";
 
 export const metadata: Metadata = pageMetadata({
-  title: "GTA 6 (Grand Theft Auto VI) – Release, Platforms & Leonida Guide",
-  description: "Grand Theft Auto VI is out now. Explore Rockstar-confirmed release details, PS5 and Xbox platforms, Jason and Lucia, Vice City and the state of Leonida.",
+  title: "GTA 6 Guide – Vice City, Leonida, Characters & Screenshots | Level X",
+  description: "Explore our GTA 6 guide with official screenshots, Vice City and Leonida locations, Jason and Lucia, launch details and PS5 and Xbox platform information.",
   path: "/gta-6/",
   keywords: ["GTA 6", "GTA VI", "Grand Theft Auto VI", "GTA 6 release date", "GTA 6 platforms", "GTA 6 Vice City", "Leonida", "GTA 6 characters", "GTA 6 screenshots", "GTA 6 gameplay", "GTA 6 story", "Jason Duval", "Lucia Caminos", "GTA VI map", "Vice City map", "GTA 6 PS5", "GTA 6 Xbox Series X"],
 });
@@ -115,16 +115,28 @@ export default function GTA6Page() {
         </div>
       </section>
 
+      <section className="gta-game-guide-section">
+        <div className="container">
+          <div className="gta-section-heading"><span className="eyebrow">05 / YOUR GTA VI FIELD GUIDE</span><h2>More to discover across <em>Leonida.</em></h2><p>Whether you're searching for GTA 6 gameplay information, the Grand Theft Auto VI story, or a closer look at Vice City, start with the official details and media collected in this guide.</p></div>
+          <div className="gta-guide-cards">
+            <article><span>01 / OPEN WORLD</span><h3>Vice City and beyond</h3><p>GTA VI returns to Vice City in the fictional state of Leonida. The wider setting gives this Grand Theft Auto 6 guide more to explore than the city skyline alone, from coastal views to different communities and landscapes shown in Rockstar's official screenshots.</p></article>
+            <article><span>02 / STORY &amp; CHARACTERS</span><h3>Jason and Lucia's story</h3><p>At the centre of the GTA 6 story are Jason Duval and Lucia Caminos. After an easy score goes wrong, they find themselves caught in a criminal conspiracy and forced to rely on one another. Their partnership is a key part of Rockstar's official story introduction.</p></article>
+            <article><span>03 / PLATFORMS</span><h3>PlayStation 5 and Xbox</h3><p>Rockstar's current platform information lists Grand Theft Auto VI for PlayStation 5 and Xbox Series X|S. Check the official GTA VI website for regional store availability, editions, platform updates and any future announcements.</p></article>
+          </div>
+          <p className="gta-source-note">This independent GTA 6 information page is not affiliated with or endorsed by Rockstar Games. Game details can change; refer to Rockstar for the latest official information.</p>
+        </div>
+      </section>
+
       <section className="gta-trailer-section">
         <div className="container gta-trailer-panel">
-          <div><span className="eyebrow">05 / OFFICIAL VIDEO</span><h2>Watch the <em>launch trailer.</em></h2><p>Watch official Grand Theft Auto VI videos, including the launch trailer and extended look, through Rockstar's own channels.</p></div>
+          <div><span className="eyebrow">06 / OFFICIAL VIDEO</span><h2>Watch the <em>launch trailer.</em></h2><p>Watch official Grand Theft Auto VI videos, including the launch trailer and extended look, through Rockstar's own channels.</p></div>
           <div className="gta-trailer-actions"><a className="button button-primary" href={officialSite} target="_blank" rel="noopener noreferrer"><MonitorPlay size={17} /> Watch official videos <ArrowUpRight size={15} /></a><a className="gta-inline-link" href={extendedLook} target="_blank" rel="noopener noreferrer">Read about the extended look <ArrowUpRight size={15} /></a></div>
         </div>
       </section>
 
       <section className="gta-updates-section">
         <div className="container">
-          <div className="gta-section-heading"><span className="eyebrow">06 / ROCKSTAR NEWSWIRE</span><h2>Latest official <em>updates.</em></h2></div>
+          <div className="gta-section-heading"><span className="eyebrow">07 / ROCKSTAR NEWSWIRE</span><h2>Latest official <em>updates.</em></h2></div>
           <div className="gta-update-list">
             <a href={launchNews} target="_blank" rel="noopener noreferrer"><span>19 NOV 2026</span><strong>Grand Theft Auto VI is now available worldwide</strong><ArrowUpRight size={18} /></a>
             <a href={extendedLook} target="_blank" rel="noopener noreferrer"><span>27 AUG 2026</span><strong>Grand Theft Auto VI: An Extended Look</strong><ArrowUpRight size={18} /></a>
@@ -135,7 +147,7 @@ export default function GTA6Page() {
 
       <section className="gta-faq-section">
         <div className="container gta-faq-grid">
-          <div><span className="eyebrow">07 / QUICK ANSWERS</span><h2>GTA VI <em>questions.</em></h2><p>Key facts based on Rockstar's official information available at the time this page was last reviewed.</p></div>
+          <div><span className="eyebrow">08 / QUICK ANSWERS</span><h2>GTA VI <em>questions.</em></h2><p>Key facts based on Rockstar's official information available at the time this page was last reviewed.</p></div>
           <div className="gta-faq-list">{faqs.map((item) => <details key={item.question}><summary>{item.question}<span>+</span></summary><p>{item.answer}</p></details>)}</div>
         </div>
       </section>
