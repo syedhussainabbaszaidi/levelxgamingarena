@@ -33,7 +33,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
   const activity = activities.find((item) => item.slug === slug);
   if (!activity) notFound();
 
-  const unitLabel = activity.unit === "minute" ? "per minute" : "per hour";
+  const unitLabel = activity.unit === "minute" ? "minute" : "hour";
   const activityNumber = String(activities.findIndex((item) => item.slug === activity.slug) + 1).padStart(2, "0");
   const nextActivity = activities[(activities.findIndex((item) => item.slug === activity.slug) + 1) % activities.length];
 
