@@ -9,9 +9,9 @@ import gsap from "gsap";
 const links = [
   { href: "/", label: "Home", note: "Back to the arena" },
   { href: "/activities/", label: "Activities", note: "Every way to play" },
+  { href: "/packages/", label: "Packages", note: "Rates and prepaid passes" },
   { href: "/gallery/", label: "Gallery", note: "Inside Level X" },
   { href: "/food-drinks/", label: "Food & drinks", note: "Ask about today's menu" },
-  { href: "/packages/", label: "Packages", note: "Rates and prepaid passes" },
 ];
 
 const serviceLinks = [
