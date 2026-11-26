@@ -87,9 +87,9 @@ export default function HomePage() {
           </div>
         </article>)}</div>
         <div className="account-package-panel flagship-account-panel">
-          <div className="account-panel-heading"><div className="section-heading account-heading"><span className="eyebrow">For regular players</span><h2>Top up your play time.</h2><p>Prepaid hour bundles for players who visit regularly. Accounts are activated at the arena counter.</p></div><span className="account-panel-mark">LX / PASS</span></div>
+          <div className="account-panel-heading"><div className="section-heading account-heading"><span className="eyebrow">PC Gaming membership</span><h2>Top up your play time.</h2><p>PC Gaming membership bundles with free account opening.</p></div><span className="account-panel-mark">LX / PASS</span></div>
           <div className="account-grid">{accountPackages.map((item, index) => <article className="account-card" key={item.name}><span>0{index + 1} / {item.hours}</span><strong>PKR {item.price.toLocaleString("en-PK")}</strong><b>{item.name}</b><p className="muted">{item.description}</p><a className="text-link" href={whatsappLink(`Hi Level X, I am interested in the ${item.name} account package.`)} target="_blank" rel="noopener noreferrer">Enquire <ArrowUpRight size={14} /></a></article>)}</div>
-          <p className="account-fine-print">Account opening: PKR 1,000 one-time. No online payment is collected through this website.</p>
+          <p className="account-fine-print">Free account opening. Membership packages are for PC Gaming only. Payment is made at the arena counter.</p>
         </div>
         <div className="section-link"><Link className="button button-outline" href="/packages/">View all packages <ArrowRight size={16} /></Link></div>
       </div></section>
