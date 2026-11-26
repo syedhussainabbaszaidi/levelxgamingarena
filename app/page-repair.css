@@ -1720,3 +1720,11 @@ main section{min-width:0}
   .page-hero.gta-hero{padding-top:104px!important}
   .activity-detail-hero-content{padding-top:108px!important}
 }
+
+
+/* Latest cafe menu price rows */
+.food-menu-items{display:grid;gap:0;margin:18px 0 20px;border-top:1px solid rgba(255,255,255,.12)}
+.food-menu-item{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.1);font-size:13px;line-height:1.45}
+.food-menu-item span{color:#e8eaf0}
+.food-menu-item strong{flex:0 0 auto;color:#ff536b;font-size:13px;font-weight:800;white-space:nowrap}
+.food-category-grid article{height:100%}
