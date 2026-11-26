@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { ArrowUpRight, Coffee, Sandwich, CupSoda, Clock3 } from "lucide-react";
+import { ArrowUpRight, Coffee, Sandwich, CupSoda } from "lucide-react";
 import { PageIntro, WhatsAppButton } from "../components";
 import { cafeMenu, whatsappLink } from "../data";
 import { pageMetadata } from "../seo";
 
 export const metadata: Metadata = pageMetadata({
   title: "Food & Drinks at Level X Gaming Arena",
-  description: "Ask the Level X Gaming Arena team in Karachi about current food, refreshments and combo availability during your gaming visit.",
+  description: "Explore the latest listed cafe menu prices for burgers, sandwiches, snacks and drinks at Level X Gaming Arena in Karachi.",
   path: "/food-drinks/",
   keywords: ["gaming cafe food Karachi", "food and drinks Level X", "gaming arena refreshments Karachi"],
 });
