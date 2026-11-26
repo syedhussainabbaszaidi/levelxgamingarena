@@ -1520,3 +1520,38 @@ main section{min-width:0}
     border-color:rgba(255,75,94,.34)!important;
   }
 }
+
+
+/* Header dropdown spacing and compact height */
+.site-header .desktop-nav{gap:clamp(14px,1.55vw,22px)!important}
+.site-header .nav-dropdown{position:relative;display:flex;align-items:center;height:100%}
+.site-header .nav-dropdown-services{width:auto!important}
+.site-header .nav-dropdown-panel{
+  top:calc(100% - 1px)!important;
+  margin-top:0!important;
+  padding:8px!important;
+  min-height:0!important;
+  transform:translateY(0)!important;
+}
+.site-header .nav-dropdown-panel:before{
+  content:"";
+  position:absolute;
+  left:0;right:0;top:-12px;height:12px;
+}
+.site-header .nav-wrap{height:66px!important}
+.site-header .brand img{width:clamp(108px,10vw,136px)!important}
+.site-header .desktop-nav>a,
+.site-header .desktop-nav .nav-dropdown>a{padding:8px 0!important}
+.site-header .nav-cta{min-height:40px!important}
+@media(max-width:1050px){
+  .site-header .nav-wrap{height:62px!important}
+}
+@media(max-width:760px){
+  .site-header .nav-wrap{height:60px!important}
+}
+@media(max-width:420px){
+  .site-header .nav-wrap{height:56px!important}
+}
+
+/* No announcement strip above the navigation */
+.announcement-bar{display:none!important}
