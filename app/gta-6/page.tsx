@@ -13,7 +13,7 @@ export const metadata: Metadata = pageMetadata({
   title: "GTA 6 (Grand Theft Auto VI) – Release, Platforms & Leonida Guide",
   description: "Grand Theft Auto VI is out now. Explore Rockstar-confirmed release details, PS5 and Xbox platforms, Jason and Lucia, Vice City and the state of Leonida.",
   path: "/gta-6/",
-  keywords: ["GTA 6", "GTA VI", "Grand Theft Auto VI", "GTA 6 release date", "GTA 6 platforms", "GTA 6 Vice City", "Leonida", "GTA 6 characters"],
+  keywords: ["GTA 6", "GTA VI", "Grand Theft Auto VI", "GTA 6 release date", "GTA 6 platforms", "GTA 6 Vice City", "Leonida", "GTA 6 characters", "GTA 6 screenshots", "GTA 6 gameplay", "GTA 6 story", "Jason Duval", "Lucia Caminos", "GTA VI map", "Vice City map", "GTA 6 PS5", "GTA 6 Xbox Series X"],
 });
 
 const faqs = [
@@ -91,28 +91,43 @@ export default function GTA6Page() {
 
       <section className="gta-characters-section">
         <div className="container">
-          <div className="gta-section-heading"><span className="eyebrow">03 / THE CENTRAL DUO</span><h2>Meet Jason <em>&amp; Lucia.</em></h2><p>Rockstar's official introduction places the pair at the centre of a story about trust, survival and a score that spirals out of control.</p></div>
+          <div className="gta-section-heading"><span className="eyebrow">03 / THE CENTRAL DUO</span><h2>Meet Jason <em>&amp; Lucia.</em></h2><p>Grand Theft Auto VI centres on Jason Duval and Lucia Caminos. Their partnership is tested after an easy score goes wrong, pulling them into a criminal conspiracy across Leonida. Their story brings the themes of loyalty, risk and survival into the heart of the GTA 6 experience.</p></div>
           <div className="gta-character-grid">
-            <article className="gta-character-card gta-jason"><span>01 / CHARACTER</span><h3>Jason</h3><p>Jason and Lucia's plans are tested when an easy score goes wrong, drawing them into a conspiracy across Leonida.</p></article>
-            <article className="gta-character-card gta-lucia"><span>02 / CHARACTER</span><h3>Lucia</h3><p>Lucia is the other half of the central partnership. Rockstar's official story summary places their reliance on each other at the heart of the journey.</p></article>
+            <article className="gta-character-card gta-jason"><Image src="https://www.rockstargames.com/VI/_next/static/media/Jason_Duval_11.019l5gj6~0~0v.jpg?akim=1&imdensity=1&imwidth=1600" alt="Jason Duval official GTA VI character screenshot" fill sizes="(max-width: 640px) 100vw, 50vw" unoptimized /><div className="gta-character-overlay"><span>01 / CHARACTER</span><h3>Jason Duval</h3><p>One half of GTA VI's central duo, drawn into a dangerous conspiracy stretching across Leonida.</p></div></article>
+            <article className="gta-character-card gta-lucia"><Image src="https://www.rockstargames.com/VI/_next/static/media/Lucia_Caminos_11.0x9q2g8m7p4k2.jpg?akim=1&imdensity=1&imwidth=1600" alt="Lucia Caminos official GTA VI character screenshot" fill sizes="(max-width: 640px) 100vw, 50vw" unoptimized /><div className="gta-character-overlay"><span>02 / CHARACTER</span><h3>Lucia Caminos</h3><p>Lucia's journey with Jason puts trust and survival at the centre of the story.</p></div></article>
           </div>
-          <p className="gta-source-note">Character descriptions are intentionally limited to Rockstar's published story introduction.</p>
+          <p className="gta-source-note">Character details and imagery are based on Rockstar Games' official GTA VI media.</p>
+        </div>
+      </section>
+
+      <section className="gta-gallery-section">
+        <div className="container">
+          <div className="gta-section-heading"><span className="eyebrow">04 / OFFICIAL SCREENSHOTS</span><h2>Take a look around <em>Leonida.</em></h2><p>Explore official Grand Theft Auto VI screenshots featuring Vice City streets, the Leonida Keys, coastal scenery and the people who shape this new chapter. These GTA 6 images are published in Rockstar Games' media gallery.</p></div>
+          <div className="gta-gallery-grid">
+            <a href="https://www.rockstargames.com/VI/media/screenshots" target="_blank" rel="noopener noreferrer"><Image src="https://www.rockstargames.com/VI/_next/static/media/Vice_City_13.0iq8ff474tsdx.jpg?akim=1&imdensity=1&imwidth=1600" alt="GTA VI official Vice City screenshot" width={900} height={620} unoptimized /><span>VICE CITY / THE CITY NEVER SLEEPS</span></a>
+            <a href="https://www.rockstargames.com/VI/media/screenshots" target="_blank" rel="noopener noreferrer"><Image src="https://www.rockstargames.com/VI/_next/static/media/Jason_and_Lucia_01.0naeahss9-1x6.jpg?akim=1&imdensity=1&imwidth=1600" alt="Jason and Lucia in Grand Theft Auto VI" width={900} height={620} unoptimized /><span>JASON &amp; LUCIA / THE CENTRAL DUO</span></a>
+            <a href="https://www.rockstargames.com/VI/media/screenshots" target="_blank" rel="noopener noreferrer"><Image src="https://www.rockstargames.com/VI/_next/static/media/Vice_City_10.0f1q-xa_4q8r2.jpg?akim=1&imdensity=1&imwidth=1600" alt="Vice City at night in GTA VI" width={900} height={620} unoptimized /><span>VICE CITY / NEON NIGHTS</span></a>
+            <a href="https://www.rockstargames.com/VI/media/screenshots" target="_blank" rel="noopener noreferrer"><Image src="https://www.rockstargames.com/VI/_next/static/media/Leonida_Keys_07.0x9q2g8m7p4k2.jpg?akim=1&imdensity=1&imwidth=1600" alt="Leonida Keys landscape in GTA VI" width={900} height={620} unoptimized /><span>LEONIDA KEYS / COASTAL ROADS</span></a>
+            <a href="https://www.rockstargames.com/VI/media/screenshots" target="_blank" rel="noopener noreferrer"><Image src="https://www.rockstargames.com/VI/_next/static/media/Port_Gellhorn_07.0x9q2g8m7p4k2.jpg?akim=1&imdensity=1&imwidth=1600" alt="Port Gellhorn location screenshot from GTA VI" width={900} height={620} unoptimized /><span>PORT GELLHORN / BEYOND THE CITY</span></a>
+            <a href="https://www.rockstargames.com/VI/media/screenshots" target="_blank" rel="noopener noreferrer"><Image src="https://www.rockstargames.com/VI/_next/static/media/Grassrivers_07.0x9q2g8m7p4k2.jpg?akim=1&imdensity=1&imwidth=1600" alt="Grassrivers landscape from Grand Theft Auto VI" width={900} height={620} unoptimized /><span>GRASSRIVERS / WILDER LEONIDA</span></a>
+          </div>
+          <a className="gta-inline-link gta-gallery-more" href="https://www.rockstargames.com/VI/media/screenshots" target="_blank" rel="noopener noreferrer">View all official GTA VI screenshots <ArrowUpRight size={15} /></a>
         </div>
       </section>
 
       <section className="gta-trailer-section">
         <div className="container gta-trailer-panel">
-          <div><span className="eyebrow">04 / OFFICIAL VIDEO</span><h2>Watch the <em>launch trailer.</em></h2><p>Watch official Grand Theft Auto VI videos, including the launch trailer and extended look, through Rockstar's own channels.</p></div>
+          <div><span className="eyebrow">05 / OFFICIAL VIDEO</span><h2>Watch the <em>launch trailer.</em></h2><p>Watch official Grand Theft Auto VI videos, including the launch trailer and extended look, through Rockstar's own channels.</p></div>
           <div className="gta-trailer-actions"><a className="button button-primary" href={officialSite} target="_blank" rel="noopener noreferrer"><MonitorPlay size={17} /> Watch official videos <ArrowUpRight size={15} /></a><a className="gta-inline-link" href={extendedLook} target="_blank" rel="noopener noreferrer">Read about the extended look <ArrowUpRight size={15} /></a></div>
         </div>
       </section>
 
       <section className="gta-updates-section">
         <div className="container">
-          <div className="gta-section-heading"><span className="eyebrow">05 / ROCKSTAR NEWSWIRE</span><h2>Latest official <em>updates.</em></h2></div>
+          <div className="gta-section-heading"><span className="eyebrow">06 / ROCKSTAR NEWSWIRE</span><h2>Latest official <em>updates.</em></h2></div>
           <div className="gta-update-list">
             <a href={launchNews} target="_blank" rel="noopener noreferrer"><span>19 NOV 2026</span><strong>Grand Theft Auto VI is now available worldwide</strong><ArrowUpRight size={18} /></a>
-            <a href={extendedLook} target="_blank" rel="noopener noreferrer"><span>06 AUG 2026</span><strong>Grand Theft Auto VI: An Extended Look</strong><ArrowUpRight size={18} /></a>
+            <a href={extendedLook} target="_blank" rel="noopener noreferrer"><span>27 AUG 2026</span><strong>Grand Theft Auto VI: An Extended Look</strong><ArrowUpRight size={18} /></a>
             <a href="https://www.rockstargames.com/newswire?tag=vi" target="_blank" rel="noopener noreferrer"><span>ROCKSTAR NEWSWIRE</span><strong>Browse all GTA VI announcements and updates</strong><ArrowUpRight size={18} /></a>
           </div>
         </div>
@@ -120,7 +135,7 @@ export default function GTA6Page() {
 
       <section className="gta-faq-section">
         <div className="container gta-faq-grid">
-          <div><span className="eyebrow">06 / QUICK ANSWERS</span><h2>GTA VI <em>questions.</em></h2><p>Key facts based on Rockstar's official information available at the time this page was last reviewed.</p></div>
+          <div><span className="eyebrow">07 / QUICK ANSWERS</span><h2>GTA VI <em>questions.</em></h2><p>Key facts based on Rockstar's official information available at the time this page was last reviewed.</p></div>
           <div className="gta-faq-list">{faqs.map((item) => <details key={item.question}><summary>{item.question}<span>+</span></summary><p>{item.answer}</p></details>)}</div>
         </div>
       </section>
