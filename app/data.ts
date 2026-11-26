@@ -25,7 +25,7 @@ export const activities = [
     image: "/img/site/ps5.webp",
     description: "Enjoy PlayStation 5 gaming on a big screen with two controllers included. Bring a friend, choose your game and settle in for a competitive or casual session.",
     capacity: "2 players",
-    features: ["PlayStation 5 console", "Two controllers included", "Current rate: PKR 700/hour"],
+    features: ["PlayStation 5 console", "Big-screen gaming display", "Two controllers included", "Current rate: PKR 700/hour"],
   },
   {
     slug: "premium-snooker-room",
@@ -73,7 +73,7 @@ export const additionalExperiences = [
 export const hourlyPackages = [
   { name: "PC Gaming", regular: 200, offer: 200, unit: "hour", image: "/img/site/pc-gaming.webp", note: "AMD Ryzen 5 5600, GeForce RTX 2060 Super and 260 Hz gaming display." },
   { name: "PS5", regular: 700, offer: 700, unit: "hour", image: "/img/site/ps5.webp", note: "Two controllers included." },
-  { name: "Premium Snooker", regular: 12, offer: 12, unit: "per minute", image: "/img/site/snooker.webp", note: "Billed by the minute." },
+  { name: "Premium Snooker", regular: 12, offer: 12, unit: "minute", image: "/img/site/snooker.webp", note: "Billed by the minute." },
   { name: "Private Table Tennis", regular: 600, offer: 600, unit: "hour", image: "/img/site/table-tennis.webp", note: "Private room booking. Bats and balls included." },
 ] as const;
 
