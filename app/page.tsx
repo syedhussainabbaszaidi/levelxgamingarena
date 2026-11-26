@@ -80,7 +80,6 @@ export default function HomePage() {
           <div className="price-card-content"><span className="tag">{item.name}</span><h3>{item.name === "Private Table Tennis" ? "Private Table Tennis Room" : item.name}</h3>
             <div className="price">{item.name === "Premium Snooker" ? <>PKR 12<small> / minute</small></> : <>PKR {item.offer.toLocaleString("en-PK")}<small> / {item.unit}</small></>}</div><p>{item.note}</p>
 
-            {("midday" in item) && <div className="deal"><span>PC Mid Day · 9 AM–5 PM</span><b>PKR {item.midday} / hour</b></div>}
             {item.name === "PS5" && <div className="deal"><span>Extra controller</span><b>PKR 300 / hour</b></div>}
             <a className="rate-confirm-link" href={whatsappLink(`Hi Level X, please confirm the current ${item.name} rates and availability.`)} target="_blank" rel="noopener noreferrer"><span>{`Confirm ${item.name} rate`}</span><ArrowUpRight size={16} /></a>
           </div>
