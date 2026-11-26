@@ -56,10 +56,9 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
             </div>
           </div>
           <div className="activity-hero-price">
-            <span className="activity-price-kicker"><Zap size={14} /> CURRENT OFFER</span>
+            <span className="activity-price-kicker"><Zap size={14} /> CURRENT RATE</span>
             <strong>PKR {activity.offer.toLocaleString("en-PK")}</strong>
             <span className="activity-price-unit">/ {unitLabel}</span>
-            <del>Regular PKR {activity.price.toLocaleString("en-PK")}</del>
             <span className="activity-price-rule">Confirm today's offer with our team</span>
           </div>
           <div className="activity-hero-bottom"><span>GAME / COMPETE / CONNECT</span><span>{activityNumber} — 0{activities.length}</span></div>
@@ -88,8 +87,7 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
               </div>
               <div className="activity-detail-rate">
                 <div><span>Current offer</span><strong>PKR {activity.offer.toLocaleString("en-PK")} <small>/ {unitLabel}</small></strong></div>
-                <del>Regular PKR {activity.price.toLocaleString("en-PK")} / {unitLabel}</del>
-              </div>
+                </div>
               <WhatsAppButton message={`Hi Level X, I want to enquire about booking ${activity.name}. Preferred date: ____. Preferred time: ____. Number of players: ____. Please confirm availability and final price.`} label="Check availability" />
               <small className="activity-detail-disclaimer">Rates and offers are subject to confirmation by the arena team.</small>
             </div>
