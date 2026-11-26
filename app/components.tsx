@@ -27,6 +27,7 @@ export function Header() {
             </div>
             <Link href="/packages/">Packages</Link>
             <Link href="/gallery/">Gallery</Link>
+            <Link href="/gta-6/">GTA VI</Link>
             <Link href="/food-drinks/">Food & Drinks</Link>
           </nav>
           <div className="nav-actions">
