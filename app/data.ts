@@ -13,7 +13,7 @@ export const activities = [
     image: "/img/site/pc-gaming.webp",
     description: "Play on high-performance gaming PCs featuring AMD Ryzen 5 5600, NVIDIA GeForce RTX 2060 Super graphics and a 260 Hz gaming display. Popular titles include CS2, PUBG, VALORANT and DOTA.",
     capacity: "1 player per station",
-    features: ["AMD Ryzen 5 5600 processor", "NVIDIA GeForce RTX 2060 Super graphics", "260 Hz gaming LCD", "HyperX Cloud Alpha headset", "Keyboard and mouse options available", "Current rate: PKR 200/hour""],
+    features: ["AMD Ryzen 5 5600 processor", "NVIDIA GeForce RTX 2060 Super graphics", "260 Hz gaming LCD", "HyperX Cloud Alpha headset", "Keyboard and mouse options available", "Current rate: PKR 200/hour"],
   },
   {
     slug: "ps5",
