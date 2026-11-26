@@ -74,12 +74,12 @@ export default function HomePage() {
       </div></section>
 
       <section className="section pricing-section" id="packages"><div className="container">
-        <div className="section-heading-row"><SectionHeading eyebrow="Straightforward rates" title="Make every hour count." copy="Compare the published regular rates and offers. Time windows and minimum session durations apply to selected promotions; confirm the final rate with our team." /><span className="section-index">03 <i>/ PRICING</i></span></div>
+        <div className="section-heading-row"><SectionHeading eyebrow="Straightforward rates" title="Make every hour count." copy="See the current published rates and the X-Madness weekday offer. Confirm offer eligibility and availability with our team before visiting." /><span className="section-index">03 <i>/ PRICING</i></span></div>
         <div className="package-grid flagship-package-grid">{hourlyPackages.map((item, index) => <article className="price-card flagship-price-card" key={item.name}>
           <div className="package-card-image"><Image src={item.image} alt={item.name + " at Level X"} width={620} height={360} /><span className="package-image-label">0{index + 1} / PUBLISHED RATE</span></div>
           <div className="price-card-content"><span className="tag">{item.name}</span><h3>{item.name === "Private Table Tennis" ? "Private Table Tennis Room" : item.name}</h3>
             <div className="price">{item.name === "Premium Snooker" ? <>PKR 12<small> / minute</small></> : <>PKR {item.offer.toLocaleString("en-PK")}<small> / {item.unit}</small></>}</div><p>{item.note}</p>
-            <div className="deal"><span>Regular rate</span><b>{item.name === "Premium Snooker" ? "PKR 15 / minute" : `PKR ${item.regular.toLocaleString("en-PK")}`}</b></div>
+
             {item.monday && <div className="deal"><span>Monday Madness</span><b>{item.name === "Premium Snooker" ? "PKR 8 / minute" : `PKR ${item.monday.toLocaleString("en-PK")}`}</b></div>}
             {("midday" in item) && <div className="deal"><span>PC Mid Day · 9 AM–5 PM</span><b>PKR {item.midday} / hour</b></div>}
             {item.name === "PS5" && <div className="deal"><span>Extra controller</span><b>PKR 300 / hour</b></div>}
