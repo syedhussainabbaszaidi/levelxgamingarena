@@ -31,7 +31,7 @@ export function Header() {
           </nav>
           <div className="nav-actions">
             <a className="button button-primary nav-cta" href={whatsappLink("Hi Level X, I would like to book a gaming session. Please share availability.")} target="_blank" rel="noopener noreferrer">
-              <MessageCircle size={16} /> Book a session <ArrowUpRight size={15} />
+              <MessageCircle size={16} aria-label="Message us" /> <ArrowUpRight size={15} aria-hidden="true" />
             </a>
             <MobileMenu />
           </div>
