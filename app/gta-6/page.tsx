@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowDown, ArrowUpRight, CalendarDays, Gamepad2, MapPin, MonitorPlay, ShieldCheck, Sparkles } from "lucide-react";
 import "./gta-6.css";
 import { pageMetadata } from "../seo";
+import { gta6Packages, whatsappLink } from "../data";
 
 const officialSite = "https://www.rockstargames.com/VI";
 const launchNews = "https://www.rockstargames.com/newswire/article/39akk424a9oo53/grand-theft-auto-vi-now-available";
@@ -17,6 +18,7 @@ export const metadata: Metadata = pageMetadata({
 });
 
 const faqs = [
+  { question: "How much does it cost to play GTA 6 at Level X?", answer: "The current Level X GTA 6 session rates are PKR 1,000 for 1 hour, PKR 3,000 for 3 hours and PKR 5,000 for 5 hours. The 1-hour poster price shows a previous PKR 1,200 price crossed out." },
   { question: "Is GTA 6 released?", answer: "Yes. Rockstar Games announced that Grand Theft Auto VI became available worldwide on 19 November 2026." },
   { question: "Which platforms support GTA 6?", answer: "Rockstar lists PlayStation 5 and Xbox Series X|S as the launch platforms." },
   { question: "Where does GTA 6 take place?", answer: "The story is set in the fictional state of Leonida, including a modern-day return to Vice City." },
@@ -68,6 +70,25 @@ export default function GTA6Page() {
           <article><Gamepad2 size={20} /><span>PLATFORMS</span><strong>PS5 · Xbox Series X|S</strong></article>
           <article><MapPin size={20} /><span>SETTING</span><strong>Leonida · Vice City</strong></article>
           <article><ShieldCheck size={20} /><span>STATUS</span><strong>Released worldwide</strong></article>
+        </div>
+      </section>
+
+      <section className="gta-levelx-offer-section">
+        <div className="container">
+          <div className="gta-levelx-offer-copy">
+            <span className="eyebrow">LEVEL X / PLAY GTA VI</span>
+            <h2>Make Vice City <em>your next session.</em></h2>
+            <p>Play GTA 6 at Level X Gaming Arena. Choose your session duration and contact the team to confirm availability.</p>
+          </div>
+          <div className="gta-levelx-offer-grid">
+            {gta6Packages.map((item,index)=><article key={item.duration}>
+              <span>0{index+1} / GTA VI SESSION</span>
+              <small>{item.duration}</small>
+              <strong>PKR {item.price.toLocaleString("en-PK")}</strong>
+              {item.previousPrice&&<del>Was PKR {item.previousPrice.toLocaleString("en-PK")}</del>}
+              <a href={whatsappLink("Hi Level X, I would like to book a GTA 6 session for "+item.duration+". Please confirm availability.")} target="_blank" rel="noopener noreferrer">Enquire about this session <ArrowUpRight size={15}/></a>
+            </article>)}
+          </div>
         </div>
       </section>
 
