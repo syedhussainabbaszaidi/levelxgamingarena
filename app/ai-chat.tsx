@@ -9,25 +9,30 @@ type Stage = "details" | "language" | "chat";
 type ChatMessage = { role: "assistant" | "user"; text: string };
 
 const knowledge = [
-  { keys: ["location","address","where","map","directions","kahan","kidhar","pata","address"], en: "We’re at Federal B Area, Block 12, Karachi. Open the Contact page for Google Maps directions.", ur: "Hum Federal B Area, Block 12, Karachi mein hain. Google Maps directions ke liye Contact page dekhein." },
-  { keys: ["hour","timing","open","close","24","raat","time","kab"], en: "We’re open 24/7, every day.", ur: "Hum rozana 24 hours open hain." },
-  { keys: ["pc","computer","gaming pc","desktop","valorant","pubg","cs2","dota"], en: "PC Gaming: PKR 200/hour offer, PKR 250 regular. Mid Day: PKR 150/hour (9 AM–5 PM, min. 3 hours). Monday Madness: PKR 140/hour (min. 3 hours).", ur: "PC Gaming: offer PKR 200/hour, regular PKR 250. Mid Day PKR 150/hour (9 AM–5 PM, kam az kam 3 hours). Monday Madness PKR 140/hour (min. 3 hours)." },
-  { keys: ["ps5","playstation","console","controller","fifa"], en: "PS5: PKR 650/hour offer, PKR 1,000 regular. Two controllers included; an extra controller is PKR 300/hour.", ur: "PS5: offer PKR 650/hour, regular PKR 1,000. 2 controllers included hain; extra controller PKR 300/hour." },
-  { keys: ["snooker","cue","table"], en: "Premium Snooker: PKR 12/minute offer, PKR 15 regular. Monday Madness: PKR 8/minute.", ur: "Premium Snooker: offer PKR 12/minute, regular PKR 15. Monday Madness PKR 8/minute." },
-  { keys: ["tennis","table tennis","ping pong"], en: "Private Table Tennis Room: PKR 600/hour offer, PKR 800 regular. Bats and balls are included.", ur: "Private Table Tennis Room: offer PKR 600/hour, regular PKR 800. Bats aur balls included hain." },
-  { keys: ["pool","vip","private room","room"], en: "Pool Table and VIP Private Rooms are available as experiences. Please message our team for current rates and availability.", ur: "Pool Table aur VIP Private Rooms available experiences hain. Current rates aur availability ke liye team ko message karein." },
-  { keys: ["package","price","pricing","rate","cost","kitna","qeemat","discount","offer"], en: "You can compare all hourly rates and prepaid passes on the Packages page. Offers may have time limits or minimum sessions.", ur: "Tamam hourly rates aur prepaid passes Packages page par hain. Kuch offers ke time limits ya minimum session hours hain." },
-  { keys: ["pass","prepaid","account","5 hour","8 hour","10 hour","20 hour"], en: "Prepaid passes: 5 hours PKR 900, 8 hours PKR 1,400, 10 hours PKR 1,700 and 20 hours PKR 3,200. Player account is optional at PKR 1,000 one-time.", ur: "Prepaid passes: 5 hours PKR 900, 8 hours PKR 1,400, 10 hours PKR 1,700 aur 20 hours PKR 3,200. Player account optional hai, one-time PKR 1,000." },
-  { keys: ["book","booking","reserve","reservation","availability","book kar","booking kar"], en: "To book, share your activity, preferred date/time and number of players with our team on WhatsApp. They’ll confirm availability.", ur: "Booking ke liye activity, preferred date/time aur players ki tadaad WhatsApp par bhej dein. Team availability confirm kar degi." },
-  { keys: ["food","drink","menu","eat","khana"], en: "For today’s food and drinks menu, please contact the arena team on WhatsApp.", ur: "Aaj ke food aur drinks menu ke liye WhatsApp par arena team se rabta karein." },
+  { keys: ["location","address","where","map","directions","kahan","kidhar","pata"], en: "We’re at Federal B Area, Block 12, Karachi. Open the Contact page for Google Maps directions.", ur: "Hum Federal B Area, Block 12, Karachi mein hain. Google Maps directions ke liye Contact page dekhein." },
+  { keys: ["hour","timing","open","close","24","raat","time","kab"], en: "Level X is open 24 hours a day, every day.", ur: "Level X rozana 24 hours open hai." },
+  { keys: ["x madness","x-madness","madness offer","100 per hour","100 rupees","special offer"], en: "The X-Madness offer is PKR 100 per hour, Monday to Thursday, from 9 AM to 5 PM. Please confirm eligible games and availability with the arena team.", ur: "X-Madness offer Rs. 100 per hour hai, Monday se Thursday, subah 9 se shaam 5 baje tak. Eligible games aur availability team se confirm kar lein." },
+  { keys: ["pc","computer","gaming pc","desktop","valorant","pubg","cs2","dota"], en: "PC Gaming is PKR 200 per hour. The setup poster lists an AMD Ryzen 5 5600, NVIDIA GeForce RTX 2060 Super, 260 Hz gaming LCD and HyperX Cloud Alpha headset. Keyboard and mouse options are also shown.", ur: "PC Gaming Rs. 200 per hour hai. Setup mein AMD Ryzen 5 5600, NVIDIA GeForce RTX 2060 Super, 260 Hz gaming LCD aur HyperX Cloud Alpha headset listed hain. Keyboard aur mouse ke options bhi hain." },
+  { keys: ["ps5","playstation","console","controller","fifa"], en: "PS5 gaming is PKR 700 per hour. Please message the arena team to check session availability.", ur: "PS5 gaming Rs. 700 per hour hai. Session availability ke liye arena team ko message kar dein." },
+  { keys: ["snooker","cue"], en: "Snooker is PKR 12 per minute.", ur: "Snooker Rs. 12 per minute hai." },
+  { keys: ["tennis","table tennis","ping pong"], en: "Table Tennis is PKR 600 per hour.", ur: "Table Tennis Rs. 600 per hour hai." },
+  { keys: ["gta 6","gta6","gta vi","grand theft auto"], en: "Play GTA 6 at Level X: 1 hour PKR 1,000 (poster shows the previous PKR 1,200 price crossed out), 3 hours PKR 3,000, or 5 hours PKR 5,000. Ask the team to confirm availability.", ur: "Level X par GTA 6 khelne ke rates: 1 hour Rs. 1,000 (poster par purana Rs. 1,200 rate cut hai), 3 hours Rs. 3,000, ya 5 hours Rs. 5,000. Availability team se confirm kar lein." },
+  { keys: ["membership","member","prepaid","pass","5 hour","8 hour","10 hour","20 hour","account"], en: "PC Gaming membership bundles: 5 hours PKR 900, 8 hours PKR 1,400, 10 hours PKR 1,700 and 20 hours PKR 3,200. Account opening is free. These are PC Gaming membership packages.", ur: "PC Gaming membership bundles: 5 hours Rs. 900, 8 hours Rs. 1,400, 10 hours Rs. 1,700 aur 20 hours Rs. 3,200. Account opening free hai. Ye PC Gaming membership packages hain." },
+  { keys: ["zinger","burger","sandwich","panini","ande wala"], en: "Cafe menu: Zinger Burger PKR 500, Grilled Chicken Cheese Burger PKR 450, Ande Wala Burger PKR 250 and Panini Sandwich PKR 600.", ur: "Cafe menu: Zinger Burger Rs. 500, Grilled Chicken Cheese Burger Rs. 450, Ande Wala Burger Rs. 250 aur Panini Sandwich Rs. 600." },
+  { keys: ["fries","mayo fries","masala fries","chowmein","snack","snacks"], en: "Cafe snacks: Mayo Fries PKR 230, Plain / Masala Fries PKR 180 and Chowmein PKR 600.", ur: "Cafe snacks: Mayo Fries Rs. 230, Plain / Masala Fries Rs. 180 aur Chowmein Rs. 600." },
+  { keys: ["pepsi","sting","water","x-water","beverage","drink","drinks"], en: "Beverages: Pepsi PKR 100, Sting PKR 120 and X-Water PKR 60.", ur: "Drinks: Pepsi Rs. 100, Sting Rs. 120 aur X-Water Rs. 60." },
+  { keys: ["food","menu","eat","khana","cafe"], en: "Here are the latest listed cafe prices: Zinger Burger PKR 500; Grilled Chicken Cheese Burger PKR 450; Ande Wala Burger PKR 250; Panini Sandwich PKR 600; Mayo Fries PKR 230; Plain / Masala Fries PKR 180; Chowmein PKR 600; Pepsi PKR 100; Sting PKR 120; X-Water PKR 60. Availability can be confirmed with the team.", ur: "Latest cafe prices: Zinger Burger Rs. 500; Grilled Chicken Cheese Burger Rs. 450; Ande Wala Burger Rs. 250; Panini Sandwich Rs. 600; Mayo Fries Rs. 230; Plain / Masala Fries Rs. 180; Chowmein Rs. 600; Pepsi Rs. 100; Sting Rs. 120; X-Water Rs. 60. Availability team se confirm kar lein." },
+  { keys: ["package","price","pricing","rate","cost","kitna","qeemat"], en: "Current rates: PC Gaming PKR 200/hour, PS5 PKR 700/hour, Snooker PKR 12/minute and Table Tennis PKR 600/hour. View the Packages page for memberships and the X-Madness offer.", ur: "Current rates: PC Gaming Rs. 200/hour, PS5 Rs. 700/hour, Snooker Rs. 12/minute aur Table Tennis Rs. 600/hour. Membership aur X-Madness offer ke liye Packages page dekhein." },
+  { keys: ["pool","vip","private room","room"], en: "Pool Table and VIP Private Rooms are listed as available experiences. Please message our team for current rates and availability.", ur: "Pool Table aur VIP Private Rooms available experiences mein listed hain. Current rates aur availability ke liye team ko message karein." },
+  { keys: ["book","booking","reserve","reservation","availability","book kar"], en: "To book, share your activity, preferred date/time and number of players with our team on WhatsApp. They’ll confirm availability.", ur: "Booking ke liye activity, preferred date/time aur players ki tadaad WhatsApp par bhej dein. Team availability confirm kar degi." },
   { keys: ["payment","pay","cash","online","card"], en: "Payment is made at the arena counter. The website does not collect online payments.", ur: "Payment arena counter par hoti hai. Website par online payment nahi hoti." },
   { keys: ["phone","call","contact","whatsapp","number","live agent","human","person","team"], en: "You can reach the team on WhatsApp or call +92 342 2631057.", ur: "Aap WhatsApp ya call par team se rabta kar sakte hain: +92 342 2631057." },
   { keys: ["group","friend","player","people","capacity"], en: "Group size depends on the activity. Tell our team which game you’re planning and how many players are coming.", ur: "Group size activity par depend karta hai. Game aur players ki tadaad team ko bata dein." },
 ];
 
 const suggestions = {
-  en: ["What are PC gaming rates?","Where are you located?","How can I book a session?","Are you open 24/7?"],
-  ur: ["PC gaming ke rates kya hain?","Location kahan hai?","Booking kaise karun?","Kya 24 hours open hain?"],
+  en: ["What are the current game rates?","What is the GTA 6 offer?","Show me the cafe menu","What is X-Madness?"],
+  ur: ["Games ke current rates kya hain?","GTA 6 ka offer kya hai?","Cafe menu aur prices batao","X-Madness offer kya hai?"],
 };
 
 function getAnswer(question: string, language: Language) {
@@ -46,8 +51,8 @@ function getAnswer(question: string, language: Language) {
   });
   if (best >= 0 && score >= 1) return knowledge[best][language];
   return language === "en"
-    ? "I can help with games, rates, timings, location and bookings. Try a suggested question or chat with our team."
-    : "Main games, rates, timings, location aur booking mein help kar sakta hoon. Suggested sawal try karein ya team se baat karein.";
+    ? "I can help with game rates, GTA 6 sessions, PC memberships, the cafe menu, special offers, timings, location and bookings. Try a suggested question or chat with our team."
+    : "Main game rates, GTA 6 sessions, PC memberships, cafe menu, special offers, timings, location aur booking mein help kar sakta hoon. Suggested sawal try karein ya team se baat karein.";
 }
 
 export function AIChat() {
