@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, CheckCircle2, ChevronDown, Clock3, Gamepad2, Headphones, MessageCircle, ShieldCheck, Trophy, Users } from "lucide-react";
-import { activities, additionalExperiences, accountPackages, faqs, gallery, hourlyPackages, whatsappLink } from "./data";
+import { activities, additionalExperiences, accountPackages, faqs, hourlyPackages, whatsappLink } from "./data";
 import { SectionHeading, WhatsAppButton } from "./components";
 import { pageMetadata } from "./seo";
 
@@ -118,11 +118,6 @@ export default function HomePage() {
           <div className="food-preview-copy"><span className="eyebrow">MORE THAN GAME TIME</span><h2>Good games.<br/><em>Good company.</em></h2><p>Make room for a refreshment between sessions. Ask the Level X team about the current food, drinks and combo selection before your visit.</p><Link className="button button-outline" href="/food-drinks/">Explore food & drinks <ArrowRight size={16}/></Link><small>Menu items, availability and prices are confirmed directly by the arena.</small></div>
         </div>
       </section>
-
-      <section className="section alt gallery-section" id="gallery"><div className="container">
-        <div className="section-heading-row"><SectionHeading eyebrow="Inside Level X" title="A look around the arena." copy="Take a look at the gaming setups and spaces at Level X." /><span className="section-index">04 <i>/ GALLERY</i></span></div>
-        <div className="gallery-grid flagship-gallery-grid">{gallery.map((item, index) => <div className={`gallery-card gallery-card-${index + 1}`} key={item.src}><Image src={item.src} alt={item.title + " at Level X Gaming Arena"} width={700} height={480} /><span>{item.title}</span></div>)}</div>
-      </div></section>
 
       <section className="section faq-section"><div className="container faq-layout">
         <div className="faq-intro"><span className="eyebrow">Before you visit</span><h2>Good to know.<br /><em>Ready to play.</em></h2><p>Quick answers about booking, payment, opening hours and the activities available at Level X.</p><WhatsAppButton message="Hi Level X, I have a question before visiting. Could you please help?" label="Ask our team" /></div>
