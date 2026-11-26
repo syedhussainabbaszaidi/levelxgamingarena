@@ -67,7 +67,7 @@ export function Footer() {
           <p className="footer-copy">Level X Gaming Arena in Karachi brings PC gaming, PlayStation 5, premium snooker, pool and private table tennis together. Open 24/7 for players, friends and groups.</p>
           <div className="footer-social-note"><span className="live-dot" /> Open 24 hours · Every day</div>
         </div>
-        <details className="footer-group footer-accordion">
+        <details open className="footer-group footer-accordion">
           <summary><h4>Explore</h4><ChevronDown size={15}/></summary>
           <div className="footer-accordion-links">
           <Link href="/activities/">All activities</Link>
@@ -79,7 +79,7 @@ export function Footer() {
           <Link href="/gta-6/">GTA VI guide</Link>
           </div>
         </details>
-        <details className="footer-group footer-accordion">
+        <details open className="footer-group footer-accordion">
           <summary><h4>Plan your visit</h4><ChevronDown size={15}/></summary>
           <div className="footer-accordion-links">
           <Link href="/packages/">Packages & pricing</Link>
