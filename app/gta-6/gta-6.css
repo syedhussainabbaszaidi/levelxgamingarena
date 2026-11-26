@@ -56,3 +56,18 @@
 .gta-guide-cards p{margin:0;color:#aeb4c1;font-size:13px;line-height:1.85}
 @media(max-width:900px){.gta-guide-cards{grid-template-columns:1fr}}
 @media(max-width:640px){.gta-game-guide-section{padding:70px 0}.gta-guide-cards article{padding:22px}}
+
+
+.gta-levelx-offer-section{padding:88px 0;background:radial-gradient(ellipse at 80% 20%,rgba(255,42,92,.16),transparent 42%),linear-gradient(135deg,#11151f,#090b11);border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08)}
+.gta-levelx-offer-copy{max-width:720px;margin-bottom:30px}
+.gta-levelx-offer-copy h2{margin:12px 0;font-size:clamp(32px,5vw,54px);line-height:1.05}
+.gta-levelx-offer-copy h2 em{color:#ff526d;font-style:normal}
+.gta-levelx-offer-copy p{max-width:620px;color:#b7bdc9;line-height:1.8}
+.gta-levelx-offer-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.gta-levelx-offer-grid article{display:flex;flex-direction:column;min-width:0;padding:24px;border:1px solid rgba(255,255,255,.13);border-radius:15px;background:linear-gradient(145deg,#1b202c,#10131b);box-shadow:0 18px 45px #0003}
+.gta-levelx-offer-grid article>span{color:#ff7186;font-size:9px;font-weight:800;letter-spacing:.15em}
+.gta-levelx-offer-grid article>small{margin-top:22px;color:#b7bdc9;font-size:13px}
+.gta-levelx-offer-grid article>strong{margin:6px 0;color:#fff;font-size:clamp(27px,3vw,38px);font-weight:900}
+.gta-levelx-offer-grid article>del{color:#858b99;font-size:12px}
+.gta-levelx-offer-grid article>a{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:24px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1);color:#ff7186;font-size:12px;font-weight:800}
+@media(max-width:760px){.gta-levelx-offer-section{padding:66px 0}.gta-levelx-offer-grid{grid-template-columns:1fr}.gta-levelx-offer-grid article{padding:21px}.gta-levelx-offer-grid article>small{margin-top:12px}}
