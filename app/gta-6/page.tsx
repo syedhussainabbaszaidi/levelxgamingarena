@@ -85,7 +85,7 @@ export default function GTA6Page() {
               <span>0{index+1} / GTA VI SESSION</span>
               <small>{item.duration}</small>
               <strong>PKR {item.price.toLocaleString("en-PK")}</strong>
-              {item.previousPrice&&<del>Was PKR {item.previousPrice.toLocaleString("en-PK")}</del>}
+              {"previousPrice" in item && <del>Was PKR {item.previousPrice.toLocaleString("en-PK")}</del>}
               <a href={whatsappLink("Hi Level X, I would like to book a GTA 6 session for "+item.duration+". Please confirm availability.")} target="_blank" rel="noopener noreferrer">Enquire about this session <ArrowUpRight size={15}/></a>
             </article>)}
           </div>
