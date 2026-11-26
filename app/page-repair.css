@@ -1737,3 +1737,13 @@ main section{min-width:0}
 .x-madness-package-banner>strong{color:#fff;font-size:clamp(30px,4vw,44px);white-space:nowrap}
 .x-madness-package-banner>strong small{color:#b7bdc9;font-size:13px;font-weight:600}
 @media(max-width:560px){.x-madness-package-banner{align-items:flex-start;flex-direction:column;gap:12px;padding:23px}}
+
+
+/* Site-wide typography: Outfit is the single font family across every page and component. */
+:root{--font-outfit:"Outfit",sans-serif}
+body,body *{font-family:var(--font-outfit)!important}
+
+/* PS5 session features: four evenly sized cards on one desktop row. */
+.activity-feature-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:900px){.activity-feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:390px){.activity-feature-grid{grid-template-columns:1fr}}
