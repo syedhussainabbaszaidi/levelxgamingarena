@@ -11,8 +11,7 @@ const links = [
   { href: "/activities/", label: "Activities", note: "Every way to play" },
   { href: "/gallery/", label: "Gallery", note: "Inside Level X" },
   { href: "/food-drinks/", label: "Food & drinks", note: "Ask about today's menu" },
-  { href: "/about-us/", label: "About us", note: "Our story" },
-  { href: "/contact-us/", label: "Contact", note: "Plan your visit" },
+  { href: "/packages/", label: "Packages", note: "Rates and prepaid passes" },
 ];
 
 const serviceLinks = [
@@ -22,7 +21,6 @@ const serviceLinks = [
   { href: "/activities/private-table-tennis-room/", label: "Table Tennis", note: "Private table tennis room", Icon: Table2 },
   { href: "/activities/", label: "Pool Table", note: "Explore cue sports", Icon: CircleDot },
   { href: "/activities/", label: "VIP Private Rooms", note: "Private gaming spaces", Icon: Crown },
-  { href: "/activities/", label: "All activities", note: "See every experience", Icon: ArrowUpRight },
 ] as const;
 
 export function MobileMenu() {
@@ -111,19 +109,13 @@ export function MobileMenu() {
                       {serviceLinks.map(({ href, label, note, Icon }) => <Link className="mobile-service-card" href={href} key={label} onClick={close}><span className="mobile-service-icon"><Icon size={19}/></span><strong>{label}</strong><small>{note}</small><ArrowUpRight className="mobile-service-arrow" size={14}/></Link>)}
                     </div>
                   </section>
-                  <section className="mobile-packages-panel">
-                    <h3>Packages</h3>
-                    <Link href="/packages/#hourly-rates" onClick={close}><span><strong>Hourly rates</strong><small>Compare current session pricing</small></span><ArrowUpRight size={15}/></Link>
-                    <Link href="/packages/#account-passes" onClick={close}><span><strong>Prepaid passes</strong><small>Play-time bundles</small></span><ArrowUpRight size={15}/></Link>
-                    <Link href="/packages/" onClick={close}><span><strong>All packages</strong><small>View every available rate</small></span><ArrowUpRight size={15}/></Link>
-                  </section>
                 </div>
               </div>
             ) : (
               <>
                 <nav className="mobile-nav" aria-label="Mobile navigation">
                   {links.slice(0,2).map((item,index)=><Link className="mobile-nav-item" href={item.href} onClick={close} key={item.href}><span className="mobile-nav-number">0{index+1}</span><span className="mobile-nav-label"><strong>{item.label}</strong><small>{item.note}</small></span></Link>)}
-                  <button className="mobile-nav-item mobile-nav-parent" type="button" aria-expanded={nestedOpen} onClick={()=>setNestedOpen(true)}><span className="mobile-nav-number">03</span><span className="mobile-nav-label"><strong>Packages & Services</strong><small>Browse rates and gaming options</small></span><ChevronRight size={19}/></button>
+                  <button className="mobile-nav-item mobile-nav-parent" type="button" aria-expanded={nestedOpen} onClick={()=>setNestedOpen(true)}><span className="mobile-nav-number">03</span><span className="mobile-nav-label"><strong>Services</strong><small>Explore gaming experiences</small></span><ChevronRight size={19}/></button>
                   {links.slice(2).map((item,index)=><Link className="mobile-nav-item" href={item.href} onClick={close} key={item.href}><span className="mobile-nav-number">0{index+5}</span><span className="mobile-nav-label"><strong>{item.label}</strong><small>{item.note}</small></span></Link>)}
                 </nav>
                 <div className="mobile-nav-bottom">
