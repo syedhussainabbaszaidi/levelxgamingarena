@@ -48,7 +48,6 @@ export default async function ActivityPage({ params }: { params: Promise<{ slug:
           <Link href="/activities/" className="activity-back-link"><ArrowLeft size={15} /> All activities</Link>
           <div className="activity-hero-copy">
             <span className="activity-index">LEVEL X / EXPERIENCE {activityNumber}</span>
-            <span className="eyebrow">{activity.category} · KARACHI</span>
             <h1>{activity.name}</h1>
             <p>{activity.description}</p>
             <div className="activity-hero-actions">
