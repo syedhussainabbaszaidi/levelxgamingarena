@@ -1794,3 +1794,8 @@ body,body *{font-family:var(--font-outfit)!important}
     font-size:13px!important;
   }
 }
+
+
+/* X-Madness offer heading: keep the full title bright white for clear contrast. */
+.x-madness-package-banner h3,
+.x-madness-package-banner h3 em{color:#fff!important}
