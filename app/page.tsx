@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, CheckCircle2, ChevronDown, Clock3, Gamepad2, Headphones, MessageCircle, ShieldCheck, Trophy, Users } from "lucide-react";
-import { activities, additionalExperiences, accountPackages, faqs, hourlyPackages, whatsappLink } from "./data";
+import { activities, additionalExperiences, accountPackages, faqs, hourlyPackages, whatsappLink, xMadnessOffer } from "./data";
 import { SectionHeading, WhatsAppButton } from "./components";
 import { pageMetadata } from "./seo";
 
@@ -84,6 +84,11 @@ export default function HomePage() {
             <a className="rate-confirm-link" href={whatsappLink(`Hi Level X, please confirm the current ${item.name} rates and availability.`)} target="_blank" rel="noopener noreferrer"><span>{`Confirm ${item.name} rate`}</span><ArrowUpRight size={16} /></a>
           </div>
         </article>)}</div>
+        <div className="x-madness-package-banner">
+          <div><span className="eyebrow">LIMITED-TIME ARENA OFFER</span><h3>X-Madness <em>Offer</em></h3><p>{xMadnessOffer.days} · {xMadnessOffer.hours}</p></div>
+          <strong>PKR {xMadnessOffer.price.toLocaleString("en-PK")} <small>/ {xMadnessOffer.unit}</small></strong>
+        </div>
+        <p className="packages-rate-note"><Clock3 size={17}/><span>The X-Madness offer is listed for Monday to Thursday, 9 AM to 5 PM. Please confirm eligible games and availability with our team before visiting.</span></p>
         <div className="account-package-panel flagship-account-panel">
           <div className="account-panel-heading"><div className="section-heading account-heading"><span className="eyebrow">PC Gaming membership</span><h2>Top up your play time.</h2><p>PC Gaming membership bundles with free account opening.</p></div><span className="account-panel-mark">LX / PASS</span></div>
           <div className="account-grid">{accountPackages.map((item, index) => <article className="account-card" key={item.name}><span>0{index + 1} / {item.hours}</span><strong>PKR {item.price.toLocaleString("en-PK")}</strong><b>{item.name}</b><p className="muted">{item.description}</p><a className="text-link" href={whatsappLink(`Hi Level X, I am interested in the ${item.name} account package.`)} target="_blank" rel="noopener noreferrer">Enquire <ArrowUpRight size={14} /></a></article>)}</div>
