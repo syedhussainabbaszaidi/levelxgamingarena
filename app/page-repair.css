@@ -1747,3 +1747,50 @@ body,body *{font-family:var(--font-outfit)!important}
 .activity-feature-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
 @media(max-width:900px){.activity-feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:390px){.activity-feature-grid{grid-template-columns:1fr}}
+
+/* Readability pass: keep pricing units and important supporting copy comfortably legible. */
+.flagship-price-card .price small,
+.price-card .price small,
+.price-line .muted,
+.premium-price-main span,
+.activity-price-unit,
+.activity-detail-rate small,
+.x-madness-package-banner>strong small{
+  display:inline-block;
+  color:#d1d5df!important;
+  font-size:14px!important;
+  font-weight:600!important;
+  letter-spacing:0!important;
+  line-height:1.4!important;
+  vertical-align:baseline;
+}
+.flagship-price-card .price,
+.price-card .price,
+.premium-price-main strong,
+.price-line strong{
+  letter-spacing:-.025em!important;
+}
+.flagship-price-card .price small,
+.price-card .price small{
+  white-space:nowrap;
+}
+.flagship-price-card .price,
+.flagship-price-card .price *,
+.price-card .price,
+.price-card .price *{
+  word-spacing:normal!important;
+}
+.activity-capacity span,
+.price-current-label,
+.package-image-label{
+  letter-spacing:.015em!important;
+}
+@media(max-width:760px){
+  .flagship-price-card .price small,
+  .price-card .price small,
+  .price-line .muted,
+  .premium-price-main span,
+  .activity-price-unit{
+    font-size:13px!important;
+  }
+}
